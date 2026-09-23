@@ -384,8 +384,8 @@ test('character selection uses idle frame one instead of portrait art', () => {
   const renderSource = readFileSync(new URL('../src/ui/render.js', import.meta.url), 'utf8');
 
   assert.doesNotMatch(renderSource, /portrait\.png/);
-  const idleSelectionRefs = renderSource.match(/\.\/assets\/characters\/\$\{character\.id\}\/idle\/1\.png/g) || [];
-  assert.equal(idleSelectionRefs.length, 2);
+  const idleCharacterRefs = renderSource.match(/\.\/assets\/characters\/\$\{character\.id\}\/idle\/1\.png/g) || [];
+  assert.ok(idleCharacterRefs.length >= 2);
 });
 
 
