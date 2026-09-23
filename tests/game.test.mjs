@@ -6,6 +6,7 @@ import { getCharacter } from '../src/data/characters.js';
 import { CARD_LIBRARY, CARD_ANIMATION_CLASSES, getCard } from '../src/data/cards.js';
 import { ENEMIES } from '../src/data/enemies.js';
 import { animationFramePath } from '../src/ui/animations.js';
+import { shouldIgnoreBackdropAction } from '../src/ui/render.js';
 
 global.localStorage = {
   data: new Map(),
@@ -304,4 +305,28 @@ test('animation frame paths follow the documented PNG convention', () => {
     animationFramePath('character-effects', 'bastion', 'defensive', 12),
     './assets/characters/bastion/effects/defensive/12.png',
   );
+});
+
+
+test('modal backdrop delegation lets X buttons work without closing on panel clicks', () => {
+  const backdrop = {
+    classList: {
+      contains(name) {
+        return name === 'handbook-backdrop';
+      },
+    },
+  };
+  const panelChild = {};
+
+  assert.equal(shouldIgnoreBackdropAction(panelChild, backdrop), true);
+  assert.equal(shouldIgnoreBackdropAction(backdrop, backdrop), false);
+
+  const closeButton = {
+    classList: {
+      contains() {
+        return false;
+      },
+    },
+  };
+  assert.equal(shouldIgnoreBackdropAction(closeButton, closeButton), false);
 });
