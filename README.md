@@ -5,11 +5,11 @@ Deckrush is a fast, browser-only score-attack deckbuilder roguelite built around
 ## Current prototype
 
 - Endless runs that continue until the player dies, with a boss every 8 fights.
-- Two playable characters with distinct starting decks and reward pools: Viper (Poison) and Bastion (Block).
+- Three playable characters with distinct starting decks and reward pools: Viper (Poison), Bastion (Block), and Rune (Arcane).
 - Heat 0–3 selected before every encounter.
 - Single score total: score only goes up; taking damage instead breaks Combo and reduces Multiplier.
 - Combo and multiplier systems designed around high-score routing.
-- 20+ data-driven cards and several enemy archetypes.
+- 40+ data-driven cards and several enemy archetypes.
 - Deterministic Weekly Seed mode that resets every Monday.
 - Local personal/weekly records via `localStorage`.
 - Nightfall-inspired three-column main menu with a dark-fantasy hero showcase and dedicated character-selection overlay.
