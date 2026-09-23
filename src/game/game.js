@@ -4,7 +4,7 @@ import { STARTING_DECK, REWARD_POOL, getCard } from '../data/cards.js';
 import { ENEMIES, NORMAL_ENEMIES, ELITE_ENEMIES, BOSS_ID } from '../data/enemies.js';
 
 const HAND_SIZE = 5;
-const MAX_ENCOUNTERS = 8;
+const BOSS_INTERVAL = 8;
 
 export class Game {
   constructor() {
@@ -67,23 +67,27 @@ export class Game {
 
   startEncounter() {
     const s = this.state;
-    const isBoss = s.encounterIndex === MAX_ENCOUNTERS - 1;
-    const eliteChance = s.encounterIndex >= 2 ? 0.28 : 0;
+    const fightNumber = s.encounterIndex + 1;
+    const isBoss = fightNumber % BOSS_INTERVAL === 0;
+    const eliteChance = Math.min(0.18 + s.encounterIndex * 0.012, 0.42);
     const enemyId = isBoss
       ? BOSS_ID
       : this.rng.pick(this.rng.next() < eliteChance ? ELITE_ENEMIES : NORMAL_ENEMIES);
     const def = ENEMIES[enemyId];
     const heat = s.selectedHeat;
-    const hp = Math.round(def.hp * (1 + heat * 0.16));
+    const endlessHpScale = 1 + s.encounterIndex * 0.07;
+    const endlessDamageBonus = Math.floor(s.encounterIndex / 4);
+    const endlessRewardScale = 1 + s.encounterIndex * 0.05;
+    const hp = Math.round(def.hp * endlessHpScale * (1 + heat * 0.16));
 
     s.enemy = {
       id: def.id,
       name: def.name,
       maxHp: hp,
       hp,
-      baseDamage: def.damage,
+      baseDamage: def.damage + endlessDamageBonus,
       scaling: def.scaling,
-      reward: def.reward,
+      reward: Math.round(def.reward * endlessRewardScale),
       elite: def.elite,
       boss: def.boss,
       trait: def.trait,
@@ -102,7 +106,7 @@ export class Game {
     s.hand = [];
     this.draw(HAND_SIZE);
     s.phase = 'combat';
-    this.pushLog(`${def.name} enters at Heat ${heat}.`);
+    this.pushLog(`Fight ${fightNumber}: ${def.name} enters at Heat ${heat}.`);
     this.emit();
   }
 
@@ -275,8 +279,7 @@ export class Game {
       this.pushLog(`PERFECT +${perfect}`);
     }
     if (e.boss) {
-      this.endRun(true, 'The Auditor is defeated');
-      return;
+      this.pushLog('BOSS CLEARED — the run continues.');
     }
 
     s.rewardOptions = this.rollRewards(3);
@@ -329,6 +332,7 @@ export class Game {
       fightsPerfect: s.stats.fightsPerfect,
       damageTaken: s.stats.damageTaken,
       overkill: s.stats.overkill,
+      fightsCleared: s.encounterIndex,
       elapsedMs: this.getElapsedMs(),
     };
     s.save = saveRunResult(s.result);
