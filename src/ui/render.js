@@ -44,7 +44,6 @@ function cardMarkup(card, index = null, action = null) {
   return `
     <button class="card card--${rarity}" ${attrs} ${action ? '' : 'disabled'}>
       <div class="card__top"><span class="card__cost">${card.cost}</span><span class="card__rarity">${rarity}</span></div>
-      <span class="card__animation-class card__animation-class--${card.animationClass}">${card.animationClass}</span>
       <div class="card__art" aria-hidden="true">${cardArtMarkup(card)}</div>
       <strong class="card__name">${card.name}</strong>
       <p>${card.description}</p>
@@ -73,7 +72,6 @@ function combatCardMarkup(card, index, energy, handSize) {
         <span class="card__cost">${card.cost}</span>
         <span class="card__rarity">${rarity}</span>
       </div>
-      <span class="card__animation-class card__animation-class--${card.animationClass}">${card.animationClass}</span>
       <div class="card__art" aria-hidden="true">${cardArtMarkup(card)}</div>
       <strong class="card__name">${card.name}</strong>
       <p>${card.description}</p>
@@ -644,8 +642,7 @@ export class Renderer {
           ${cards.slice().sort((a, b) => a.name.localeCompare(b.name)).map((card) => `
             <article class="handbook-card handbook-card--${card.rarity}">
               <div class="handbook-card__top"><span class="card__cost">${card.cost}</span><span class="card__rarity">${card.rarity}</span></div>
-              <span class="card__animation-class card__animation-class--${card.animationClass}">${card.animationClass}</span>
-              <div class="handbook-card__art" aria-hidden="true">${cardArtMarkup(card)}</div>
+                      <div class="handbook-card__art" aria-hidden="true">${cardArtMarkup(card)}</div>
               <h3>${card.name}</h3>
               <p>${card.description}</p>
               <div class="handbook-card__tags">${card.tags.map((tag) => `<span>${tag}</span>`).join('')}</div>
