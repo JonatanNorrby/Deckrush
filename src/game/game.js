@@ -163,6 +163,7 @@ export class Game {
       case 'energy': s.player.energy += effect.amount; break;
       case 'halveCombo': s.score.combo = Math.floor(s.score.combo / 2); break;
       case 'resetCombo': s.score.combo = 0; break;
+      case 'score': this.addScore(effect.amount); break;
       case 'scorePerCombo': this.addScore(effect.amount * s.score.combo); break;
       case 'enemyStrength': s.enemy.strength += effect.amount; break;
       case 'conditionalScore': if (s.score.combo >= effect.comboAtLeast) this.addScore(effect.amount); break;
