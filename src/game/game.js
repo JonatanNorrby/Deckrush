@@ -44,10 +44,10 @@ export class Game {
       hand: [],
       enemy: null,
       rewardOptions: [],
-      score: { banked: 0, pending: 0, combo: 0, multiplier: 1, maxCombo: 0, maxMultiplier: 1 },
+      score: { total: 0, combo: 0, multiplier: 1, maxCombo: 0, maxMultiplier: 1 },
       stats: { biggestHit: 0, cardsPlayed: 0, fightsPerfect: 0, damageTaken: 0, overkill: 0 },
       fight: { damageTaken: 0, turn: 1 },
-      log: ['Run started. Push the multiplier, then cash out before it hurts.'],
+      log: ['Run started. Build Combo, push the multiplier, and make every hit worth more.'],
       result: null,
     };
     this.emit();
@@ -161,14 +161,11 @@ export class Game {
       case 'multiplier': this.addMultiplier(effect.amount); break;
       case 'multiplierPerCombo': this.addMultiplier(effect.amount * s.score.combo); break;
       case 'energy': s.player.energy += effect.amount; break;
-      case 'bank': this.bankPending(); break;
-      case 'bankFraction': this.bankPending(effect.amount); break;
       case 'halveCombo': s.score.combo = Math.floor(s.score.combo / 2); break;
       case 'resetCombo': s.score.combo = 0; break;
-      case 'scorePerCombo': this.addPending(effect.amount * s.score.combo); break;
-      case 'doublePending': s.score.pending = Math.round(s.score.pending * 2); break;
+      case 'scorePerCombo': this.addScore(effect.amount * s.score.combo); break;
       case 'enemyStrength': s.enemy.strength += effect.amount; break;
-      case 'conditionalScore': if (s.score.combo >= effect.comboAtLeast) this.addPending(effect.amount); break;
+      case 'conditionalScore': if (s.score.combo >= effect.comboAtLeast) this.addScore(effect.amount); break;
       default: break;
     }
   }
@@ -192,9 +189,9 @@ export class Game {
     return multiplier * heatFactor * comboFactor;
   }
 
-  addPending(baseAmount) {
+  addScore(baseAmount) {
     const gained = Math.max(0, Math.round(baseAmount * this.scoreFactor()));
-    this.state.score.pending += gained;
+    this.state.score.total += gained;
     return gained;
   }
 
@@ -203,21 +200,21 @@ export class Game {
     if (!s.enemy) return;
     s.enemy.hp -= amount;
     s.stats.biggestHit = Math.max(s.stats.biggestHit, amount);
-    this.addPending(amount * 10);
+    this.addScore(amount * 10);
 
     const overkill = Math.max(0, -s.enemy.hp);
     if (overkill > 0) {
       s.stats.overkill += overkill;
-      const bonus = this.addPending(overkill * 28);
+      const bonus = this.addScore(overkill * 28);
       this.pushLog(`OVERKILL +${bonus}`);
     }
 
     if (s.enemy.hp <= 0) {
-      if (effect.killScore) this.addPending(effect.killScore);
-      if (effect.perfectKillScore && s.fight.damageTaken === 0) this.addPending(effect.perfectKillScore);
+      if (effect.killScore) this.addScore(effect.killScore);
+      if (effect.perfectKillScore && s.fight.damageTaken === 0) this.addScore(effect.perfectKillScore);
       this.finishEncounter();
     } else if (effect.lowHpScore && s.enemy.hp <= effect.lowHpThreshold) {
-      this.addPending(effect.lowHpScore);
+      this.addScore(effect.lowHpScore);
     }
   }
 
@@ -225,14 +222,6 @@ export class Game {
     const s = this.state;
     s.player.hp = Math.max(1, s.player.hp - amount);
     this.pushLog(`Risk cost: ${amount} HP.`);
-  }
-
-  bankPending(fraction = 1) {
-    const s = this.state;
-    const amount = Math.round(s.score.pending * fraction);
-    s.score.pending -= amount;
-    s.score.banked += amount;
-    this.pushLog(`BANKED +${amount}`);
   }
 
   endTurn() {
@@ -264,12 +253,10 @@ export class Game {
       s.player.hp -= damage;
       s.fight.damageTaken += damage;
       s.stats.damageTaken += damage;
-      const lost = Math.round(s.score.pending * 0.25);
-      s.score.pending = Math.max(0, s.score.pending - lost);
       s.score.combo = 0;
       s.score.multiplier = Math.max(1, Math.round((s.score.multiplier - 0.4) * 100) / 100);
       if (e.trait === 'drain') s.score.multiplier = Math.max(1, Math.round((s.score.multiplier - 0.2) * 100) / 100);
-      this.pushLog(`${e.name} hits for ${damage}. Pending -${lost}. Combo broken.`);
+      this.pushLog(`${e.name} hits for ${damage}. Combo broken and multiplier reduced.`);
     } else {
       this.pushLog(`${e.name}'s attack is fully blocked.`);
     }
@@ -280,14 +267,12 @@ export class Game {
   finishEncounter() {
     const s = this.state;
     const e = s.enemy;
-    this.addPending(e.reward);
+    this.addScore(e.reward);
     if (s.fight.damageTaken === 0) {
-      const perfect = this.addPending(400 + s.encounterIndex * 50);
+      const perfect = this.addScore(400 + s.encounterIndex * 50);
       s.stats.fightsPerfect += 1;
       this.pushLog(`PERFECT +${perfect}`);
     }
-    this.bankPending();
-
     if (e.boss) {
       this.endRun(true, 'The Auditor is defeated');
       return;
@@ -312,8 +297,8 @@ export class Game {
 
   skipReward() {
     if (this.state.phase !== 'reward') return;
-    this.state.score.banked += 250;
-    this.pushLog('Skipped reward. +250 banked score.');
+    this.state.score.total += 250;
+    this.pushLog('Skipped reward. +250 score.');
     this.advanceEncounter();
   }
 
@@ -329,7 +314,7 @@ export class Game {
   endRun(victory, reason) {
     const s = this.state;
     if (!s.startedAt || s.phase === 'gameover') return;
-    const score = Math.round(s.score.banked);
+    const score = Math.round(s.score.total);
     s.result = {
       victory,
       reason,
