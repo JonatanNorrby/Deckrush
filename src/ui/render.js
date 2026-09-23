@@ -613,24 +613,31 @@ export class Renderer {
     const r = s.result;
     const newBest = r.score >= s.save.bestScore && r.score > 0;
     return `
-      <section class="shell result">
-        <p class="eyebrow">RUN OVER</p>
-        <h1>${fmt.format(r.score)}</h1>
-        <p class="result__reason">${r.reason}${newBest ? ' · PERSONAL BEST' : ''}</p>
-        <div class="result-grid">
-          <div><span>Best Combo</span><strong>x${r.maxCombo}</strong></div>
-          <div><span>Best Multiplier</span><strong>x${r.maxMultiplier.toFixed(2)}</strong></div>
-          <div><span>Biggest Hit</span><strong>${r.biggestHit}</strong></div>
-          <div><span>Overkill</span><strong>${r.overkill}</strong></div>
-          <div><span>Perfect Fights</span><strong>${r.fightsPerfect}</strong></div>
-          <div><span>Damage Taken</span><strong>${r.damageTaken}</strong></div>
-          <div><span>Cards Played</span><strong>${r.cardsPlayed}</strong></div>
-          <div><span>Fights Cleared</span><strong>${r.fightsCleared}</strong></div>
-          <div><span>Time</span><strong>${formatTime(r.elapsedMs)}</strong></div>
-        </div>
-        <div class="menu__buttons">
-          <button class="button button--primary" data-action="${s.mode === 'weekly' ? 'start-weekly' : 'start-normal'}" data-character="${s.characterId}">Run It Back</button>
-          <button class="button" data-action="menu">Main Menu</button>
+      <section class="result-screen">
+        <div class="result-screen__inner">
+          <p class="result-screen__eyebrow">RUN OVER</p>
+          <div class="result-screen__score-block">
+            <span>Final Score</span>
+            <strong>${fmt.format(r.score)}</strong>
+            <p>${r.reason}${newBest ? ' · PERSONAL BEST' : ''}</p>
+          </div>
+
+          <div class="result-grid">
+            <div><span>Best Combo</span><strong>x${r.maxCombo}</strong></div>
+            <div><span>Best Multiplier</span><strong>x${r.maxMultiplier.toFixed(2)}</strong></div>
+            <div><span>Biggest Hit</span><strong>${r.biggestHit}</strong></div>
+            <div><span>Overkill</span><strong>${r.overkill}</strong></div>
+            <div><span>Perfect Fights</span><strong>${r.fightsPerfect}</strong></div>
+            <div><span>Damage Taken</span><strong>${r.damageTaken}</strong></div>
+            <div><span>Cards Played</span><strong>${r.cardsPlayed}</strong></div>
+            <div><span>Fights Cleared</span><strong>${r.fightsCleared}</strong></div>
+            <div><span>Time</span><strong>${formatTime(r.elapsedMs)}</strong></div>
+          </div>
+
+          <div class="result-screen__actions">
+            <button class="button button--primary result-screen__retry" data-action="${s.mode === 'weekly' ? 'start-weekly' : 'start-normal'}" data-character="${s.characterId}">Run It Back</button>
+            <button class="result-screen__menu" data-action="menu">Main Menu</button>
+          </div>
         </div>
       </section>`;
   }
