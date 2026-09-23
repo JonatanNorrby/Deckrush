@@ -670,3 +670,15 @@ test('card animation classes stay backend-only', () => {
   assert.equal(getCard('shield-bash').animationClass, 'melee');
   assert.equal(getCard('rune-ward').animationClass, 'defensive');
 });
+
+
+test('cards use shared base artwork plus separate illustrations', () => {
+  const renderSource = readFileSync(new URL('../src/ui/render.js', import.meta.url), 'utf8');
+  const css = readFileSync(new URL('../styles.css', import.meta.url), 'utf8');
+
+  assert.match(renderSource, /assets\/cards\/base\/card\.png/);
+  assert.match(renderSource, /assets\/cards\/art\/\$\{card\.id\}\.png/);
+  assert.equal((renderSource.match(/\$\{cardBaseMarkup\(\)\}/g) || []).length, 3);
+  assert.doesNotMatch(renderSource, /assets\/cards\/\$\{card\.id\}\.png/);
+  assert.match(css, /\.card-base-image\s*\{[\s\S]*?position:\s*absolute;[\s\S]*?z-index:\s*0;/);
+});
