@@ -427,3 +427,12 @@ test('character picker artwork fits inside its information card', () => {
     /\.fantasy-menu__portrait \.art-image\s*\{[\s\S]*?object-position:\s*center bottom;/,
   );
 });
+
+
+test('heat selection screen does not show the run log', () => {
+  const renderSource = readFileSync(new URL('../src/ui/render.js', import.meta.url), 'utf8');
+  const routeMatch = renderSource.match(/route\(s\)\s*\{[\s\S]*?enemyMarkup\(enemy, index\)/);
+
+  assert.ok(routeMatch);
+  assert.doesNotMatch(routeMatch[0], /this\.log\(s\)/);
+});
