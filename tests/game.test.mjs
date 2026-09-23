@@ -37,21 +37,21 @@ test('heat increases enemy health', () => {
   assert.ok(high.state.enemy.maxHp > low.state.enemy.maxHp);
 });
 
-test('taking enemy damage burns exposed score and breaks combo', () => {
+test('taking enemy damage keeps score safe but breaks combo', () => {
   const game = new Game();
   game.startRun('daily');
   game.chooseHeat(0);
-  game.state.score.pending = 1000;
+  game.state.score.total = 1000;
   game.state.score.combo = 5;
   game.state.player.block = 0;
 
   game.endTurn();
 
-  assert.ok(game.state.score.pending <= 750);
+  assert.equal(game.state.score.total, 1000);
   assert.equal(game.state.score.combo, 0);
 });
 
-test('defeating an enemy banks score and opens a reward', () => {
+test('defeating an enemy adds score and opens a reward', () => {
   const game = new Game();
   game.startRun('daily');
   game.chooseHeat(0);
@@ -62,7 +62,7 @@ test('defeating an enemy banks score and opens a reward', () => {
   game.playCard(0);
 
   assert.equal(game.state.phase, 'reward');
-  assert.ok(game.state.score.banked > 0);
+  assert.ok(game.state.score.total > 0);
   assert.equal(game.state.rewardOptions.length, 3);
 });
 
