@@ -829,29 +829,6 @@ p { color: var(--muted); line-height: 1.55; }
   color: #fff0cf;
 }
 
-.fantasy-menu__action--primary {
-  min-height: 63px;
-  border-color: rgba(225,168,76,.76);
-  background:
-    linear-gradient(110deg, #d7a34c, #b8732d 72%, #7d451d);
-  color: #211208;
-  box-shadow: 0 0 28px rgba(196,126,38,.13);
-}
-
-.fantasy-menu__action--primary:hover {
-  border-color: #f4c97e;
-  background: linear-gradient(110deg, #efc06a, #ca873a 72%, #975525);
-  color: #180c05;
-}
-
-.fantasy-menu__rune {
-  width: 23px;
-  flex: 0 0 23px;
-  color: currentColor;
-  font-size: 1rem;
-  text-align: center;
-}
-
 .fantasy-menu__action > span:last-child {
   min-width: 0;
   display: grid;
@@ -870,8 +847,6 @@ p { color: var(--muted); line-height: 1.55; }
   font-size: .68rem;
   letter-spacing: .04em;
 }
-
-.fantasy-menu__action--primary small { color: rgba(45,26,10,.7); }
 
 .fantasy-menu__hero-stage {
   position: relative;
