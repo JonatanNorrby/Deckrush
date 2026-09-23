@@ -436,3 +436,16 @@ test('heat selection screen does not show the run log', () => {
   assert.ok(routeMatch);
   assert.doesNotMatch(routeMatch[0], /this\.log\(s\)/);
 });
+
+
+test('gameplay surfaces use the unified dark-fantasy theme', () => {
+  const css = readFileSync(new URL('../styles.css', import.meta.url), 'utf8');
+
+  assert.match(css, /Unified dark-fantasy theme/);
+  assert.match(css, /\.combat-stage\s*\{[\s\S]*?rgba\(20,12,7,[\s\S]*?assets\/backgrounds\/combat\.png/);
+  assert.match(css, /\.combat-card,[\s\S]*?\.handbook-card\s*\{[\s\S]*?#694722/);
+  assert.match(css, /\.heat-card\s*\{[\s\S]*?rgba\(183,126,58,.4\)/);
+  assert.match(css, /\.handbook\s*\{[\s\S]*?#68451f/);
+  assert.match(css, /\.combat-tray\s*\{[\s\S]*?#21150c/);
+  assert.match(css, /\.result-screen\s*\{[\s\S]*?assets\/backgrounds\/menu\.png/);
+});
