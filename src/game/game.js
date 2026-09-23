@@ -5,6 +5,7 @@ import { DEFAULT_CHARACTER_ID, getCharacter } from '../data/characters.js';
 import { ENEMIES, NORMAL_ENEMIES, ELITE_ENEMIES, BOSS_ID } from '../data/enemies.js';
 
 const HAND_SIZE = 5;
+const BATTLEFIELD_BACKGROUND_COUNT = 6;
 const BOSS_INTERVAL = 8;
 
 export class Game {
@@ -65,7 +66,7 @@ export class Game {
       animationEvents: [],
       score: { total: 0, combo: 0, multiplier: 1, maxCombo: 0, maxMultiplier: 1 },
       stats: { biggestHit: 0, cardsPlayed: 0, fightsPerfect: 0, damageTaken: 0, overkill: 0 },
-      fight: { damageTaken: 0, turn: 1 },
+      fight: { damageTaken: 0, turn: 1, background: null },
       log: [`${character.name} enters the run. Build Combo, push the multiplier, and make every hit worth more.`],
       result: null,
     };
@@ -148,7 +149,11 @@ export class Game {
       return this.createEnemy(ENEMIES[enemyId], slot, enemyCount);
     });
 
-    s.fight = { damageTaken: 0, turn: 1 };
+    s.fight = {
+      damageTaken: 0,
+      turn: 1,
+      background: this.rng.int(1, BATTLEFIELD_BACKGROUND_COUNT),
+    };
     s.player.block = 0;
     s.player.energy = s.player.maxEnergy;
     s.score.combo = 0;
