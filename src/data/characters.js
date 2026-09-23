@@ -1,3 +1,12 @@
+const CHARACTER_ANIMATIONS = Object.freeze({
+  idle: { loop: true },
+  magical: { loop: false },
+  melee: { loop: false },
+  defensive: { loop: false },
+  hit: { loop: false },
+  death: { loop: false },
+});
+
 export const CHARACTERS = {
   viper: {
     id: 'viper',
@@ -5,6 +14,7 @@ export const CHARACTERS = {
     archetype: 'Poison',
     maxHp: 44,
     art: null,
+    animations: CHARACTER_ANIMATIONS,
     description: 'Stack Poison, let it tick before enemies act, then cash in on long fights.',
     startingDeck: ['toxic-cut', 'toxic-cut', 'toxic-cut', 'envenom', 'envenom', 'quick-stab', 'evade', 'catalyst'],
     rewardPool: ['venom-bloom', 'toxic-payoff', 'precision', 'adrenaline', 'execution', 'momentum', 'redline', 'second-wind', 'jackpot', 'chain-reaction'],
@@ -15,6 +25,7 @@ export const CHARACTERS = {
     archetype: 'Block',
     maxHp: 58,
     art: null,
+    animations: CHARACTER_ANIMATIONS,
     description: 'Build heavy Block, turn defense into damage, and outlast escalating enemy pressure.',
     startingDeck: ['shield-strike', 'shield-strike', 'shield-strike', 'fortify', 'fortify', 'shield-bash', 'brace', 'cashin'],
     rewardPool: ['iron-wall', 'counterweight', 'insurance', 'vault', 'uppercut', 'momentum', 'second-wind', 'clean-finish', 'jackpot', 'all-in'],
