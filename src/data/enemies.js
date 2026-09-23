@@ -1,4 +1,11 @@
-const enemy = (config) => ({ art: null, elite: false, boss: false, scaling: 0, ...config });
+const ENEMY_ANIMATIONS = Object.freeze({
+  idle: { loop: true },
+  attack: { loop: false },
+  hit: { loop: false },
+  death: { loop: false },
+});
+
+const enemy = (config) => ({ art: null, animations: ENEMY_ANIMATIONS, elite: false, boss: false, scaling: 0, ...config });
 
 export const ENEMIES = {
   scrapper: enemy({ id: 'scrapper', name: 'Scrapper', hp: 26, damage: 6, reward: 220, tagline: 'Quick, mean, disposable.' }),
