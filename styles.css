@@ -398,17 +398,6 @@ p { color: var(--muted); line-height: 1.55; }
 }
 .player-sprite--viper { filter: drop-shadow(0 20px 24px rgba(70,170,120,.12)); }
 .player-sprite--bastion { filter: drop-shadow(0 20px 24px rgba(90,130,220,.14)); }
-.actor-name {
-  margin-top: -14px;
-  padding: 8px 14px;
-  border: 1px solid var(--line);
-  border-radius: 10px;
-  background: rgba(9,13,23,.9);
-  text-align: center;
-}
-.actor-name span { display: block; font-weight: 1000; }
-.actor-name small { color: var(--muted); text-transform: uppercase; letter-spacing: .08em; }
-
 .enemy-side {
   display: flex;
   align-items: end;
@@ -1620,7 +1609,6 @@ body {
 
 h1, h2,
 .card__name,
-.actor-name span,
 .enemy-name,
 .result-screen__score-block > strong,
 .heat-card strong,
@@ -1760,15 +1748,6 @@ h1, h2,
 .player-sprite--bastion {
   filter: drop-shadow(0 20px 24px rgba(177,125,55,.16));
 }
-.actor-name {
-  border-color: rgba(171,118,55,.45);
-  border-radius: 3px;
-  background: rgba(26,17,9,.92);
-}
-.actor-name small {
-  color: #9f8561;
-}
-
 .enemy-unit.is-drop-target {
   border-color: #d2a052;
   background: rgba(126,76,28,.16);
