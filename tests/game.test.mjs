@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { Game } from '../src/game/game.js';
-import { dailySeed } from '../src/core/rng.js';
+import { weeklySeed } from '../src/core/rng.js';
 import { getCharacter } from '../src/data/characters.js';
 import { CARD_LIBRARY, CARD_ANIMATION_CLASSES, getCard } from '../src/data/cards.js';
 import { ENEMIES } from '../src/data/enemies.js';
@@ -15,14 +15,25 @@ global.localStorage = {
   clear() { this.data.clear(); },
 };
 
-test('daily seed is deterministic for the same UTC date', () => {
-  const date = new Date('2026-09-23T12:00:00Z');
-  assert.deepEqual(dailySeed(date), dailySeed(date));
+test('weekly seed stays the same from Monday through Sunday and resets on Monday', () => {
+  const monday = new Date('2026-09-21T00:00:00Z');
+  const wednesday = new Date('2026-09-23T12:00:00Z');
+  const sunday = new Date('2026-09-27T23:59:59Z');
+  const nextMonday = new Date('2026-09-28T00:00:00Z');
+
+  const mondaySeed = weeklySeed(monday);
+  assert.deepEqual(weeklySeed(wednesday), mondaySeed);
+  assert.deepEqual(weeklySeed(sunday), mondaySeed);
+  assert.equal(mondaySeed.label, '2026-09-21');
+
+  const nextWeek = weeklySeed(nextMonday);
+  assert.equal(nextWeek.label, '2026-09-28');
+  assert.notEqual(nextWeek.seed, mondaySeed.seed);
 });
 
 test('run enters combat with a full opening hand', () => {
   const game = new Game();
-  game.startRun('daily');
+  game.startRun('weekly');
   game.chooseHeat(0);
   assert.equal(game.state.phase, 'combat');
   assert.equal(game.state.hand.length, 5);
@@ -31,11 +42,11 @@ test('run enters combat with a full opening hand', () => {
 
 test('heat increases enemy health', () => {
   const low = new Game();
-  low.startRun('daily');
+  low.startRun('weekly');
   low.chooseHeat(0);
 
   const high = new Game();
-  high.startRun('daily');
+  high.startRun('weekly');
   high.chooseHeat(3);
 
   assert.equal(low.state.enemies[0].id, high.state.enemies[0].id);
@@ -44,7 +55,7 @@ test('heat increases enemy health', () => {
 
 test('taking enemy damage keeps score safe but breaks combo', () => {
   const game = new Game();
-  game.startRun('daily');
+  game.startRun('weekly');
   game.chooseHeat(0);
   game.state.score.total = 1000;
   game.state.score.combo = 5;
@@ -58,7 +69,7 @@ test('taking enemy damage keeps score safe but breaks combo', () => {
 
 test('defeating an enemy adds score and opens a reward', () => {
   const game = new Game();
-  game.startRun('daily');
+  game.startRun('weekly');
   game.chooseHeat(0);
   game.state.enemies[0].hp = 1;
   game.state.hand = ['strike'];
@@ -74,7 +85,7 @@ test('defeating an enemy adds score and opens a reward', () => {
 
 test('runs do not expire after ten minutes', () => {
   const game = new Game();
-  game.startRun('daily');
+  game.startRun('weekly');
   game.state.startedAt = Date.now() - (20 * 60 * 1000);
 
   assert.ok(game.getElapsedMs() >= 20 * 60 * 1000);
@@ -84,7 +95,7 @@ test('runs do not expire after ten minutes', () => {
 
 test('boss fights recur without ending the run', () => {
   const game = new Game();
-  game.startRun('daily');
+  game.startRun('weekly');
   game.state.encounterIndex = 7;
   game.chooseHeat(0);
 
@@ -104,12 +115,12 @@ test('boss fights recur without ending the run', () => {
 
 test('endless difficulty scales with fight number while Heat remains selectable', () => {
   const early = new Game();
-  early.startRun('daily');
+  early.startRun('weekly');
   early.chooseHeat(0);
   const earlyDamage = early.state.enemies[0].baseDamage;
 
   const late = new Game();
-  late.startRun('daily');
+  late.startRun('weekly');
   late.state.encounterIndex = 12;
   late.chooseHeat(3);
 
@@ -120,10 +131,10 @@ test('endless difficulty scales with fight number while Heat remains selectable'
 
 test('Viper and Bastion start with different character decks', () => {
   const viper = new Game();
-  viper.startRun('daily', 'viper');
+  viper.startRun('weekly', 'viper');
 
   const bastion = new Game();
-  bastion.startRun('daily', 'bastion');
+  bastion.startRun('weekly', 'bastion');
 
   assert.equal(viper.state.characterId, 'viper');
   assert.equal(viper.state.player.maxHp, getCharacter('viper').maxHp);
@@ -138,7 +149,7 @@ test('Viper and Bastion start with different character decks', () => {
 
 test('poison ticks before the enemy attacks and decays by one', () => {
   const game = new Game();
-  game.startRun('daily', 'viper');
+  game.startRun('weekly', 'viper');
   game.chooseHeat(0);
   game.state.enemies[0].hp = 30;
   game.state.enemies[0].maxHp = 30;
@@ -154,7 +165,7 @@ test('poison ticks before the enemy attacks and decays by one', () => {
 
 test('Bastion shield bash converts current Block into damage', () => {
   const game = new Game();
-  game.startRun('daily', 'bastion');
+  game.startRun('weekly', 'bastion');
   game.chooseHeat(0);
   game.state.enemies[0].hp = 40;
   game.state.enemies[0].maxHp = 40;
@@ -170,12 +181,12 @@ test('Bastion shield bash converts current Block into damage', () => {
 
 test('reward pools are character-specific', () => {
   const viper = new Game();
-  viper.startRun('daily', 'viper');
+  viper.startRun('weekly', 'viper');
   const viperRewards = viper.rollRewards(10);
   assert.ok(viperRewards.every((id) => getCharacter('viper').rewardPool.includes(id)));
 
   const bastion = new Game();
-  bastion.startRun('daily', 'bastion');
+  bastion.startRun('weekly', 'bastion');
   const bastionRewards = bastion.rollRewards(10);
   assert.ok(bastionRewards.every((id) => getCharacter('bastion').rewardPool.includes(id)));
 });
@@ -193,7 +204,7 @@ test('handbook data exposes every card with display metadata', async () => {
 
 test('multi-enemy encounters require a target for attack cards', () => {
   const game = new Game();
-  game.startRun('daily', 'bastion');
+  game.startRun('weekly', 'bastion');
   game.state.encounterIndex = 2;
   game.chooseHeat(0);
 
@@ -215,7 +226,7 @@ test('multi-enemy encounters require a target for attack cards', () => {
 
 test('non-targeted cards can be played during multi-enemy encounters', () => {
   const game = new Game();
-  game.startRun('daily', 'bastion');
+  game.startRun('weekly', 'bastion');
   game.state.encounterIndex = 2;
   game.chooseHeat(0);
   game.state.hand = ['fortify'];
@@ -254,7 +265,7 @@ test('characters and enemies declare the required animation states', () => {
 
 test('playing a card emits its character and card-class animation event', () => {
   const game = new Game();
-  game.startRun('daily', 'viper');
+  game.startRun('weekly', 'viper');
   game.chooseHeat(0);
   game.consumeAnimationEvents();
 
@@ -273,7 +284,7 @@ test('playing a card emits its character and card-class animation event', () => 
 
 test('combat emits attack and damage animation events', () => {
   const game = new Game();
-  game.startRun('daily', 'bastion');
+  game.startRun('weekly', 'bastion');
   game.chooseHeat(0);
   game.consumeAnimationEvents();
 
