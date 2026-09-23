@@ -65,3 +65,13 @@ test('defeating an enemy banks score and opens a reward', () => {
   assert.ok(game.state.score.banked > 0);
   assert.equal(game.state.rewardOptions.length, 3);
 });
+
+
+test('runs do not expire after ten minutes', () => {
+  const game = new Game();
+  game.startRun('daily');
+  game.state.startedAt = Date.now() - (20 * 60 * 1000);
+
+  assert.ok(game.getElapsedMs() >= 20 * 60 * 1000);
+  assert.equal(game.state.phase, 'route');
+});
