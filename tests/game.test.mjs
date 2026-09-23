@@ -501,3 +501,12 @@ test('enemy attack animations return to idle frames', () => {
     './assets/enemies/scrapper/idle/1.png',
   );
 });
+
+
+test('all character and enemy static fallbacks use idle frame one', () => {
+  const renderSource = readFileSync(new URL('../src/ui/render.js', import.meta.url), 'utf8');
+
+  assert.doesNotMatch(renderSource, /assets\/(characters|enemies)\/\$\{[^}]+\}\/combat\.png/);
+  assert.match(renderSource, /assets\/characters\/\$\{character\.id\}\/idle\/1\.png/);
+  assert.match(renderSource, /assets\/enemies\/\$\{enemy\.id\}\/idle\/1\.png/);
+});
