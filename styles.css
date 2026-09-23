@@ -1956,3 +1956,27 @@ h1, h2,
   border-color: rgba(112,153,87,.5);
   background: rgba(48,75,33,.3);
 }
+
+
+.enemy-unit--dead {
+  align-self: end;
+  justify-self: center;
+  padding-top: 138px;
+  pointer-events: none;
+  opacity: .82;
+}
+.enemy-unit--dead .enemy-name {
+  margin-top: -24px;
+  color: #79664c;
+  font-size: .72rem;
+}
+.enemy-sprite--dead {
+  width: clamp(145px, 16vw, 215px);
+  height: clamp(95px, 11vw, 145px);
+  align-items: end;
+  filter: drop-shadow(0 12px 10px rgba(0,0,0,.5)) saturate(.62) brightness(.7);
+  transform: translateY(22px);
+}
+.enemy-sprite--dead .art-image {
+  object-position: center bottom;
+}
