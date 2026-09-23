@@ -2097,3 +2097,20 @@ h1, h2,
   font-size: .56rem;
   font-style: normal;
 }
+
+
+.card-base-image {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: fill;
+  pointer-events: none;
+}
+.card > :not(.card-base-image),
+.combat-card > :not(.card-base-image),
+.handbook-card > :not(.card-base-image) {
+  position: relative;
+  z-index: 1;
+}
