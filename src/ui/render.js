@@ -89,6 +89,9 @@ export class Renderer {
     this.characterSelectOpen = false;
     this.selectedCharacterId = 'viper';
     this.drag = null;
+    this.pendingTarget = null;
+    this.targetArrow = null;
+    this.cardPlayLocked = false;
     this.animations = new AnimationDirector(root);
 
     this.root.addEventListener('click', (event) => this.handleClick(event));
@@ -96,6 +99,7 @@ export class Renderer {
 
     document.addEventListener('keydown', (event) => {
       if (event.key === 'Escape' && this.drag) this.cancelCardDrag();
+      if (event.key === 'Escape' && this.pendingTarget) this.cancelPendingTarget();
       if (event.key === 'Escape' && this.characterSelectOpen) {
         this.characterSelectOpen = false;
         this.renderMenu();
@@ -116,7 +120,10 @@ export class Renderer {
     if (action === 'start-normal') this.game.startRun('normal', target.dataset.character || this.selectedCharacterId);
     if (action === 'start-weekly') this.game.startRun('weekly', target.dataset.character || this.selectedCharacterId);
     if (action === 'heat') this.game.chooseHeat(Number(target.dataset.heat));
-    if (action === 'end-turn') this.game.endTurn();
+    if (action === 'end-turn') {
+      if (this.pendingTarget) this.cancelPendingTarget();
+      this.game.endTurn();
+    }
     if (action === 'reward') this.game.chooseReward(target.dataset.card);
     if (action === 'skip-reward') this.game.skipReward();
     if (action === 'menu') this.game.backToMenu();
@@ -150,9 +157,17 @@ export class Renderer {
   }
 
   handlePointerDown(event) {
-    const cardEl = event.target.closest('[data-drag-card]');
-    if (!cardEl || this.game.state.phase !== 'combat' || this.drag) return;
+    if (this.game.state.phase !== 'combat' || this.cardPlayLocked) return;
     if (event.pointerType === 'mouse' && event.button !== 0) return;
+
+    const pendingCard = event.target.closest('[data-pending-target-card]');
+    if (pendingCard && this.pendingTarget) {
+      this.beginTargetArrow(event, pendingCard);
+      return;
+    }
+
+    const cardEl = event.target.closest('[data-drag-card]');
+    if (!cardEl || this.drag || this.pendingTarget) return;
 
     const index = Number(cardEl.dataset.index);
     const card = getCard(this.game.state.hand[index]);
@@ -218,42 +233,193 @@ export class Renderer {
   updateDragTargets(x, y) {
     if (!this.drag) return;
     const battlefield = this.root.querySelector('[data-battlefield]');
-    const enemies = [...this.root.querySelectorAll('[data-enemy-index]')];
-    const { enemyEl, battlefield: hoveredBattlefield } = this.getDropContext(x, y);
-    const aliveEnemies = this.game.getAliveEnemies();
+    const { battlefield: hoveredBattlefield } = this.getDropContext(x, y);
 
     battlefield?.classList.add('is-drag-active');
-    battlefield?.classList.toggle('is-valid-drop', Boolean(hoveredBattlefield) && (!this.drag.targeted || aliveEnemies.length === 1));
-    enemies.forEach((enemy) => enemy.classList.remove('is-drop-target'));
-
-    if (this.drag.targeted && enemyEl) enemyEl.classList.add('is-drop-target');
+    battlefield?.classList.toggle('is-valid-drop', Boolean(hoveredBattlefield));
   }
 
   finishCardDrag(x, y) {
     if (!this.drag) return;
-    const { enemyEl, battlefield } = this.getDropContext(x, y);
-    const { index, targeted } = this.drag;
+    const { battlefield } = this.getDropContext(x, y);
+    const { index, card, source, targeted } = this.drag;
     const aliveIndexes = this.game.state.enemies
       .map((enemy, enemyIndex) => (enemy.hp > 0 ? enemyIndex : -1))
       .filter((enemyIndex) => enemyIndex >= 0);
 
-    let valid = Boolean(battlefield);
-    let targetIndex = null;
-
-    if (targeted) {
-      if (enemyEl) {
-        targetIndex = Number(enemyEl.dataset.enemyIndex);
-        valid = aliveIndexes.includes(targetIndex);
-      } else if (battlefield && aliveIndexes.length === 1) {
-        targetIndex = aliveIndexes[0];
-        valid = true;
-      } else {
-        valid = false;
-      }
+    if (!battlefield) {
+      this.cleanupCardDrag();
+      return;
     }
 
+    const landingCard = source.cloneNode(true);
+    landingCard.removeAttribute('data-drag-card');
+    landingCard.removeAttribute('data-index');
+
     this.cleanupCardDrag();
-    if (valid) this.game.playCard(index, targetIndex);
+
+    if (targeted && aliveIndexes.length > 1) {
+      this.stagePendingTarget(index, card, source, landingCard, x, y);
+      return;
+    }
+
+    const targetIndex = targeted && aliveIndexes.length === 1 ? aliveIndexes[0] : null;
+    this.playCardWithDropAnimation(index, targetIndex, landingCard, x, y);
+  }
+
+  playCardWithDropAnimation(index, targetIndex, landingCard, x, y) {
+    this.cardPlayLocked = true;
+    landingCard.classList.add('card-drop-play');
+    landingCard.style.left = `${x}px`;
+    landingCard.style.top = `${y}px`;
+    document.body.appendChild(landingCard);
+
+    window.setTimeout(() => {
+      landingCard.remove();
+      this.cardPlayLocked = false;
+      this.game.playCard(index, targetIndex);
+    }, 140);
+  }
+
+  stagePendingTarget(index, card, source, landingCard, x, y) {
+    const battlefield = this.root.querySelector('[data-battlefield]');
+    if (!battlefield) return;
+
+    const rect = battlefield.getBoundingClientRect();
+    const left = Math.min(Math.max(x - rect.left, 95), Math.max(95, rect.width - 95));
+    const top = Math.min(Math.max(y - rect.top, 115), Math.max(115, rect.height - 115));
+
+    landingCard.classList.add('pending-target-card');
+    landingCard.setAttribute('data-pending-target-card', '');
+    landingCard.setAttribute('aria-label', `${card.name}, drag target arrow to an enemy`);
+    landingCard.style.left = `${left}px`;
+    landingCard.style.top = `${top}px`;
+    battlefield.appendChild(landingCard);
+
+    source.classList.add('combat-card--pending-source');
+    battlefield.classList.add('is-targeting-card');
+    const instruction = battlefield.querySelector('.drag-instruction');
+    if (instruction) instruction.textContent = 'Drag the arrow from the played card to an enemy';
+
+    this.pendingTarget = { index, card, source, element: landingCard };
+  }
+
+  beginTargetArrow(event, pendingCard) {
+    if (!this.pendingTarget || this.targetArrow) return;
+    event.preventDefault();
+
+    const battlefield = this.root.querySelector('[data-battlefield]');
+    if (!battlefield) return;
+    const battlefieldRect = battlefield.getBoundingClientRect();
+    const cardRect = pendingCard.getBoundingClientRect();
+    const originX = cardRect.left - battlefieldRect.left + cardRect.width / 2;
+    const originY = cardRect.top - battlefieldRect.top + cardRect.height / 2;
+
+    const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    svg.classList.add('targeting-arrow-layer');
+    svg.setAttribute('aria-hidden', 'true');
+    svg.innerHTML = `
+      <defs>
+        <marker id="deckrush-target-arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+          <path d="M0,0 L0,6 L9,3 z"></path>
+        </marker>
+      </defs>
+      <line x1="${originX}" y1="${originY}" x2="${originX}" y2="${originY}" marker-end="url(#deckrush-target-arrow)"></line>
+    `;
+    battlefield.appendChild(svg);
+
+    this.targetArrow = {
+      pointerId: event.pointerId,
+      battlefield,
+      svg,
+      line: svg.querySelector('line'),
+    };
+    document.body.classList.add('is-targeting-enemy');
+    this.updateTargetArrow(event.clientX, event.clientY);
+
+    this.onTargetPointerMove = (moveEvent) => {
+      if (!this.targetArrow || moveEvent.pointerId !== this.targetArrow.pointerId) return;
+      moveEvent.preventDefault();
+      this.updateTargetArrow(moveEvent.clientX, moveEvent.clientY);
+    };
+    this.onTargetPointerUp = (upEvent) => {
+      if (!this.targetArrow || upEvent.pointerId !== this.targetArrow.pointerId) return;
+      upEvent.preventDefault();
+      this.finishTargetArrow(upEvent.clientX, upEvent.clientY);
+    };
+
+    document.addEventListener('pointermove', this.onTargetPointerMove, { passive: false });
+    document.addEventListener('pointerup', this.onTargetPointerUp, { passive: false });
+    document.addEventListener('pointercancel', this.onTargetPointerUp, { passive: false });
+  }
+
+  updateTargetArrow(x, y) {
+    if (!this.targetArrow) return;
+    const rect = this.targetArrow.battlefield.getBoundingClientRect();
+    this.targetArrow.line?.setAttribute('x2', String(x - rect.left));
+    this.targetArrow.line?.setAttribute('y2', String(y - rect.top));
+
+    const { enemyEl } = this.getDropContext(x, y);
+    this.root.querySelectorAll('[data-enemy-index]').forEach((enemy) => enemy.classList.remove('is-drop-target'));
+    if (enemyEl) enemyEl.classList.add('is-drop-target');
+  }
+
+  finishTargetArrow(x, y) {
+    if (!this.targetArrow || !this.pendingTarget) return;
+    const { enemyEl } = this.getDropContext(x, y);
+    const targetIndex = enemyEl ? Number(enemyEl.dataset.enemyIndex) : null;
+    const valid = Number.isInteger(targetIndex) && this.game.state.enemies[targetIndex]?.hp > 0;
+
+    this.cleanupTargetArrow();
+    if (!valid) return;
+
+    const { index, element, source } = this.pendingTarget;
+    element.classList.add('is-resolved');
+    source?.classList.remove('combat-card--pending-source');
+    this.pendingTarget = null;
+    this.cardPlayLocked = true;
+
+    window.setTimeout(() => {
+      element.remove();
+      this.cardPlayLocked = false;
+      this.game.playCard(index, targetIndex);
+    }, 100);
+  }
+
+  cleanupTargetArrow() {
+    this.targetArrow?.svg?.remove();
+    this.root.querySelectorAll('[data-enemy-index]').forEach((enemy) => enemy.classList.remove('is-drop-target'));
+    document.body.classList.remove('is-targeting-enemy');
+
+    if (this.onTargetPointerMove) document.removeEventListener('pointermove', this.onTargetPointerMove);
+    if (this.onTargetPointerUp) {
+      document.removeEventListener('pointerup', this.onTargetPointerUp);
+      document.removeEventListener('pointercancel', this.onTargetPointerUp);
+    }
+
+    this.targetArrow = null;
+    this.onTargetPointerMove = null;
+    this.onTargetPointerUp = null;
+  }
+
+  cancelPendingTarget() {
+    this.cleanupTargetArrow();
+    if (!this.pendingTarget) return;
+
+    this.pendingTarget.source?.classList.remove('combat-card--pending-source');
+    this.pendingTarget.element?.remove();
+    const battlefield = this.root.querySelector('[data-battlefield]');
+    battlefield?.classList.remove('is-targeting-card');
+
+    const instruction = battlefield?.querySelector('.drag-instruction');
+    if (instruction) {
+      const aliveEnemies = this.game.getAliveEnemies();
+      instruction.textContent = aliveEnemies.length > 1
+        ? 'Drop a card on the battlefield, then aim at an enemy'
+        : 'Drag a card onto the battlefield';
+    }
+
+    this.pendingTarget = null;
   }
 
   cancelCardDrag() {
@@ -265,7 +431,6 @@ export class Renderer {
     this.drag.source?.classList.remove('combat-card--source');
     this.drag.ghost?.remove();
     this.root.querySelector('[data-battlefield]')?.classList.remove('is-drag-active', 'is-valid-drop');
-    this.root.querySelectorAll('[data-enemy-index]').forEach((enemy) => enemy.classList.remove('is-drop-target'));
     document.body.classList.remove('is-dragging-card');
 
     if (this.onPointerMove) document.removeEventListener('pointermove', this.onPointerMove);
@@ -281,6 +446,7 @@ export class Renderer {
 
   render(state) {
     if (this.drag) this.cleanupCardDrag();
+    if (this.pendingTarget) this.cancelPendingTarget();
     this.animations.reset();
 
     if (state.phase === 'menu') {
@@ -575,7 +741,7 @@ export class Renderer {
           </div>
 
           <div class="drag-instruction">
-            ${aliveEnemies.length > 1 ? 'Drag targeted cards onto an enemy' : 'Drag a card onto the battlefield'}
+            ${aliveEnemies.length > 1 ? 'Drop a card on the battlefield, then aim at an enemy' : 'Drag a card onto the battlefield'}
           </div>
         </div>
 
