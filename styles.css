@@ -1283,3 +1283,247 @@ p { color: var(--muted); line-height: 1.55; }
   .character-picker__grid { grid-template-columns: 1fr; }
   .character-choice { min-height: 330px; grid-template-rows: 170px 1fr; }
 }
+
+
+/* === Animation system === */
+.card__animation-class {
+  display: inline-flex;
+  align-items: center;
+  width: fit-content;
+  margin-top: 7px;
+  padding: 3px 6px;
+  border: 1px solid rgba(255,255,255,.12);
+  border-radius: 999px;
+  color: #9ca6b8;
+  font-size: .52rem;
+  font-weight: 900;
+  letter-spacing: .09em;
+  text-transform: uppercase;
+}
+.card__animation-class--magical { color: #c49cff; border-color: rgba(170,112,235,.34); background: rgba(96,45,142,.13); }
+.card__animation-class--melee { color: #efb28a; border-color: rgba(216,118,70,.34); background: rgba(127,55,27,.13); }
+.card__animation-class--defensive { color: #9fc8ff; border-color: rgba(95,145,221,.34); background: rgba(44,78,139,.13); }
+
+.player-sprite,
+.enemy-sprite {
+  position: relative;
+}
+
+.sprite-static-art {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  transition: opacity .08s linear;
+}
+
+.sprite-static-art > .art-image,
+.sprite-static-art > .art-fallback,
+.sprite-animation-frame {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.sprite-animation-frame {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  user-select: none;
+}
+
+.has-frame-animation > .sprite-static-art {
+  opacity: 0;
+}
+
+/* CSS fallbacks remain active when no numbered PNG animation frames exist. */
+.player-sprite.anim-state--idle,
+.enemy-sprite.anim-state--idle {
+  animation: sprite-idle-breathe 2.4s ease-in-out infinite;
+}
+
+.player-sprite.anim-state--magical {
+  animation: player-magic-cast .62s cubic-bezier(.2,.8,.2,1);
+}
+
+.player-sprite.anim-state--melee {
+  animation: player-melee-strike .43s cubic-bezier(.16,.8,.2,1);
+}
+
+.player-sprite.anim-state--defensive {
+  animation: player-defensive-brace .56s ease-out;
+}
+
+.player-sprite.anim-state--hit {
+  animation: player-hit-recoil .32s ease-out;
+}
+
+.player-sprite.anim-state--death {
+  animation: player-death-fall .78s ease-in forwards;
+}
+
+.enemy-sprite.anim-state--attack {
+  animation: enemy-attack-lunge .48s cubic-bezier(.18,.8,.2,1);
+}
+
+.enemy-sprite.anim-state--hit {
+  animation: enemy-hit-recoil .32s ease-out;
+}
+
+.enemy-sprite.anim-state--death {
+  animation: enemy-death-fall .78s ease-in forwards;
+}
+
+@keyframes sprite-idle-breathe {
+  0%,100% { transform: translateY(0) scale(1); }
+  50% { transform: translateY(-4px) scale(1.012); }
+}
+
+@keyframes player-magic-cast {
+  0% { transform: translateY(0) scale(1); filter: brightness(1); }
+  28% { transform: translateY(-7px) scale(1.025); filter: brightness(1.22) drop-shadow(0 0 18px rgba(177,108,255,.42)); }
+  58% { transform: translateY(-3px) scale(1.04); filter: brightness(1.35) drop-shadow(0 0 30px rgba(177,108,255,.58)); }
+  100% { transform: translateY(0) scale(1); filter: brightness(1); }
+}
+
+@keyframes player-melee-strike {
+  0% { transform: translateX(0) rotate(0); }
+  24% { transform: translateX(-8px) rotate(-2deg); }
+  52% { transform: translateX(40px) rotate(3deg) scale(1.035); }
+  100% { transform: translateX(0) rotate(0); }
+}
+
+@keyframes player-defensive-brace {
+  0% { transform: scale(1); filter: brightness(1); }
+  30% { transform: translateX(-5px) scale(.98); filter: brightness(1.15); }
+  58% { transform: scale(1.035); filter: brightness(1.28) drop-shadow(0 0 22px rgba(93,154,255,.45)); }
+  100% { transform: scale(1); filter: brightness(1); }
+}
+
+@keyframes player-hit-recoil {
+  0% { transform: translateX(0); filter: brightness(1); }
+  28% { transform: translateX(-18px); filter: brightness(1.7) saturate(.55); }
+  55% { transform: translateX(7px); }
+  100% { transform: translateX(0); filter: brightness(1); }
+}
+
+@keyframes player-death-fall {
+  from { transform: translateY(0) rotate(0); opacity: 1; }
+  to { transform: translateY(28px) rotate(-9deg) scale(.93); opacity: .25; }
+}
+
+@keyframes enemy-attack-lunge {
+  0% { transform: translateX(0) scale(1); }
+  30% { transform: translateX(9px) scale(.98); }
+  58% { transform: translateX(-32px) scale(1.045); }
+  100% { transform: translateX(0) scale(1); }
+}
+
+@keyframes enemy-hit-recoil {
+  0% { transform: translateX(0); filter: brightness(1); }
+  25% { transform: translateX(15px); filter: brightness(1.7) saturate(.55); }
+  58% { transform: translateX(-5px); }
+  100% { transform: translateX(0); filter: brightness(1); }
+}
+
+@keyframes enemy-death-fall {
+  from { transform: translateY(0) rotate(0); opacity: 1; filter: brightness(1); }
+  to { transform: translateY(26px) rotate(8deg) scale(.9); opacity: 0; filter: brightness(.45); }
+}
+
+.card-effect-layer {
+  position: absolute;
+  inset: 0;
+  z-index: 8;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.card-play-fx {
+  position: absolute;
+  width: 150px;
+  height: 150px;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}
+
+.card-play-fx > img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.card-play-fx:not(.has-frame-animation)::before,
+.card-play-fx:not(.has-frame-animation)::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+}
+
+.card-play-fx--magical:not(.has-frame-animation) {
+  animation: magic-fx-pop .7s ease-out forwards;
+}
+.card-play-fx--magical:not(.has-frame-animation)::before {
+  border: 3px solid rgba(184,114,255,.78);
+  border-radius: 50%;
+  box-shadow: 0 0 30px rgba(150,74,255,.55), inset 0 0 25px rgba(185,120,255,.2);
+}
+.card-play-fx--magical:not(.has-frame-animation)::after {
+  inset: 25%;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(244,214,255,.92), rgba(142,73,240,.28) 52%, transparent 70%);
+}
+
+.card-play-fx--melee:not(.has-frame-animation) {
+  width: 180px;
+  height: 110px;
+  animation: melee-fx-pop .48s ease-out forwards;
+}
+.card-play-fx--melee:not(.has-frame-animation)::before {
+  inset: 43% 0 auto;
+  height: 5px;
+  transform: rotate(-18deg);
+  border-radius: 999px;
+  background: linear-gradient(90deg, transparent, #fff3dc 18%, #e88448 58%, transparent);
+  box-shadow: 0 0 18px rgba(238,129,70,.65);
+}
+
+.card-play-fx--defensive:not(.has-frame-animation) {
+  animation: defensive-fx-pop .65s ease-out forwards;
+}
+.card-play-fx--defensive:not(.has-frame-animation)::before {
+  inset: 7%;
+  border: 4px solid rgba(130,183,255,.78);
+  border-radius: 50% 50% 42% 42%;
+  clip-path: polygon(50% 0, 91% 17%, 83% 73%, 50% 100%, 17% 73%, 9% 17%);
+  background: radial-gradient(circle at 50% 38%, rgba(180,213,255,.2), rgba(70,116,190,.05));
+  box-shadow: 0 0 25px rgba(97,155,236,.48), inset 0 0 22px rgba(138,188,255,.18);
+}
+
+@keyframes magic-fx-pop {
+  0% { opacity: 0; transform: translate(-50%, -50%) scale(.35) rotate(-18deg); }
+  35% { opacity: 1; transform: translate(-50%, -50%) scale(1.08) rotate(3deg); }
+  100% { opacity: 0; transform: translate(-50%, -50%) scale(1.42) rotate(12deg); }
+}
+
+@keyframes melee-fx-pop {
+  0% { opacity: 0; transform: translate(-50%, -50%) scale(.4) rotate(-8deg); }
+  35% { opacity: 1; transform: translate(-50%, -50%) scale(1.08) rotate(2deg); }
+  100% { opacity: 0; transform: translate(-50%, -50%) scale(1.25) rotate(8deg); }
+}
+
+@keyframes defensive-fx-pop {
+  0% { opacity: 0; transform: translate(-50%, -50%) scale(.55); }
+  32% { opacity: 1; transform: translate(-50%, -50%) scale(1.05); }
+  100% { opacity: 0; transform: translate(-50%, -50%) scale(1.2); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .player-sprite,
+  .enemy-sprite,
+  .card-play-fx {
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}
