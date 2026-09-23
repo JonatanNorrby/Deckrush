@@ -4,7 +4,7 @@ Deckrush is a fast, browser-only score-attack deckbuilder roguelite built around
 
 ## Current prototype
 
-- 8-encounter runs ending in a boss.
+- Endless runs that continue until the player dies, with a boss every 8 fights.
 - Heat 0–3 selected before every encounter.
 - Single score total: score only goes up; taking damage instead breaks Combo and reduces Multiplier.
 - Combo and multiplier systems designed around high-score routing.
