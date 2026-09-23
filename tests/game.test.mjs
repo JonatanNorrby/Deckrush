@@ -392,3 +392,24 @@ test('menu close buttons are unboxed and turn red on hover', () => {
   assert.match(css, /\.character-picker__close\s*\{[\s\S]*?border:\s*0;[\s\S]*?background:\s*transparent;/);
   assert.match(css, /\.character-picker__close:hover\s*\{[\s\S]*?color:\s*var\(--danger\);/);
 });
+
+
+test('main menu left nav only shows handbook and settings without icons', () => {
+  const renderSource = readFileSync(new URL('../src/ui/render.js', import.meta.url), 'utf8');
+  const css = readFileSync(new URL('../styles.css', import.meta.url), 'utf8');
+
+  const navMatch = renderSource.match(/<nav class="fantasy-menu__nav"[\s\S]*?<\/nav>/);
+  assert.ok(navMatch);
+  const nav = navMatch[0];
+
+  assert.match(nav, /data-action="open-handbook"/);
+  assert.match(nav, /data-action="settings"/);
+  assert.doesNotMatch(nav, /data-action="start-normal"/);
+  assert.doesNotMatch(nav, /data-action="start-weekly"/);
+  assert.doesNotMatch(nav, /data-action="open-character-select"/);
+  assert.doesNotMatch(nav, /fantasy-menu__rune/);
+
+  assert.match(renderSource, /class="fantasy-menu__begin" data-action="start-normal"/);
+  assert.match(renderSource, /class="fantasy-menu__hero-card[^"]*" data-action="open-character-select"/);
+  assert.doesNotMatch(css, /\.fantasy-menu__rune/);
+});
