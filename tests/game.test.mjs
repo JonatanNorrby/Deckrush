@@ -420,12 +420,16 @@ test('main menu left nav only shows handbook and settings without icons', () => 
 });
 
 
-test('character picker artwork fits inside its information card', () => {
+test('character picker artwork fits and is centered inside its information card', () => {
   const css = readFileSync(new URL('../styles.css', import.meta.url), 'utf8');
 
   assert.match(
     css,
-    /\.character-choice__portrait \.art-image\s*\{[\s\S]*?width:\s*82%;[\s\S]*?height:\s*82%;/,
+    /\.character-choice__portrait\s*\{[\s\S]*?place-items:\s*center;[\s\S]*?padding:\s*12px 20px;/,
+  );
+  assert.match(
+    css,
+    /\.character-choice__portrait \.art-image\s*\{[\s\S]*?width:\s*82%;[\s\S]*?height:\s*82%;[\s\S]*?object-position:\s*center;[\s\S]*?transform:\s*translateY\(-8px\);/,
   );
   assert.match(
     css,
