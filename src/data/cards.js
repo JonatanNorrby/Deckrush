@@ -1,4 +1,23 @@
-const card = (config) => ({ rarity: 'common', art: null, ...config });
+function inferAnimationClass(config) {
+  if (config.animationClass) return config.animationClass;
+  const tags = config.tags || [];
+  const effects = config.effects || [];
+
+  if (tags.includes('poison')) return 'magical';
+  if (tags.includes('block') || effects.some((effect) => ['block', 'heal'].includes(effect.type))) return 'defensive';
+  if (tags.includes('attack')) return 'melee';
+  if (tags.includes('skill')) return 'defensive';
+  return 'magical';
+}
+
+const card = (config) => ({
+  rarity: 'common',
+  art: null,
+  ...config,
+  animationClass: inferAnimationClass(config),
+});
+
+export const CARD_ANIMATION_CLASSES = Object.freeze(['magical', 'melee', 'defensive']);
 
 export const CARD_LIBRARY = {
   strike: card({
