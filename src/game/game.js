@@ -1,6 +1,7 @@
 import { RNG, dailySeed } from '../core/rng.js';
 import { saveRunResult } from '../core/storage.js';
-import { STARTING_DECK, REWARD_POOL, getCard } from '../data/cards.js';
+import { getCard } from '../data/cards.js';
+import { DEFAULT_CHARACTER_ID, getCharacter } from '../data/characters.js';
 import { ENEMIES, NORMAL_ENEMIES, ELITE_ENEMIES, BOSS_ID } from '../data/enemies.js';
 
 const HAND_SIZE = 5;
@@ -25,8 +26,9 @@ export class Game {
     for (const listener of this.listeners) listener(this.state);
   }
 
-  startRun(mode = 'normal') {
+  startRun(mode = 'normal', characterId = DEFAULT_CHARACTER_ID) {
     const daily = dailySeed();
+    const character = getCharacter(characterId);
     const seed = mode === 'daily' ? daily.seed : (Date.now() ^ Math.floor(Math.random() * 0xffffffff)) >>> 0;
     this.rng = new RNG(seed);
     this.state = {
@@ -35,10 +37,11 @@ export class Game {
       seed,
       dailyLabel: mode === 'daily' ? daily.label : null,
       startedAt: Date.now(),
+      characterId: character.id,
       encounterIndex: 0,
       selectedHeat: 0,
-      player: { hp: 50, maxHp: 50, block: 0, energy: 3, maxEnergy: 3 },
-      deck: [...STARTING_DECK],
+      player: { hp: character.maxHp, maxHp: character.maxHp, block: 0, energy: 3, maxEnergy: 3 },
+      deck: [...character.startingDeck],
       drawPile: [],
       discardPile: [],
       hand: [],
@@ -47,7 +50,7 @@ export class Game {
       score: { total: 0, combo: 0, multiplier: 1, maxCombo: 0, maxMultiplier: 1 },
       stats: { biggestHit: 0, cardsPlayed: 0, fightsPerfect: 0, damageTaken: 0, overkill: 0 },
       fight: { damageTaken: 0, turn: 1 },
-      log: ['Run started. Build Combo, push the multiplier, and make every hit worth more.'],
+      log: [`${character.name} enters the run. Build Combo, push the multiplier, and make every hit worth more.`],
       result: null,
     };
     this.emit();
@@ -96,6 +99,7 @@ export class Game {
       tagline: def.tagline,
       strength: 0,
       turn: 0,
+      poison: 0,
     };
     s.fight = { damageTaken: 0, turn: 1 };
     s.player.block = 0;
@@ -158,6 +162,9 @@ export class Game {
       case 'damagePerCombo':
         this.dealDamage(effect.base + s.score.combo * effect.amount, effect);
         break;
+      case 'damageFromBlock':
+        this.dealDamage(effect.base + Math.floor(s.player.block * effect.ratio), effect);
+        break;
       case 'block': s.player.block += effect.amount; break;
       case 'draw': this.draw(effect.amount); break;
       case 'heal': s.player.hp = Math.min(s.player.maxHp, s.player.hp + effect.amount); break;
@@ -169,6 +176,10 @@ export class Game {
       case 'resetCombo': s.score.combo = 0; break;
       case 'score': this.addScore(effect.amount); break;
       case 'scorePerCombo': this.addScore(effect.amount * s.score.combo); break;
+      case 'scorePerBlock': this.addScore(effect.amount * s.player.block); break;
+      case 'scorePerPoison': this.addScore(effect.amount * (s.enemy?.poison || 0)); break;
+      case 'poison': if (s.enemy) s.enemy.poison += effect.amount; break;
+      case 'doublePoison': if (s.enemy) s.enemy.poison *= 2; break;
       case 'enemyStrength': s.enemy.strength += effect.amount; break;
       case 'conditionalScore': if (s.score.combo >= effect.comboAtLeast) this.addScore(effect.amount); break;
       default: break;
@@ -234,6 +245,8 @@ export class Game {
     if (s.phase !== 'combat' || !s.enemy) return;
     s.discardPile.push(...s.hand);
     s.hand = [];
+    this.tickPoison();
+    if (s.phase !== 'combat') return;
     this.enemyTurn();
     if (s.phase !== 'combat') return;
     s.player.block = 0;
@@ -241,6 +254,16 @@ export class Game {
     s.fight.turn += 1;
     this.draw(HAND_SIZE);
     this.emit();
+  }
+
+  tickPoison() {
+    const s = this.state;
+    if (!s.enemy || s.enemy.poison <= 0) return;
+    const damage = s.enemy.poison;
+    this.pushLog(`POISON ticks for ${damage}.`);
+    this.dealDamage(damage, { source: 'poison' });
+    if (s.phase !== 'combat' || !s.enemy) return;
+    s.enemy.poison = Math.max(0, s.enemy.poison - 1);
   }
 
   enemyTurn() {
@@ -288,7 +311,8 @@ export class Game {
   }
 
   rollRewards(count) {
-    return this.rng.shuffle(REWARD_POOL).slice(0, count);
+    const character = getCharacter(this.state.characterId);
+    return this.rng.shuffle(character.rewardPool).slice(0, count);
   }
 
   chooseReward(cardId) {
@@ -324,6 +348,7 @@ export class Game {
       reason,
       score,
       mode: s.mode,
+      characterId: s.characterId,
       dailyLabel: s.dailyLabel,
       maxCombo: s.score.maxCombo,
       maxMultiplier: s.score.maxMultiplier,
