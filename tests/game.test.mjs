@@ -349,3 +349,12 @@ test('combat cards stay large and do not clamp rules text', () => {
   assert.match(css, /\.combat-card\s*\{[\s\S]*?height:\s*310px;/);
   assert.match(css, /\.combat-card p\s*\{[\s\S]*?overflow:\s*visible;[\s\S]*?display:\s*block;/);
 });
+
+
+test('combat view has no log strip above the cards', () => {
+  const renderSource = readFileSync(new URL('../src/ui/render.js', import.meta.url), 'utf8');
+  const css = readFileSync(new URL('../styles.css', import.meta.url), 'utf8');
+
+  assert.doesNotMatch(renderSource, /combat-log-strip/);
+  assert.doesNotMatch(css, /\.combat-log-strip/);
+});
