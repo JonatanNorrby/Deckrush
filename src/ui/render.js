@@ -727,21 +727,18 @@ export class Renderer {
 
     return `
       <section class="combat-screen">
-        <div class="combat-stage" data-battlefield>
+        <div class="combat-stage" data-battlefield style="--battlefield-bg:url(./assets/backgrounds/battlefields/${s.fight.background || 1}.png)">
           <div class="combat-stage__overlay"></div>
           <div class="card-effect-layer" data-card-effect-layer aria-hidden="true"></div>
 
           <div class="player-side">
-            <div class="player-vitals">
-              <span class="player-vitals__label">HP</span>
-              <strong>${Math.max(0, s.player.hp)}<small>/${s.player.maxHp}</small></strong>
-              <div class="player-hp-bar"><i style="width:${Math.max(0, (s.player.hp / s.player.maxHp) * 100)}%"></i></div>
-              <em>◆ ${s.player.block} Block</em>
-            </div>
             <div class="player-actor">
               <div class="player-sprite player-sprite--${character.id}" data-character-sprite="${character.id}">
                 ${animatedSpriteMarkup(`./assets/characters/${character.id}/idle/1.png`, character.name, character.name.slice(0, 2).toUpperCase())}
               </div>
+              <div class="player-hp-row"><span>${Math.max(0, s.player.hp)} / ${s.player.maxHp}</span></div>
+              <div class="player-hp-bar"><i style="width:${Math.max(0, (s.player.hp / s.player.maxHp) * 100)}%"></i></div>
+              <div class="player-block-row">◆ ${s.player.block} Block</div>
             </div>
           </div>
 
