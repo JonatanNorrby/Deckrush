@@ -26,6 +26,7 @@ test('weekly seed stays the same from Monday through Sunday and resets on Monday
   assert.deepEqual(weeklySeed(wednesday), mondaySeed);
   assert.deepEqual(weeklySeed(sunday), mondaySeed);
   assert.equal(mondaySeed.label, '2026-09-21');
+  assert.equal(mondaySeed.week, 39);
 
   const nextWeek = weeklySeed(nextMonday);
   assert.equal(nextWeek.label, '2026-09-28');
@@ -637,4 +638,21 @@ test('battlefield character and enemy artwork is moderately larger', () => {
   assert.match(css, /\.player-sprite\s*\{[\s\S]*?width:\s*clamp\(200px,\s*22vw,\s*315px\);[\s\S]*?height:\s*clamp\(255px,\s*31vw,\s*420px\);/);
   assert.match(css, /\.enemy-sprite\s*\{[\s\S]*?width:\s*clamp\(170px,\s*19vw,\s*260px\);[\s\S]*?height:\s*clamp\(215px,\s*24vw,\s*335px\);/);
   assert.match(css, /\.enemy-unit--boss \.enemy-sprite\s*\{[\s\S]*?width:\s*clamp\(235px,\s*27vw,\s*365px\);[\s\S]*?height:\s*clamp\(280px,\s*32vw,\s*430px\);/);
+});
+
+
+test('main menu shows weekly seed and all-time best below weekly best', () => {
+  const renderSource = readFileSync(new URL('../src/ui/render.js', import.meta.url), 'utf8');
+  const css = readFileSync(new URL('../styles.css', import.meta.url), 'utf8');
+
+  assert.match(renderSource, /Week \$\{weekly\.week\} Seed/);
+  assert.match(renderSource, /\$\{weekly\.seed\}/);
+  assert.match(renderSource, /Same seed all week/);
+
+  const weeklyIndex = renderSource.indexOf('<small>Weekly Best</small>');
+  const allTimeIndex = renderSource.indexOf('<small>All-Time Best</small>');
+  assert.ok(weeklyIndex >= 0);
+  assert.ok(allTimeIndex > weeklyIndex);
+
+  assert.match(css, /\.fantasy-menu__seed\s*\{/);
 });
