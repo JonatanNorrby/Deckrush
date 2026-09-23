@@ -2,6 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { Game } from '../src/game/game.js';
 import { dailySeed } from '../src/core/rng.js';
+import { getCharacter } from '../src/data/characters.js';
 
 global.localStorage = {
   data: new Map(),
@@ -110,4 +111,67 @@ test('endless difficulty scales with fight number while Heat remains selectable'
 
   assert.equal(late.state.selectedHeat, 3);
   assert.ok(late.state.enemy.baseDamage >= earlyDamage + 3);
+});
+
+
+test('Viper and Bastion start with different character decks', () => {
+  const viper = new Game();
+  viper.startRun('daily', 'viper');
+
+  const bastion = new Game();
+  bastion.startRun('daily', 'bastion');
+
+  assert.equal(viper.state.characterId, 'viper');
+  assert.equal(viper.state.player.maxHp, getCharacter('viper').maxHp);
+  assert.ok(viper.state.deck.includes('toxic-cut'));
+  assert.ok(!viper.state.deck.includes('shield-strike'));
+
+  assert.equal(bastion.state.characterId, 'bastion');
+  assert.equal(bastion.state.player.maxHp, getCharacter('bastion').maxHp);
+  assert.ok(bastion.state.deck.includes('shield-strike'));
+  assert.ok(!bastion.state.deck.includes('toxic-cut'));
+});
+
+test('poison ticks before the enemy attacks and decays by one', () => {
+  const game = new Game();
+  game.startRun('daily', 'viper');
+  game.chooseHeat(0);
+  game.state.enemy.hp = 30;
+  game.state.enemy.maxHp = 30;
+  game.state.enemy.baseDamage = 0;
+  game.state.enemy.scaling = 0;
+  game.state.enemy.poison = 5;
+
+  game.endTurn();
+
+  assert.equal(game.state.enemy.hp, 25);
+  assert.equal(game.state.enemy.poison, 4);
+});
+
+test('Bastion shield bash converts current Block into damage', () => {
+  const game = new Game();
+  game.startRun('daily', 'bastion');
+  game.chooseHeat(0);
+  game.state.enemy.hp = 40;
+  game.state.enemy.maxHp = 40;
+  game.state.hand = ['fortify', 'shield-bash'];
+  game.state.player.energy = 3;
+
+  game.playCard(0);
+  assert.equal(game.state.player.block, 9);
+
+  game.playCard(0);
+  assert.equal(game.state.enemy.hp, 31);
+});
+
+test('reward pools are character-specific', () => {
+  const viper = new Game();
+  viper.startRun('daily', 'viper');
+  const viperRewards = viper.rollRewards(10);
+  assert.ok(viperRewards.every((id) => getCharacter('viper').rewardPool.includes(id)));
+
+  const bastion = new Game();
+  bastion.startRun('daily', 'bastion');
+  const bastionRewards = bastion.rollRewards(10);
+  assert.ok(bastionRewards.every((id) => getCharacter('bastion').rewardPool.includes(id)));
 });
