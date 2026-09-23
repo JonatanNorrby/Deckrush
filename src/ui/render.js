@@ -524,7 +524,7 @@ export class Renderer {
           <span>⚔</span><strong>${intentText}</strong>
         </div>
         <div class="enemy-sprite" data-enemy-sprite="${enemy.id}">
-          ${animatedSpriteMarkup(`./assets/enemies/${enemy.id}/combat.png`, enemy.name, enemy.name.slice(0, 2).toUpperCase())}
+          ${animatedSpriteMarkup(`./assets/enemies/${enemy.id}/idle/1.png`, enemy.name, enemy.name.slice(0, 2).toUpperCase())}
         </div>
         <div class="enemy-name">${enemy.name}</div>
         <div class="enemy-hp-row"><span>${Math.max(0, enemy.hp)} / ${enemy.maxHp}</span></div>
@@ -555,7 +555,7 @@ export class Renderer {
             </div>
             <div class="player-actor">
               <div class="player-sprite player-sprite--${character.id}" data-character-sprite="${character.id}">
-                ${animatedSpriteMarkup(`./assets/characters/${character.id}/combat.png`, character.name, character.name.slice(0, 2).toUpperCase())}
+                ${animatedSpriteMarkup(`./assets/characters/${character.id}/idle/1.png`, character.name, character.name.slice(0, 2).toUpperCase())}
               </div>
               <div class="actor-name"><span>${character.name}</span><small>${character.archetype}</small></div>
             </div>
