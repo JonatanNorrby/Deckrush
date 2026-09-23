@@ -1355,8 +1355,8 @@ p { color: var(--muted); line-height: 1.55; }
   animation: player-defensive-brace .56s ease-out;
 }
 
-.player-sprite.anim-state--hit {
-  animation: player-hit-recoil .32s ease-out;
+.player-sprite.anim-state--damage {
+  animation: player-damage-recoil .32s ease-out;
 }
 
 .player-sprite.anim-state--death {
@@ -1367,8 +1367,8 @@ p { color: var(--muted); line-height: 1.55; }
   animation: enemy-attack-lunge .48s cubic-bezier(.18,.8,.2,1);
 }
 
-.enemy-sprite.anim-state--hit {
-  animation: enemy-hit-recoil .32s ease-out;
+.enemy-sprite.anim-state--damage {
+  animation: enemy-damage-recoil .32s ease-out;
 }
 
 .enemy-sprite.anim-state--death {
@@ -1401,7 +1401,7 @@ p { color: var(--muted); line-height: 1.55; }
   100% { transform: scale(1); filter: brightness(1); }
 }
 
-@keyframes player-hit-recoil {
+@keyframes player-damage-recoil {
   0% { transform: translateX(0); filter: brightness(1); }
   28% { transform: translateX(-18px); filter: brightness(1.7) saturate(.55); }
   55% { transform: translateX(7px); }
@@ -1420,7 +1420,7 @@ p { color: var(--muted); line-height: 1.55; }
   100% { transform: translateX(0) scale(1); }
 }
 
-@keyframes enemy-hit-recoil {
+@keyframes enemy-damage-recoil {
   0% { transform: translateX(0); filter: brightness(1); }
   25% { transform: translateX(15px); filter: brightness(1.7) saturate(.55); }
   58% { transform: translateX(-5px); }
