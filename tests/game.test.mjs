@@ -629,3 +629,12 @@ test('dropping a playable card uses a brief battlefield landing animation', () =
   );
   assert.match(css, /@keyframes card-drop-play/);
 });
+
+
+test('battlefield character and enemy artwork is moderately larger', () => {
+  const css = readFileSync(new URL('../styles.css', import.meta.url), 'utf8');
+
+  assert.match(css, /\.player-sprite\s*\{[\s\S]*?width:\s*clamp\(200px,\s*22vw,\s*315px\);[\s\S]*?height:\s*clamp\(255px,\s*31vw,\s*420px\);/);
+  assert.match(css, /\.enemy-sprite\s*\{[\s\S]*?width:\s*clamp\(170px,\s*19vw,\s*260px\);[\s\S]*?height:\s*clamp\(215px,\s*24vw,\s*335px\);/);
+  assert.match(css, /\.enemy-unit--boss \.enemy-sprite\s*\{[\s\S]*?width:\s*clamp\(235px,\s*27vw,\s*365px\);[\s\S]*?height:\s*clamp\(280px,\s*32vw,\s*430px\);/);
+});
