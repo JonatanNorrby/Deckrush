@@ -1,34 +1,17 @@
-# Bastion assets
+# Bastion static art
 
-All Bastion art belongs in this folder.
+This folder contains Bastion's static PNGs and animation subfolders.
 
-Expected static PNGs:
-- `portrait.png`
-- `combat.png`
+## Required static PNGs
 
-Animation folders:
+- `portrait.png` — used on the main menu and character-selection screen.
+- `combat.png` — static combat fallback shown when no animation frames are available.
 
-```
-idle/1.png ... x.png
-magical/1.png ... x.png
-melee/1.png ... x.png
-defensive/1.png ... x.png
-damage/1.png ... x.png
-death/1.png ... x.png
-```
-
-Character-specific card effects:
+Expected paths:
 
 ```
-effects/magical/1.png ... x.png
-effects/melee/1.png ... x.png
-effects/defensive/1.png ... x.png
+assets/characters/bastion/portrait.png
+assets/characters/bastion/combat.png
 ```
 
-Examples:
-- `defensive/1.png` — Bastion playing a defensive-class card.
-- `melee/1.png` — Bastion playing a melee-class card.
-- `damage/1.png` — Bastion taking HP damage.
-- `effects/defensive/1.png` — Bastion's defensive card effect.
-
-Frames always start at `1.png` and continue numerically until the first missing frame.
+Each animation/effect subfolder contains its own README explaining the exact `1.png ... x.png` sequence expected there.
