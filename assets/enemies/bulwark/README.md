@@ -1,13 +1,13 @@
-# Bulwark static art
+# Bulwark artwork
 
-This folder contains all artwork for Bulwark.
+`idle/1.png` is the required fallback image for Bulwark. It is used anywhere the game needs a static enemy image and also serves as the first frame of the looping idle animation.
 
-## Required static PNG
+Expected fallback path:
 
-- `combat.png` — static combat fallback shown when no animation frames are available.
+```
+assets/enemies/bulwark/idle/1.png
+```
 
-Expected path:
+A separate `combat.png` fallback is no longer required.
 
-`assets/enemies/bulwark/combat.png`
-
-The `idle/`, `attack/`, `damage/`, and `death/` folders each contain their own README explaining the exact PNG sequence required there.
+The `idle/`, `attack/`, `damage/`, and `death/` folders contain their own READMEs explaining the exact numbered PNG sequences used by the animation system.
