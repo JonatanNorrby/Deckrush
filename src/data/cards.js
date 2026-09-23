@@ -20,10 +20,10 @@ export const CARD_LIBRARY = {
     description: 'Lose 2 HP. Gain +0.25x multiplier.',
     effects: [{ type: 'selfDamage', amount: 2 }, { type: 'multiplier', amount: 0.25 }],
   }),
-  cashout: card({
-    id: 'cashout', name: 'Cash Out', cost: 0, tags: ['score'],
-    description: 'Bank all pending score. Lose half your Combo.',
-    effects: [{ type: 'bank' }, { type: 'halveCombo' }],
+  cashin: card({
+    id: 'cashin', name: 'Cash In', cost: 0, tags: ['score'],
+    description: 'Gain 120 score. Lose half your Combo.',
+    effects: [{ type: 'score', amount: 120 }, { type: 'halveCombo' }],
   }),
   uppercut: card({
     id: 'uppercut', name: 'Uppercut', cost: 1, tags: ['attack'],
@@ -52,8 +52,8 @@ export const CARD_LIBRARY = {
   }),
   insurance: card({
     id: 'insurance', name: 'Insurance', cost: 1, tags: ['skill', 'score'],
-    description: 'Gain 5 Block and bank 50% of pending score.',
-    effects: [{ type: 'block', amount: 5 }, { type: 'bankFraction', amount: 0.5 }],
+    description: 'Gain 6 Block and 100 score.',
+    effects: [{ type: 'block', amount: 6 }, { type: 'score', amount: 100 }],
   }),
   redline: card({
     id: 'redline', name: 'Redline', cost: 0, tags: ['risk', 'score'], rarity: 'uncommon',
@@ -75,8 +75,8 @@ export const CARD_LIBRARY = {
   }),
   allIn: card({
     id: 'all-in', name: 'All In', cost: 2, tags: ['risk', 'score'], rarity: 'rare',
-    description: 'Double pending score. Enemy gains +3 damage this fight.',
-    effects: [{ type: 'doublePending' }, { type: 'enemyStrength', amount: 3 }],
+    description: 'Gain +0.75x multiplier. Enemy gains +3 damage this fight.',
+    effects: [{ type: 'multiplier', amount: 0.75 }, { type: 'enemyStrength', amount: 3 }],
   }),
   chainReaction: card({
     id: 'chain-reaction', name: 'Chain Reaction', cost: 1, tags: ['attack', 'score'], rarity: 'uncommon',
@@ -90,7 +90,7 @@ export const CARD_LIBRARY = {
   }),
   jackpot: card({
     id: 'jackpot', name: 'Jackpot', cost: 2, tags: ['score'], rarity: 'rare',
-    description: 'Gain 900 pending score if Combo is 6 or higher.',
+    description: 'Gain 900 score if Combo is 6 or higher.',
     effects: [{ type: 'conditionalScore', comboAtLeast: 6, amount: 900 }],
   }),
   precision: card({
@@ -100,8 +100,8 @@ export const CARD_LIBRARY = {
   }),
   vault: card({
     id: 'vault', name: 'Vault', cost: 1, tags: ['skill', 'score'], rarity: 'uncommon',
-    description: 'Bank all pending score. Gain 4 Block. Draw 1.',
-    effects: [{ type: 'bank' }, { type: 'block', amount: 4 }, { type: 'draw', amount: 1 }],
+    description: 'Gain 4 Block, draw 1, and gain 80 score.',
+    effects: [{ type: 'block', amount: 4 }, { type: 'draw', amount: 1 }, { type: 'score', amount: 80 }],
   }),
   berserk: card({
     id: 'berserk', name: 'Berserk', cost: 1, tags: ['attack', 'risk'], rarity: 'uncommon',
@@ -115,8 +115,8 @@ export const CARD_LIBRARY = {
   }),
 };
 
-export const STARTING_DECK = ['strike', 'strike', 'strike', 'guard', 'guard', 'jab', 'greed', 'cashout'];
-export const REWARD_POOL = Object.keys(CARD_LIBRARY).filter((id) => !['strike', 'guard', 'jab', 'greed', 'cashout'].includes(id));
+export const STARTING_DECK = ['strike', 'strike', 'strike', 'guard', 'guard', 'jab', 'greed', 'cashin'];
+export const REWARD_POOL = Object.keys(CARD_LIBRARY).filter((id) => !['strike', 'guard', 'jab', 'greed', 'cashin'].includes(id));
 
 export function getCard(id) {
   return CARD_LIBRARY[id];
