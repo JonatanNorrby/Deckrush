@@ -514,6 +514,16 @@ export class Renderer {
   }
 
   enemyMarkup(enemy, index) {
+    if (enemy.hp <= 0) {
+      return `
+        <article class="enemy-unit enemy-unit--dead ${enemy.elite ? 'enemy-unit--elite' : ''} ${enemy.boss ? 'enemy-unit--boss' : ''}" data-enemy-instance="${enemy.instanceId}" aria-label="${enemy.name}, defeated">
+          <div class="enemy-sprite enemy-sprite--dead">
+            ${artMarkup(`./assets/enemies/${enemy.id}/dead/1.png`, `${enemy.name} defeated`, enemy.name.slice(0, 2).toUpperCase())}
+          </div>
+          <div class="enemy-name">${enemy.name}</div>
+        </article>`;
+    }
+
     const hpPct = Math.max(0, (enemy.hp / enemy.maxHp) * 100);
     const intent = this.game.getEnemyIntent(enemy);
     const intentText = enemy.trait === 'burst' && enemy.turn + 1 === enemy.burstTurn ? `${intent} BURST` : String(intent);
@@ -562,7 +572,7 @@ export class Renderer {
           </div>
 
           <div class="enemy-side enemy-side--${aliveEnemies.length}">
-            ${s.enemies.map((enemy, index) => enemy.hp > 0 ? this.enemyMarkup(enemy, index) : '').join('')}
+            ${s.enemies.map((enemy, index) => this.enemyMarkup(enemy, index)).join('')}
           </div>
 
           <div class="drag-instruction">
