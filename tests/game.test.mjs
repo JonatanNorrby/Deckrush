@@ -682,3 +682,44 @@ test('cards use shared base artwork plus separate illustrations', () => {
   assert.doesNotMatch(renderSource, /assets\/cards\/\$\{card\.id\}\.png/);
   assert.match(css, /\.card-base-image\s*\{[\s\S]*?position:\s*absolute;[\s\S]*?z-index:\s*0;/);
 });
+
+
+test('combat redesign uses inline player HP and larger bare enemy intents', () => {
+  const renderSource = readFileSync(new URL('../src/ui/render.js', import.meta.url), 'utf8');
+  const css = readFileSync(new URL('../styles.css', import.meta.url), 'utf8');
+
+  assert.doesNotMatch(renderSource, /class="player-vitals"/);
+  assert.match(renderSource, /class="player-hp-row"/);
+  assert.match(renderSource, /class="player-hp-bar"/);
+  assert.match(renderSource, /class="player-block-row"/);
+
+  assert.match(css, /\.player-hp-bar\s*\{[\s\S]*?height:\s*11px;/);
+  assert.match(css, /\.enemy-hp-bar\s*\{[\s\S]*?height:\s*9px;/);
+  assert.match(css, /\.enemy-intent\s*\{[\s\S]*?border:\s*0;[\s\S]*?background:\s*transparent;[\s\S]*?box-shadow:\s*none;/);
+  assert.match(css, /\.enemy-intent span\s*\{[^}]*font-size:\s*1\.5rem;/);
+  assert.match(css, /\.enemy-intent strong\s*\{[^}]*font-size:\s*1\.2rem;/);
+});
+
+test('each encounter chooses one numbered battlefield background', () => {
+  const game = new Game();
+  game.startRun('weekly', 'viper');
+  game.chooseHeat(0);
+
+  assert.ok(Number.isInteger(game.state.fight.background));
+  assert.ok(game.state.fight.background >= 1 && game.state.fight.background <= 6);
+
+  const renderSource = readFileSync(new URL('../src/ui/render.js', import.meta.url), 'utf8');
+  const css = readFileSync(new URL('../styles.css', import.meta.url), 'utf8');
+  assert.match(renderSource, /assets\/backgrounds\/battlefields\/\$\{s\.fight\.background \|\| 1\}\.png/);
+  assert.match(css, /--battlefield-bg/);
+  assert.match(css, /assets\/backgrounds\/combat\.png/);
+});
+
+test('combat tray controls are larger and end turn matches the fantasy tray', () => {
+  const css = readFileSync(new URL('../styles.css', import.meta.url), 'utf8');
+
+  assert.match(css, /\.pile\s*\{[\s\S]*?width:\s*88px;[\s\S]*?height:\s*122px;/);
+  assert.match(css, /\.energy-orb\s*\{[\s\S]*?width:\s*98px;[\s\S]*?height:\s*98px;/);
+  assert.match(css, /\.end-turn-button\s*\{[\s\S]*?min-height:\s*60px;[\s\S]*?font-family:\s*Georgia/);
+  assert.match(css, /\.end-turn-button\s*\{[\s\S]*?border:\s*1px solid rgba\(205,151,77,.52\)/);
+});
