@@ -723,3 +723,17 @@ test('combat tray controls are larger and end turn matches the fantasy tray', ()
   assert.match(css, /\.end-turn-button\s*\{[\s\S]*?min-height:\s*60px;[\s\S]*?font-family:\s*Georgia/);
   assert.match(css, /\.end-turn-button\s*\{[\s\S]*?border:\s*1px solid rgba\(205,151,77,.52\)/);
 });
+
+
+test('branding uses shared logo asset instead of text', () => {
+  const renderSource = readFileSync(new URL('../src/ui/render.js', import.meta.url), 'utf8');
+  const css = readFileSync(new URL('../styles.css', import.meta.url), 'utf8');
+
+  assert.equal((renderSource.match(/assets\/logo\/logo\.png/g) || []).length, 2);
+  assert.doesNotMatch(renderSource, /<h1>DECKRUSH<\/h1>/);
+  assert.doesNotMatch(renderSource, /<div class="hud__brand">DECKRUSH<\/div>/);
+  assert.match(renderSource, /class="fantasy-menu__identity" aria-label="Deckrush"/);
+  assert.match(renderSource, /class="hud__brand" aria-label="Deckrush"/);
+  assert.match(css, /\.fantasy-menu__logo\s*\{/);
+  assert.match(css, /\.hud__logo\s*\{/);
+});
