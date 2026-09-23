@@ -479,3 +479,25 @@ test('every card explicitly declares its animation class', () => {
   assert.equal(definitions.length, Object.values(CARD_LIBRARY).length);
   assert.doesNotMatch(source, /inferAnimationClass/);
 });
+
+
+test('enemy attack animations return to idle frames', () => {
+  const source = readFileSync(new URL('../src/ui/animations.js', import.meta.url), 'utf8');
+
+  assert.match(
+    source,
+    /event\.type === 'enemyAttack'[\s\S]*?playSprite\(enemy, 'enemies', event\.enemyId, 'attack', \{ resumeState: 'idle' \}\)/,
+  );
+  assert.match(
+    source,
+    /if \(resumeState && this\.spriteTokens\.get\(element\) === token\)[\s\S]*?playSprite\(element, group, id, resumeState, \{ loop: true \}\)/,
+  );
+  assert.equal(
+    animationFramePath('enemies', 'scrapper', 'attack', 2),
+    './assets/enemies/scrapper/attack/2.png',
+  );
+  assert.equal(
+    animationFramePath('enemies', 'scrapper', 'idle', 1),
+    './assets/enemies/scrapper/idle/1.png',
+  );
+});
