@@ -543,7 +543,7 @@ export class Renderer {
           <span>⚔</span><strong>${intentText}</strong>
         </div>
         <div class="enemy-sprite" data-enemy-sprite="${enemy.id}">
-          ${animatedSpriteMarkup(`./assets/enemies/${enemy.id}.png`, enemy.name, enemy.name.slice(0, 2).toUpperCase())}
+          ${animatedSpriteMarkup(`./assets/enemies/${enemy.id}/combat.png`, enemy.name, enemy.name.slice(0, 2).toUpperCase())}
         </div>
         <div class="enemy-name">${enemy.name}</div>
         <div class="enemy-hp-row"><span>${Math.max(0, enemy.hp)} / ${enemy.maxHp}</span></div>
