@@ -69,7 +69,7 @@ export class Game {
     const s = this.state;
     const fightNumber = s.encounterIndex + 1;
     const isBoss = fightNumber % BOSS_INTERVAL === 0;
-    const eliteChance = Math.min(0.18 + s.encounterIndex * 0.012, 0.42);
+    const eliteChance = s.encounterIndex < 2 ? 0 : Math.min(0.28 + (s.encounterIndex - 2) * 0.01, 0.45);
     const enemyId = isBoss
       ? BOSS_ID
       : this.rng.pick(this.rng.next() < eliteChance ? ELITE_ENEMIES : NORMAL_ENEMIES);
