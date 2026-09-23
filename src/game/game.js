@@ -1,6 +1,6 @@
 import { RNG, dailySeed } from '../core/rng.js';
+import { getCard, cardNeedsEnemyTarget } from '../data/cards.js';
 import { saveRunResult } from '../core/storage.js';
-import { getCard } from '../data/cards.js';
 import { DEFAULT_CHARACTER_ID, getCharacter } from '../data/characters.js';
 import { ENEMIES, NORMAL_ENEMIES, ELITE_ENEMIES, BOSS_ID } from '../data/enemies.js';
 
@@ -45,7 +45,7 @@ export class Game {
       drawPile: [],
       discardPile: [],
       hand: [],
-      enemy: null,
+      enemies: [],
       rewardOptions: [],
       score: { total: 0, combo: 0, multiplier: 1, maxCombo: 0, maxMultiplier: 1 },
       stats: { biggestHit: 0, cardsPlayed: 0, fightsPerfect: 0, damageTaken: 0, overkill: 0 },
@@ -61,6 +61,16 @@ export class Game {
     return Math.max(0, now - this.state.startedAt);
   }
 
+  getAliveEnemies() {
+    return (this.state.enemies || []).filter((enemy) => enemy.hp > 0);
+  }
+
+  getEnemyIntent(enemy) {
+    if (!enemy || enemy.hp <= 0) return 0;
+    let incoming = enemy.baseDamage + enemy.strength + this.state.selectedHeat + enemy.scaling * Math.max(0, enemy.turn);
+    if (enemy.trait === 'burst' && enemy.turn + 1 === enemy.burstTurn) incoming += enemy.burstBonus || 0;
+    return incoming;
+  }
 
   chooseHeat(heat) {
     if (this.state.phase !== 'route') return;
@@ -68,29 +78,33 @@ export class Game {
     this.startEncounter();
   }
 
-  startEncounter() {
+  encounterEnemyCount(fightNumber, isBoss) {
+    if (isBoss) return 1;
+    if (fightNumber >= 10 && fightNumber % 5 === 0) return 3;
+    if (fightNumber >= 3 && fightNumber % 3 === 0) return 2;
+    return 1;
+  }
+
+  createEnemy(def, slot, enemyCount) {
     const s = this.state;
-    const fightNumber = s.encounterIndex + 1;
-    const isBoss = fightNumber % BOSS_INTERVAL === 0;
-    const eliteChance = s.encounterIndex < 2 ? 0 : Math.min(0.28 + (s.encounterIndex - 2) * 0.01, 0.45);
-    const enemyId = isBoss
-      ? BOSS_ID
-      : this.rng.pick(this.rng.next() < eliteChance ? ELITE_ENEMIES : NORMAL_ENEMIES);
-    const def = ENEMIES[enemyId];
     const heat = s.selectedHeat;
     const endlessHpScale = 1 + s.encounterIndex * 0.07;
     const endlessDamageBonus = Math.floor(s.encounterIndex / 4);
     const endlessRewardScale = 1 + s.encounterIndex * 0.05;
-    const hp = Math.round(def.hp * endlessHpScale * (1 + heat * 0.16));
+    const groupHpScale = enemyCount === 1 ? 1 : enemyCount === 2 ? 0.78 : 0.64;
+    const groupDamageScale = enemyCount === 1 ? 1 : enemyCount === 2 ? 0.72 : 0.56;
+    const groupRewardScale = enemyCount === 1 ? 1 : enemyCount === 2 ? 0.68 : 0.5;
+    const hp = Math.max(1, Math.round(def.hp * endlessHpScale * groupHpScale * (1 + heat * 0.16)));
 
-    s.enemy = {
+    return {
+      instanceId: `${def.id}-${s.encounterIndex}-${slot}`,
       id: def.id,
       name: def.name,
       maxHp: hp,
       hp,
-      baseDamage: def.damage + endlessDamageBonus,
+      baseDamage: Math.max(1, Math.round((def.damage + endlessDamageBonus) * groupDamageScale)),
       scaling: def.scaling,
-      reward: Math.round(def.reward * endlessRewardScale),
+      reward: Math.round(def.reward * endlessRewardScale * groupRewardScale),
       elite: def.elite,
       boss: def.boss,
       trait: def.trait,
@@ -100,7 +114,24 @@ export class Game {
       strength: 0,
       turn: 0,
       poison: 0,
+      defeated: false,
     };
+  }
+
+  startEncounter() {
+    const s = this.state;
+    const fightNumber = s.encounterIndex + 1;
+    const isBoss = fightNumber % BOSS_INTERVAL === 0;
+    const enemyCount = this.encounterEnemyCount(fightNumber, isBoss);
+    const eliteChance = s.encounterIndex < 2 ? 0 : Math.min(0.28 + (s.encounterIndex - 2) * 0.01, 0.45);
+
+    s.enemies = Array.from({ length: enemyCount }, (_, slot) => {
+      const enemyId = isBoss
+        ? BOSS_ID
+        : this.rng.pick(this.rng.next() < eliteChance ? ELITE_ENEMIES : NORMAL_ENEMIES);
+      return this.createEnemy(ENEMIES[enemyId], slot, enemyCount);
+    });
+
     s.fight = { damageTaken: 0, turn: 1 };
     s.player.block = 0;
     s.player.energy = s.player.maxEnergy;
@@ -110,7 +141,7 @@ export class Game {
     s.hand = [];
     this.draw(HAND_SIZE);
     s.phase = 'combat';
-    this.pushLog(`Fight ${fightNumber}: ${def.name} enters at Heat ${heat}.`);
+    this.pushLog(`Fight ${fightNumber}: ${enemyCount > 1 ? `${enemyCount} enemies` : s.enemies[0].name} at Heat ${s.selectedHeat}.`);
     this.emit();
   }
 
@@ -126,12 +157,26 @@ export class Game {
     }
   }
 
-  playCard(index) {
+  resolveTargetIndex(card, requestedTargetIndex) {
+    const aliveIndexes = this.state.enemies
+      .map((enemy, index) => (enemy.hp > 0 ? index : -1))
+      .filter((index) => index >= 0);
+
+    if (!cardNeedsEnemyTarget(card)) return null;
+    if (Number.isInteger(requestedTargetIndex) && aliveIndexes.includes(requestedTargetIndex)) return requestedTargetIndex;
+    if (aliveIndexes.length === 1) return aliveIndexes[0];
+    return undefined;
+  }
+
+  playCard(index, targetIndex = null) {
     const s = this.state;
-    if (s.phase !== 'combat' || !s.enemy) return;
+    if (s.phase !== 'combat' || !this.getAliveEnemies().length) return false;
     const cardId = s.hand[index];
     const card = getCard(cardId);
-    if (!card || s.player.energy < card.cost) return;
+    if (!card || s.player.energy < card.cost) return false;
+
+    const resolvedTarget = this.resolveTargetIndex(card, targetIndex);
+    if (cardNeedsEnemyTarget(card) && resolvedTarget === undefined) return false;
 
     s.player.energy -= card.cost;
     s.hand.splice(index, 1);
@@ -143,27 +188,36 @@ export class Game {
 
     for (const effect of card.effects) {
       if (s.phase !== 'combat') break;
-      this.resolveEffect(effect);
+      this.resolveEffect(effect, resolvedTarget);
     }
 
     this.emit();
+    return true;
   }
 
-  resolveEffect(effect) {
+  getTargetEnemy(targetIndex) {
+    if (!Number.isInteger(targetIndex)) return null;
+    const enemy = this.state.enemies[targetIndex];
+    return enemy?.hp > 0 ? enemy : null;
+  }
+
+  resolveEffect(effect, targetIndex) {
     const s = this.state;
     switch (effect.type) {
       case 'damage': {
         const hits = effect.hits || 1;
-        for (let i = 0; i < hits && s.enemy?.hp > 0; i += 1) {
-          this.dealDamage(effect.amount, effect);
+        for (let i = 0; i < hits; i += 1) {
+          const enemy = this.getTargetEnemy(targetIndex);
+          if (!enemy) break;
+          this.dealDamage(targetIndex, effect.amount, effect);
         }
         break;
       }
       case 'damagePerCombo':
-        this.dealDamage(effect.base + s.score.combo * effect.amount, effect);
+        this.dealDamage(targetIndex, effect.base + s.score.combo * effect.amount, effect);
         break;
       case 'damageFromBlock':
-        this.dealDamage(effect.base + Math.floor(s.player.block * effect.ratio), effect);
+        this.dealDamage(targetIndex, effect.base + Math.floor(s.player.block * effect.ratio), effect);
         break;
       case 'block': s.player.block += effect.amount; break;
       case 'draw': this.draw(effect.amount); break;
@@ -177,11 +231,27 @@ export class Game {
       case 'score': this.addScore(effect.amount); break;
       case 'scorePerCombo': this.addScore(effect.amount * s.score.combo); break;
       case 'scorePerBlock': this.addScore(effect.amount * s.player.block); break;
-      case 'scorePerPoison': this.addScore(effect.amount * (s.enemy?.poison || 0)); break;
-      case 'poison': if (s.enemy) s.enemy.poison += effect.amount; break;
-      case 'doublePoison': if (s.enemy) s.enemy.poison *= 2; break;
-      case 'enemyStrength': s.enemy.strength += effect.amount; break;
-      case 'conditionalScore': if (s.score.combo >= effect.comboAtLeast) this.addScore(effect.amount); break;
+      case 'scorePerPoison': {
+        const enemy = this.getTargetEnemy(targetIndex);
+        if (enemy) this.addScore(effect.amount * enemy.poison);
+        break;
+      }
+      case 'poison': {
+        const enemy = this.getTargetEnemy(targetIndex);
+        if (enemy) enemy.poison += effect.amount;
+        break;
+      }
+      case 'doublePoison': {
+        const enemy = this.getTargetEnemy(targetIndex);
+        if (enemy) enemy.poison *= 2;
+        break;
+      }
+      case 'enemyStrength':
+        for (const enemy of this.getAliveEnemies()) enemy.strength += effect.amount;
+        break;
+      case 'conditionalScore':
+        if (s.score.combo >= effect.comboAtLeast) this.addScore(effect.amount);
+        break;
       default: break;
     }
   }
@@ -211,25 +281,33 @@ export class Game {
     return gained;
   }
 
-  dealDamage(amount, effect = {}) {
+  dealDamage(targetIndex, amount, effect = {}) {
     const s = this.state;
-    if (!s.enemy) return;
-    s.enemy.hp -= amount;
+    const enemy = this.getTargetEnemy(targetIndex);
+    if (!enemy) return;
+
+    const previousHp = enemy.hp;
+    enemy.hp -= amount;
     s.stats.biggestHit = Math.max(s.stats.biggestHit, amount);
     this.addScore(amount * 10);
 
-    const overkill = Math.max(0, -s.enemy.hp);
+    const overkill = Math.max(0, amount - previousHp);
     if (overkill > 0) {
       s.stats.overkill += overkill;
       const bonus = this.addScore(overkill * 28);
       this.pushLog(`OVERKILL +${bonus}`);
     }
 
-    if (s.enemy.hp <= 0) {
+    if (enemy.hp <= 0 && !enemy.defeated) {
+      enemy.hp = Math.min(0, enemy.hp);
+      enemy.defeated = true;
       if (effect.killScore) this.addScore(effect.killScore);
       if (effect.perfectKillScore && s.fight.damageTaken === 0) this.addScore(effect.perfectKillScore);
-      this.finishEncounter();
-    } else if (effect.lowHpScore && s.enemy.hp <= effect.lowHpThreshold) {
+      this.addScore(enemy.reward);
+      this.pushLog(`${enemy.name} defeated.`);
+
+      if (!this.getAliveEnemies().length) this.finishEncounter();
+    } else if (effect.lowHpScore && enemy.hp > 0 && enemy.hp <= effect.lowHpThreshold) {
       this.addScore(effect.lowHpScore);
     }
   }
@@ -242,7 +320,7 @@ export class Game {
 
   endTurn() {
     const s = this.state;
-    if (s.phase !== 'combat' || !s.enemy) return;
+    if (s.phase !== 'combat' || !this.getAliveEnemies().length) return;
     s.discardPile.push(...s.hand);
     s.hand = [];
     this.tickPoison();
@@ -258,50 +336,59 @@ export class Game {
 
   tickPoison() {
     const s = this.state;
-    if (!s.enemy || s.enemy.poison <= 0) return;
-    const damage = s.enemy.poison;
-    this.pushLog(`POISON ticks for ${damage}.`);
-    this.dealDamage(damage, { source: 'poison' });
-    if (s.phase !== 'combat' || !s.enemy) return;
-    s.enemy.poison = Math.max(0, s.enemy.poison - 1);
+    const poisoned = s.enemies
+      .map((enemy, index) => ({ enemy, index }))
+      .filter(({ enemy }) => enemy.hp > 0 && enemy.poison > 0);
+
+    for (const { enemy, index } of poisoned) {
+      if (s.phase !== 'combat') break;
+      const damage = enemy.poison;
+      this.pushLog(`${enemy.name}: POISON ${damage}.`);
+      this.dealDamage(index, damage, { source: 'poison' });
+      if (s.phase === 'combat' && enemy.hp > 0) enemy.poison = Math.max(0, enemy.poison - 1);
+    }
   }
 
   enemyTurn() {
     const s = this.state;
-    const e = s.enemy;
-    e.turn += 1;
-    let incoming = e.baseDamage + e.strength + s.selectedHeat + e.scaling * Math.max(0, e.turn - 1);
-    if (e.trait === 'burst' && e.turn === e.burstTurn) incoming += e.burstBonus || 0;
+    for (const enemy of s.enemies) {
+      if (enemy.hp <= 0) continue;
+      enemy.turn += 1;
+      const incoming = this.getEnemyIntent({ ...enemy, turn: enemy.turn - 1 });
+      const blocked = Math.min(s.player.block, incoming);
+      const damage = Math.max(0, incoming - blocked);
+      s.player.block -= blocked;
 
-    const blocked = Math.min(s.player.block, incoming);
-    const damage = Math.max(0, incoming - blocked);
-    s.player.block -= blocked;
+      if (damage > 0) {
+        s.player.hp -= damage;
+        s.fight.damageTaken += damage;
+        s.stats.damageTaken += damage;
+        s.score.combo = 0;
+        s.score.multiplier = Math.max(1, Math.round((s.score.multiplier - 0.4) * 100) / 100);
+        if (enemy.trait === 'drain') {
+          s.score.multiplier = Math.max(1, Math.round((s.score.multiplier - 0.2) * 100) / 100);
+        }
+        this.pushLog(`${enemy.name} hits for ${damage}. Combo broken and multiplier reduced.`);
+      } else {
+        this.pushLog(`${enemy.name}'s attack is fully blocked.`);
+      }
 
-    if (damage > 0) {
-      s.player.hp -= damage;
-      s.fight.damageTaken += damage;
-      s.stats.damageTaken += damage;
-      s.score.combo = 0;
-      s.score.multiplier = Math.max(1, Math.round((s.score.multiplier - 0.4) * 100) / 100);
-      if (e.trait === 'drain') s.score.multiplier = Math.max(1, Math.round((s.score.multiplier - 0.2) * 100) / 100);
-      this.pushLog(`${e.name} hits for ${damage}. Combo broken and multiplier reduced.`);
-    } else {
-      this.pushLog(`${e.name}'s attack is fully blocked.`);
+      if (s.player.hp <= 0) {
+        s.player.hp = 0;
+        this.endRun(false, 'Knocked out');
+        return;
+      }
     }
-
-    if (s.player.hp <= 0) this.endRun(false, 'Knocked out');
   }
 
   finishEncounter() {
     const s = this.state;
-    const e = s.enemy;
-    this.addScore(e.reward);
     if (s.fight.damageTaken === 0) {
       const perfect = this.addScore(400 + s.encounterIndex * 50);
       s.stats.fightsPerfect += 1;
       this.pushLog(`PERFECT +${perfect}`);
     }
-    if (e.boss) {
+    if (s.enemies.some((enemy) => enemy.boss)) {
       this.pushLog('BOSS CLEARED — the run continues.');
     }
 
@@ -333,7 +420,7 @@ export class Game {
   advanceEncounter() {
     const s = this.state;
     s.encounterIndex += 1;
-    s.enemy = null;
+    s.enemies = [];
     s.rewardOptions = [];
     s.phase = 'route';
     this.emit();
@@ -374,6 +461,6 @@ export class Game {
     const log = this.state.log;
     if (!log) return;
     log.unshift(message);
-    if (log.length > 5) log.pop();
+    if (log.length > 6) log.pop();
   }
 }
