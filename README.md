@@ -1,12 +1,12 @@
 # Deckrush
 
-Deckrush is a fast, browser-only score-attack deckbuilder roguelite built around greed: increase Combo and Score Multiplier, expose points to risk, then bank them before enemies hit back.
+Deckrush is a fast, browser-only score-attack deckbuilder roguelite built around chaining cards, raising Combo and Score Multiplier, and squeezing as many points as possible from each fight.
 
 ## Current prototype
 
 - 8-encounter runs ending in a boss.
 - Heat 0–3 selected before every encounter.
-- Banked vs exposed score: taking damage destroys 25% of exposed score.
+- Single score total: score only goes up; taking damage instead breaks Combo and reduces Multiplier.
 - Combo and multiplier systems designed around high-score routing.
 - 20+ data-driven cards and several enemy archetypes.
 - Deterministic Daily Seed mode.
