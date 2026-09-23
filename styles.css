@@ -1351,24 +1351,6 @@ p { color: var(--muted); line-height: 1.55; }
 
 
 /* === Animation system === */
-.card__animation-class {
-  display: inline-flex;
-  align-items: center;
-  width: fit-content;
-  margin-top: 7px;
-  padding: 3px 6px;
-  border: 1px solid rgba(255,255,255,.12);
-  border-radius: 999px;
-  color: #9ca6b8;
-  font-size: .52rem;
-  font-weight: 900;
-  letter-spacing: .09em;
-  text-transform: uppercase;
-}
-.card__animation-class--magical { color: #c49cff; border-color: rgba(170,112,235,.34); background: rgba(96,45,142,.13); }
-.card__animation-class--melee { color: #efb28a; border-color: rgba(216,118,70,.34); background: rgba(127,55,27,.13); }
-.card__animation-class--defensive { color: #9fc8ff; border-color: rgba(95,145,221,.34); background: rgba(44,78,139,.13); }
-
 .player-sprite,
 .enemy-sprite {
   position: relative;
