@@ -589,3 +589,43 @@ test('Rune appears in character selection and has dedicated visual accents', () 
   assert.match(css, /\.player-sprite--rune\s*\{/);
   assert.match(css, /\.character-picker__grid\s*\{[\s\S]*?grid-template-columns:\s*repeat\(3,/);
 });
+
+
+test('multi-enemy targeted cards stage on battlefield before choosing an enemy', () => {
+  const renderSource = readFileSync(new URL('../src/ui/render.js', import.meta.url), 'utf8');
+  const css = readFileSync(new URL('../styles.css', import.meta.url), 'utf8');
+
+  assert.match(
+    renderSource,
+    /if \(targeted && aliveIndexes\.length > 1\)[\s\S]*?stagePendingTarget\(index, card, source, landingCard, x, y\)/,
+  );
+  assert.match(
+    renderSource,
+    /beginTargetArrow\(event, pendingCard\)[\s\S]*?targeting-arrow-layer/,
+  );
+  assert.match(
+    renderSource,
+    /finishTargetArrow\(x, y\)[\s\S]*?this\.game\.playCard\(index, targetIndex\)/,
+  );
+  assert.match(
+    renderSource,
+    /Drop a card on the battlefield, then aim at an enemy/,
+  );
+  assert.match(css, /\.combat-card\.pending-target-card\s*\{/);
+  assert.match(css, /\.targeting-arrow-layer\s*\{/);
+});
+
+test('dropping a playable card uses a brief battlefield landing animation', () => {
+  const renderSource = readFileSync(new URL('../src/ui/render.js', import.meta.url), 'utf8');
+  const css = readFileSync(new URL('../styles.css', import.meta.url), 'utf8');
+
+  assert.match(
+    renderSource,
+    /playCardWithDropAnimation\(index, targetIndex, landingCard, x, y\)/,
+  );
+  assert.match(
+    renderSource,
+    /landingCard\.classList\.add\('card-drop-play'\)[\s\S]*?setTimeout\([\s\S]*?140/,
+  );
+  assert.match(css, /@keyframes card-drop-play/);
+});
