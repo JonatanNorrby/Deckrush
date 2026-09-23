@@ -12,6 +12,7 @@ Deckrush is a fast, browser-only score-attack deckbuilder roguelite built around
 - 20+ data-driven cards and several enemy archetypes.
 - Deterministic Daily Seed mode.
 - Local personal/daily records via `localStorage`.
+- Nightfall-inspired three-column main menu with a dark-fantasy hero showcase and dedicated character-selection overlay.
 - Main-menu Handbook with current gameplay rules and a data-driven catalog of all available cards.
 - Responsive UI and zero runtime dependencies.
 
