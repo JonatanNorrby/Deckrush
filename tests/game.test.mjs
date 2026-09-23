@@ -245,8 +245,13 @@ test('every card maps to a supported animation class', () => {
   }
 
   assert.equal(getCard('envenom').animationClass, 'magical');
+  assert.equal(getCard('toxic-cut').animationClass, 'melee');
+  assert.equal(getCard('shield-strike').animationClass, 'melee');
+  assert.equal(getCard('shield-bash').animationClass, 'melee');
   assert.equal(getCard('uppercut').animationClass, 'melee');
   assert.equal(getCard('fortify').animationClass, 'defensive');
+  assert.equal(getCard('counterweight').animationClass, 'defensive');
+  assert.equal(getCard('all-in').animationClass, 'magical');
 });
 
 test('characters and enemies declare the required animation states', () => {
@@ -460,4 +465,13 @@ test('chosen wanderer label sits closer to hero and begin button is raised', () 
     css,
     /\.fantasy-menu__begin\s*\{[\s\S]*?margin-top:\s*-28px;/,
   );
+});
+
+
+test('every card explicitly declares its animation class', () => {
+  const source = readFileSync(new URL('../src/data/cards.js', import.meta.url), 'utf8');
+  const definitions = [...source.matchAll(/id:\s*'([^']+)'[\s\S]*?animationClass:\s*'(magical|melee|defensive)'/g)];
+
+  assert.equal(definitions.length, Object.values(CARD_LIBRARY).length);
+  assert.doesNotMatch(source, /inferAnimationClass/);
 });
