@@ -510,7 +510,6 @@ export class Renderer {
               <small>+${heat * 16}% enemy HP · +${heat} damage</small>
             </button>`).join('')}
         </div>
-        ${this.log(s)}
       </section>`;
   }
 
