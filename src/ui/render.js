@@ -2,6 +2,7 @@ import { CARD_LIBRARY, getCard, cardNeedsEnemyTarget } from '../data/cards.js';
 import { loadSave } from '../core/storage.js';
 import { dailySeed } from '../core/rng.js';
 import { CHARACTERS, getCharacter } from '../data/characters.js';
+import { AnimationDirector } from './animations.js';
 
 const fmt = new Intl.NumberFormat('en-US');
 
@@ -20,6 +21,13 @@ function artMarkup(path, alt, fallback, extraClass = '') {
     <span class="art-fallback">${fallback}</span>`;
 }
 
+function animatedSpriteMarkup(staticPath, alt, fallback) {
+  return `
+    <span class="sprite-static-art">${artMarkup(staticPath, alt, fallback)}</span>
+    <img class="sprite-animation-frame" data-animation-frame alt="" draggable="false" hidden>
+  `;
+}
+
 function cardArtMarkup(card) {
   return artMarkup(`./assets/cards/${card.id}.png`, '', card.name.slice(0, 2).toUpperCase(), 'card-art-image');
 }
@@ -30,6 +38,7 @@ function cardMarkup(card, index = null, action = null) {
   return `
     <button class="card card--${rarity}" ${attrs} ${action ? '' : 'disabled'}>
       <div class="card__top"><span class="card__cost">${card.cost}</span><span class="card__rarity">${rarity}</span></div>
+      <span class="card__animation-class card__animation-class--${card.animationClass}">${card.animationClass}</span>
       <div class="card__art" aria-hidden="true">${cardArtMarkup(card)}</div>
       <strong class="card__name">${card.name}</strong>
       <p>${card.description}</p>
@@ -58,6 +67,7 @@ function combatCardMarkup(card, index, energy, handSize) {
         <span class="card__cost">${card.cost}</span>
         <span class="card__rarity">${rarity}</span>
       </div>
+      <span class="card__animation-class card__animation-class--${card.animationClass}">${card.animationClass}</span>
       <div class="card__art" aria-hidden="true">${cardArtMarkup(card)}</div>
       <strong class="card__name">${card.name}</strong>
       <p>${card.description}</p>
@@ -73,6 +83,7 @@ export class Renderer {
     this.characterSelectOpen = false;
     this.selectedCharacterId = 'viper';
     this.drag = null;
+    this.animations = new AnimationDirector(root);
 
     this.root.addEventListener('click', (event) => this.handleClick(event));
     this.root.addEventListener('pointerdown', (event) => this.handlePointerDown(event));
@@ -263,12 +274,27 @@ export class Renderer {
 
   render(state) {
     if (this.drag) this.cleanupCardDrag();
-    if (state.phase === 'menu') return this.renderMenu();
+    this.animations.reset();
+
+    if (state.phase === 'menu') {
+      this.game.consumeAnimationEvents?.();
+      this.renderMenu();
+      return;
+    }
+
     const hud = this.hud(state);
     if (state.phase === 'route') this.root.innerHTML = hud + this.route(state);
     if (state.phase === 'combat') this.root.innerHTML = hud + this.combat(state);
     if (state.phase === 'reward') this.root.innerHTML = hud + this.reward(state);
     if (state.phase === 'gameover') this.root.innerHTML = this.gameOver(state);
+
+    const events = this.game.consumeAnimationEvents?.() || [];
+    if (state.phase === 'combat') {
+      requestAnimationFrame(() => {
+        this.animations.bindCombatSprites();
+        this.animations.playEvents(events);
+      });
+    }
   }
 
   renderMenu() {
@@ -465,6 +491,7 @@ export class Renderer {
           ${cards.slice().sort((a, b) => a.name.localeCompare(b.name)).map((card) => `
             <article class="handbook-card handbook-card--${card.rarity}">
               <div class="handbook-card__top"><span class="card__cost">${card.cost}</span><span class="card__rarity">${card.rarity}</span></div>
+              <span class="card__animation-class card__animation-class--${card.animationClass}">${card.animationClass}</span>
               <div class="handbook-card__art" aria-hidden="true">${cardArtMarkup(card)}</div>
               <h3>${card.name}</h3>
               <p>${card.description}</p>
@@ -511,12 +538,12 @@ export class Renderer {
     const intentText = enemy.trait === 'burst' && enemy.turn + 1 === enemy.burstTurn ? `${intent} BURST` : String(intent);
 
     return `
-      <article class="enemy-unit ${enemy.elite ? 'enemy-unit--elite' : ''} ${enemy.boss ? 'enemy-unit--boss' : ''}" data-enemy-index="${index}">
+      <article class="enemy-unit ${enemy.elite ? 'enemy-unit--elite' : ''} ${enemy.boss ? 'enemy-unit--boss' : ''}" data-enemy-index="${index}" data-enemy-instance="${enemy.instanceId}">
         <div class="enemy-intent" title="Next attack">
           <span>⚔</span><strong>${intentText}</strong>
         </div>
-        <div class="enemy-sprite">
-          ${artMarkup(`./assets/enemies/${enemy.id}.png`, enemy.name, enemy.name.slice(0, 2).toUpperCase())}
+        <div class="enemy-sprite" data-enemy-sprite="${enemy.id}">
+          ${animatedSpriteMarkup(`./assets/enemies/${enemy.id}.png`, enemy.name, enemy.name.slice(0, 2).toUpperCase())}
         </div>
         <div class="enemy-name">${enemy.name}</div>
         <div class="enemy-hp-row"><span>${Math.max(0, enemy.hp)} / ${enemy.maxHp}</span></div>
@@ -536,6 +563,7 @@ export class Renderer {
       <section class="combat-screen">
         <div class="combat-stage" data-battlefield>
           <div class="combat-stage__overlay"></div>
+          <div class="card-effect-layer" data-card-effect-layer aria-hidden="true"></div>
 
           <div class="player-side">
             <div class="player-vitals">
@@ -545,8 +573,8 @@ export class Renderer {
               <em>◆ ${s.player.block} Block</em>
             </div>
             <div class="player-actor">
-              <div class="player-sprite player-sprite--${character.id}">
-                ${artMarkup(`./assets/characters/${character.id}/combat.png`, character.name, character.name.slice(0, 2).toUpperCase())}
+              <div class="player-sprite player-sprite--${character.id}" data-character-sprite="${character.id}">
+                ${animatedSpriteMarkup(`./assets/characters/${character.id}/combat.png`, character.name, character.name.slice(0, 2).toUpperCase())}
               </div>
               <div class="actor-name"><span>${character.name}</span><small>${character.archetype}</small></div>
             </div>
