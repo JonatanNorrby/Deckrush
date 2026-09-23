@@ -713,7 +713,7 @@ p { color: var(--muted); line-height: 1.55; }
   z-index: 1;
   min-height: 0;
   display: grid;
-  grid-template-columns: minmax(220px, 285px) minmax(360px, 1fr) minmax(220px, 300px);
+  grid-template-columns: minmax(220px, 285px) minmax(360px, 1fr) minmax(280px, 390px);
   align-items: center;
   gap: clamp(24px, 4vw, 66px);
   padding: 22px 0 18px;
@@ -843,11 +843,11 @@ p { color: var(--muted); line-height: 1.55; }
 .fantasy-menu__hero-kicker {
   position: relative;
   z-index: 3;
-  color: #987445;
+  color: #b88a4f;
   font-family: Georgia, "Times New Roman", serif;
-  font-size: 10px;
+  font-size: 14px;
   font-weight: 700;
-  letter-spacing: .23em;
+  letter-spacing: .2em;
   text-transform: uppercase;
 }
 
@@ -942,15 +942,19 @@ p { color: var(--muted); line-height: 1.55; }
 .fantasy-menu__hero-stats {
   display: flex;
   justify-content: center;
-  gap: 16px;
-  margin-top: 13px;
-  color: #8d7656;
-  font-size: .68rem;
+  gap: 26px;
+  margin-top: 17px;
+  color: #a58a62;
+  font-size: .88rem;
+  font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: .06em;
+  letter-spacing: .07em;
 }
 
-.fantasy-menu__hero-stats b { color: #e7d0a1; }
+.fantasy-menu__hero-stats b {
+  color: #f0d7a4;
+  font-size: 1.3rem;
+}
 
 .fantasy-menu__begin {
   position: relative;
@@ -979,8 +983,8 @@ p { color: var(--muted); line-height: 1.55; }
 
 .fantasy-menu__brief {
   align-self: center;
+  width: 100%;
   display: grid;
-  gap: 17px;
 }
 
 .fantasy-menu__brief-block {
@@ -1025,31 +1029,42 @@ p { color: var(--muted); line-height: 1.55; }
   line-height: 1.5;
 }
 
+.fantasy-menu__brief-block--records {
+  padding: 24px 0 24px 24px;
+}
+
+.fantasy-menu__brief-block--records > span {
+  margin-bottom: 14px;
+  color: #aa7e44;
+  font-size: .78rem;
+}
+
 .fantasy-menu__records {
   display: grid;
-  gap: 8px;
+  gap: 12px;
 }
 
 .fantasy-menu__records div {
   display: flex;
   align-items: baseline;
   justify-content: space-between;
-  gap: 14px;
-  padding-bottom: 6px;
-  border-bottom: 1px solid rgba(190,137,67,.09);
+  gap: 18px;
+  padding: 11px 0;
+  border-bottom: 1px solid rgba(190,137,67,.14);
 }
 
 .fantasy-menu__records small {
-  color: #826b4c;
-  font-size: .64rem;
+  color: #9a7d56;
+  font-size: .78rem;
+  font-weight: 800;
   text-transform: uppercase;
-  letter-spacing: .07em;
+  letter-spacing: .08em;
 }
 
 .fantasy-menu__records b {
-  color: #ead4a7;
+  color: #f1d8a6;
   font-family: Georgia, "Times New Roman", serif;
-  font-size: 1.02rem;
+  font-size: clamp(1.35rem, 2vw, 1.9rem);
 }
 
 .fantasy-menu__footer {

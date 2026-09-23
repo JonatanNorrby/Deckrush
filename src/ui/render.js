@@ -312,12 +312,10 @@ export class Renderer {
             <p class="eyebrow">ENDLESS FANTASY DECKBRAWLER</p>
             <h1>DECKRUSH</h1>
           </div>
-          <div class="fantasy-menu__sigil"><span>DR</span></div>
         </header>
 
         <div class="fantasy-menu__body">
           <nav class="fantasy-menu__nav" aria-label="Main menu">
-            <span class="fantasy-menu__section-label">The Road Ahead</span>
             <button class="fantasy-menu__action fantasy-menu__action--primary" data-action="start-normal">
               <span class="fantasy-menu__rune">◆</span>
               <span><strong>Begin Run</strong><small>Enter the endless road</small></span>
@@ -356,13 +354,8 @@ export class Renderer {
             <button class="fantasy-menu__begin" data-action="start-normal">Begin Run — ${character.name}</button>
           </section>
 
-          <aside class="fantasy-menu__brief" aria-label="Run briefing">
-            <div class="fantasy-menu__brief-block">
-              <span>Quest</span>
-              <strong>Push deeper. Score higher. Die later.</strong>
-              <p>Choose Heat before each battle, shape your deck around your hero, and survive an endless procession of enemies and recurring bosses.</p>
-            </div>
-            <div class="fantasy-menu__brief-block">
+          <aside class="fantasy-menu__brief" aria-label="Records">
+            <div class="fantasy-menu__brief-block fantasy-menu__brief-block--records">
               <span>Records</span>
               <div class="fantasy-menu__records">
                 <div><small>Best Score</small><b>${fmt.format(save.bestScore)}</b></div>
@@ -370,17 +363,9 @@ export class Renderer {
                 <div><small>Runs</small><b>${save.stats.runs}</b></div>
               </div>
             </div>
-            <div class="fantasy-menu__brief-block">
-              <span>Remember</span>
-              <p>Damage breaks Combo and lowers Multiplier, but your accumulated score is safe. Every eighth fight is a boss.</p>
-            </div>
           </aside>
         </div>
 
-        <footer class="fantasy-menu__footer">
-          <span>Drag cards into battle. Target enemies directly when several stand against you.</span>
-          <span>The road ends only when you fall.</span>
-        </footer>
       </section>
       ${this.characterSelectOpen ? this.characterSelector() : ''}
       ${this.handbookOpen ? this.handbook() : ''}`;
