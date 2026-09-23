@@ -373,3 +373,12 @@ test('game over screen centers score and prioritizes retry action', () => {
   assert.match(css, /\.result-screen__retry\s*\{[\s\S]*?min-height:\s*64px;/);
   assert.match(css, /\.result-screen__menu\s*\{[\s\S]*?background:\s*transparent;/);
 });
+
+
+test('character selection uses idle frame one instead of portrait art', () => {
+  const renderSource = readFileSync(new URL('../src/ui/render.js', import.meta.url), 'utf8');
+
+  assert.doesNotMatch(renderSource, /portrait\.png/);
+  const idleSelectionRefs = renderSource.match(/\.\/assets\/characters\/\$\{character\.id\}\/idle\/1\.png/g) || [];
+  assert.equal(idleSelectionRefs.length, 2);
+});
