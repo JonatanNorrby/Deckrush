@@ -603,7 +603,7 @@ export class Renderer {
         <div class="rule-grid">
           <article><span class="rule-number">01</span><h3>Choose Heat</h3><p>Before every fight, choose Heat 0–3. Higher Heat gives enemies more HP and damage, but increases every point you earn.</p></article>
           <article><span class="rule-number">02</span><h3>Drag Cards</h3><p>Draw 5 cards and start with 3 Energy. Drag a card from your hand onto the battlefield to play it.</p></article>
-          <article><span class="rule-number">03</span><h3>Choose Targets</h3><p>When several enemies are alive, drag attacks and targeted effects directly onto the enemy you want to hit.</p></article>
+          <article><span class="rule-number">03</span><h3>Choose Targets</h3><p>When several enemies are alive, drop a targeted card onto the battlefield, then drag its aiming arrow onto the enemy you want to hit.</p></article>
           <article><span class="rule-number">04</span><h3>Build Score</h3><p>Damage, kills, overkill, perfect fights and score cards award points. Combo, Multiplier and Heat make those points worth more.</p></article>
           <article><span class="rule-number">05</span><h3>Avoid Damage</h3><p>Enemy damage costs HP, breaks your Combo and lowers your Multiplier. Your accumulated score is never lost.</p></article>
           <article><span class="rule-number">06</span><h3>Keep Climbing</h3><p>Choose a card after each victory, face recurring bosses, and keep going until your HP reaches zero.</p></article>
