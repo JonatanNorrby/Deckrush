@@ -749,18 +749,14 @@ p { color: var(--muted); line-height: 1.55; }
   letter-spacing: .24em;
 }
 
-.fantasy-menu__identity h1 {
-  margin: 8px 0 0;
-  color: #f4e6c9;
-  font-family: Georgia, "Times New Roman", serif;
-  font-size: clamp(42px, 5.8vw, 84px);
-  line-height: .88;
-  font-weight: 700;
-  letter-spacing: .025em;
-  text-transform: uppercase;
-  text-shadow:
-    0 2px 0 rgba(0,0,0,.55),
-    0 0 28px rgba(213,151,60,.1);
+.fantasy-menu__logo {
+  display: block;
+  width: clamp(220px, 31vw, 470px);
+  max-height: 104px;
+  margin-top: 8px;
+  object-fit: contain;
+  object-position: left center;
+  filter: drop-shadow(0 2px 0 rgba(0,0,0,.55)) drop-shadow(0 0 28px rgba(213,151,60,.1));
 }
 
 .fantasy-menu__sigil {
@@ -1341,7 +1337,7 @@ p { color: var(--muted); line-height: 1.55; }
   .fantasy-menu { padding: 20px 16px; }
   .fantasy-menu__masthead { align-items: flex-start; }
   .fantasy-menu__sigil { width: 42px; height: 42px; }
-  .fantasy-menu__identity h1 { font-size: clamp(35px, 13vw, 56px); }
+  .fantasy-menu__logo { width: min(78vw, 360px); max-height: 80px; }
 
   .fantasy-menu__body {
     display: flex;
@@ -2114,4 +2110,13 @@ h1, h2,
 .handbook-card > :not(.card-base-image) {
   position: relative;
   z-index: 1;
+}
+
+
+.hud__logo {
+  display: block;
+  width: min(132px, 100%);
+  max-height: 34px;
+  object-fit: contain;
+  object-position: left center;
 }
