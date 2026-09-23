@@ -8,7 +8,7 @@ export const ENEMIES = {
   bomber: enemy({ id: 'bomber', name: 'Bomber', hp: 24, damage: 4, reward: 340, trait: 'burst', burstTurn: 3, burstBonus: 9, tagline: 'Turn three hurts. A lot.' }),
   enforcer: enemy({ id: 'enforcer', name: 'Enforcer', hp: 48, damage: 8, scaling: 1, reward: 520, elite: true, tagline: 'An elite score pinata with teeth.' }),
   collector: enemy({ id: 'collector', name: 'Collector', hp: 44, damage: 7, reward: 560, elite: true, trait: 'drain', tagline: 'Hits your HP and your multiplier.' }),
-  auditor: enemy({ id: 'auditor', name: 'The Auditor', hp: 100, damage: 8, scaling: 1, reward: 1600, boss: true, tagline: 'Final audit. Make every point count.' }),
+  auditor: enemy({ id: 'auditor', name: 'The Auditor', hp: 100, damage: 8, scaling: 1, reward: 1600, boss: true, tagline: 'A recurring audit. Survive it and keep climbing.' }),
 };
 
 export const NORMAL_ENEMIES = ['scrapper', 'bulwark', 'berserker', 'parasite', 'bomber'];
