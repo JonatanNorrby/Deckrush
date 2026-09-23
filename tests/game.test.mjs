@@ -449,3 +449,17 @@ test('gameplay surfaces use the unified dark-fantasy theme', () => {
   assert.match(css, /\.combat-tray\s*\{[\s\S]*?#21150c/);
   assert.match(css, /\.result-screen\s*\{[\s\S]*?assets\/backgrounds\/menu\.png/);
 });
+
+
+test('chosen wanderer label sits closer to hero and begin button is raised', () => {
+  const css = readFileSync(new URL('../styles.css', import.meta.url), 'utf8');
+
+  assert.match(
+    css,
+    /\.fantasy-menu__hero-kicker\s*\{[\s\S]*?font-size:\s*clamp\(17px,[\s\S]*?margin-bottom:\s*-34px;/,
+  );
+  assert.match(
+    css,
+    /\.fantasy-menu__begin\s*\{[\s\S]*?margin-top:\s*-28px;/,
+  );
+});
