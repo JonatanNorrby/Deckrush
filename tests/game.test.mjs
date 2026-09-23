@@ -239,13 +239,13 @@ test('every card maps to a supported animation class', () => {
 test('characters and enemies declare the required animation states', () => {
   for (const characterId of ['viper', 'bastion']) {
     const states = getCharacter(characterId).animations;
-    for (const state of ['idle', 'magical', 'melee', 'defensive', 'hit', 'death']) {
+    for (const state of ['idle', 'magical', 'melee', 'defensive', 'damage', 'death']) {
       assert.ok(states[state], `${characterId} missing ${state} animation state`);
     }
   }
 
   for (const enemy of Object.values(ENEMIES)) {
-    for (const state of ['idle', 'attack', 'hit', 'death']) {
+    for (const state of ['idle', 'attack', 'damage', 'death']) {
       assert.ok(enemy.animations[state], `${enemy.id} missing ${state} animation state`);
     }
   }
@@ -270,7 +270,7 @@ test('playing a card emits its character and card-class animation event', () => 
   assert.equal(cardEvent.targetIndex, 0);
 });
 
-test('combat emits enemy attack and hit animation events', () => {
+test('combat emits attack and damage animation events', () => {
   const game = new Game();
   game.startRun('daily', 'bastion');
   game.chooseHeat(0);
@@ -280,7 +280,7 @@ test('combat emits enemy attack and hit animation events', () => {
   game.state.player.energy = 3;
   game.playCard(0, 0);
   let events = game.consumeAnimationEvents();
-  assert.ok(events.some((event) => event.type === 'enemyHit'));
+  assert.ok(events.some((event) => event.type === 'enemyDamage'));
 
   game.state.enemies[0].baseDamage = 1;
   game.state.enemies[0].scaling = 0;
@@ -288,20 +288,20 @@ test('combat emits enemy attack and hit animation events', () => {
   game.endTurn();
   events = game.consumeAnimationEvents();
   assert.ok(events.some((event) => event.type === 'enemyAttack'));
-  assert.ok(events.some((event) => event.type === 'playerHit'));
+  assert.ok(events.some((event) => event.type === 'playerDamage'));
 });
 
 test('animation frame paths follow the documented PNG convention', () => {
   assert.equal(
     animationFramePath('characters', 'viper', 'melee', 3),
-    './assets/animations/characters/viper-melee-03.png',
+    './assets/animations/characters/viper/melee/3.png',
   );
   assert.equal(
     animationFramePath('enemies', 'scrapper', 'attack', 1),
-    './assets/animations/enemies/scrapper-attack-01.png',
+    './assets/animations/enemies/scrapper/attack/1.png',
   );
   assert.equal(
     animationFramePath('card-effects', null, 'defensive', 12),
-    './assets/animations/card-effects/defensive-12.png',
+    './assets/animations/card-effects/defensive/12.png',
   );
 });
