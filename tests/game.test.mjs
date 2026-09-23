@@ -739,15 +739,17 @@ test('branding uses shared logo asset instead of text', () => {
 });
 
 
-test('diagnostic character PNG dimensions', () => {
-  const imageSize = (path) => {
-    const bytes = readFileSync(new URL(path, import.meta.url));
-    return [bytes.readUInt32BE(16), bytes.readUInt32BE(20)];
-  };
+test('Rune landscape artwork is normalized across character surfaces', () => {
+  const css = readFileSync(new URL('../styles.css', import.meta.url), 'utf8');
+  const runeBytes = readFileSync(new URL('../assets/characters/rune/idle/1.png', import.meta.url));
+  const viperBytes = readFileSync(new URL('../assets/characters/viper/idle/1.png', import.meta.url));
 
-  console.log('CHARACTER_PNG_DIMENSIONS', {
-    rune: imageSize('../assets/characters/rune/idle/1.png'),
-    viper: imageSize('../assets/characters/viper/idle/1.png'),
-    bastion: imageSize('../assets/characters/bastion/idle/1.png'),
-  });
+  const runeSize = [runeBytes.readUInt32BE(16), runeBytes.readUInt32BE(20)];
+  const viperSize = [viperBytes.readUInt32BE(16), viperBytes.readUInt32BE(20)];
+
+  assert.deepEqual(runeSize, [1536, 1024]);
+  assert.deepEqual(viperSize, [1254, 1254]);
+  assert.match(css, /\.fantasy-menu__hero-card--rune \.fantasy-menu__portrait \.art-image\s*\{[\s\S]*?scale\(1\.45\)/);
+  assert.match(css, /\.character-choice--rune \.character-choice__portrait \.art-image\s*\{[\s\S]*?scale\(1\.45\)/);
+  assert.match(css, /\.player-sprite--rune \.sprite-static-art > \.art-image,[\s\S]*?\.player-sprite--rune \.sprite-animation-frame\s*\{[\s\S]*?scale\(1\.45\)/);
 });
