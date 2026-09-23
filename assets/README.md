@@ -11,6 +11,7 @@ Deckrush is prepared to load PNG art automatically. You can replace the current 
 - `assets/characters/bastion/combat.png` — Bastion combat sprite/illustration.
 - `assets/characters/bastion/portrait.png` — Bastion menu portrait.
 - `assets/backgrounds/combat.png` — battlefield background.
+- `assets/backgrounds/menu.png` — optional dark-fantasy main-menu / hero-selection backdrop.
 - `assets/effects/` — future hit, poison, block, score, and card-play effects.
 - `assets/ui/` — future frames, icons, energy orb art, cursor/targeting art, logos.
 - `assets/audio/` — music and sound effects.
