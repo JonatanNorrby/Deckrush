@@ -8,7 +8,4 @@ const renderer = new Renderer(root, game);
 game.subscribe((state) => renderer.render(state));
 renderer.render(game.state);
 
-setInterval(() => {
-  game.tick();
-  renderer.updateTimer();
-}, 250);
+setInterval(() => renderer.updateTimer(), 250);
