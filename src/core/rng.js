@@ -46,6 +46,19 @@ function utcDateLabel(date) {
   ].join('-');
 }
 
+function isoWeekNumber(date) {
+  const thursday = new Date(Date.UTC(
+    date.getUTCFullYear(),
+    date.getUTCMonth(),
+    date.getUTCDate(),
+  ));
+  const day = thursday.getUTCDay() || 7;
+  thursday.setUTCDate(thursday.getUTCDate() + 4 - day);
+
+  const yearStart = new Date(Date.UTC(thursday.getUTCFullYear(), 0, 1));
+  return Math.ceil((((thursday - yearStart) / 86400000) + 1) / 7);
+}
+
 export function weeklySeed(date = new Date()) {
   const monday = new Date(Date.UTC(
     date.getUTCFullYear(),
@@ -58,6 +71,7 @@ export function weeklySeed(date = new Date()) {
   const label = utcDateLabel(monday);
   return {
     label,
+    week: isoWeekNumber(monday),
     seed: hashString(`deckrush:week:${label}`),
   };
 }
