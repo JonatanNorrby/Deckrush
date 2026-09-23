@@ -1,15 +1,13 @@
-# Viper static art
+# Viper artwork
 
-Character selection art uses `idle/1.png`. This folder contains Viper's static PNGs and animation subfolders.
+`idle/1.png` is the required fallback image for Viper. It is used anywhere the game needs a static character image and also serves as the first frame of the looping idle animation.
 
-## Required static PNGs
-
-- `combat.png` — static combat fallback shown when no animation frames are available.
-
-Expected paths:
+Expected fallback path:
 
 ```
-assets/characters/viper/combat.png
+assets/characters/viper/idle/1.png
 ```
 
-Each animation/effect subfolder contains its own README explaining the exact `1.png ... x.png` sequence expected there.
+A separate `combat.png` fallback is no longer required.
+
+The `idle/`, `magical/`, `melee/`, `defensive/`, `damage/`, `death/`, and `effects/` folders contain their own READMEs explaining the exact numbered PNG sequences used by the animation system.
