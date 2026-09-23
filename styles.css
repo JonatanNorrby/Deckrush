@@ -35,6 +35,7 @@ h2 { margin-bottom: 10px; font-size: clamp(2rem, 5vw, 3.7rem); letter-spacing: -
 p { color: var(--muted); line-height: 1.55; }
 
 .menu { min-height: 100vh; display: flex; flex-direction: column; justify-content: center; max-width: 900px; }
+.menu--wide { max-width: 1180px; }
 .logo-mark { width: 56px; height: 56px; display: grid; place-items: center; margin-bottom: 34px; border: 1px solid var(--line); background: linear-gradient(135deg, var(--accent), var(--accent-2)); color: #15110a; font-weight: 1000; transform: rotate(-4deg); box-shadow: var(--shadow); }
 .menu__pitch { max-width: 650px; font-size: 1.18rem; }
 .menu__buttons { display: flex; gap: 12px; flex-wrap: wrap; margin: 24px 0; }
@@ -50,7 +51,20 @@ p { color: var(--muted); line-height: 1.55; }
 .records strong, .result-grid strong { display: block; margin-top: 5px; font-size: 1.45rem; }
 .hint { margin-top: 22px; font-size: .9rem; }
 
-.hud { position: sticky; top: 0; z-index: 10; display: grid; grid-template-columns: 1.1fr repeat(5, 1fr); gap: 1px; border-bottom: 1px solid var(--line); background: rgba(8,11,20,.93); backdrop-filter: blur(12px); }
+.character-select { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; margin: 34px 0 10px; }
+.character-card { display: grid; grid-template-columns: 180px 1fr; overflow: hidden; border: 1px solid var(--line); border-radius: 20px; background: linear-gradient(145deg, rgba(23,31,51,.96), rgba(12,17,29,.96)); box-shadow: var(--shadow); }
+.character-card--viper { border-color: rgba(113,227,176,.35); }
+.character-card--bastion { border-color: rgba(123,164,255,.4); }
+.character-card__art { min-height: 250px; display: grid; place-items: center; background: radial-gradient(circle at 50% 35%, rgba(113,227,176,.24), transparent 38%), linear-gradient(160deg, #14251f, #0c1215); color: rgba(255,255,255,.22); font-size: 4rem; font-weight: 1000; }
+.character-card--bastion .character-card__art { background: radial-gradient(circle at 50% 35%, rgba(123,164,255,.25), transparent 40%), linear-gradient(160deg, #172238, #0d121d); }
+.character-card__body { padding: 22px; }
+.character-card__body h2 { margin: 0 0 8px; font-size: 2.1rem; }
+.character-card__stats { display: flex; gap: 18px; margin: 20px 0; color: var(--muted); font-size: .82rem; text-transform: uppercase; letter-spacing: .07em; }
+.character-card__stats strong { color: var(--text); font-size: 1.15rem; }
+.character-card__actions { display: flex; gap: 10px; flex-wrap: wrap; }
+
+
+.hud { position: sticky; top: 0; z-index: 10; display: grid; grid-template-columns: 1.1fr repeat(4, 1fr); gap: 1px; border-bottom: 1px solid var(--line); background: rgba(8,11,20,.93); backdrop-filter: blur(12px); }
 .hud__brand, .hud__stat { min-width: 0; padding: 13px 16px; border-right: 1px solid var(--line); }
 .hud__brand { display: flex; align-items: center; color: var(--accent); font-weight: 1000; letter-spacing: .12em; }
 .hud__stat span, .hud__stat small { display: block; color: var(--muted); font-size: .68rem; text-transform: uppercase; letter-spacing: .08em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -64,6 +78,36 @@ p { color: var(--muted); line-height: 1.55; }
 .heat-card:hover { transform: translateY(-6px); border-color: var(--accent); }
 .heat-card span, .heat-card small { display: block; color: var(--muted); }
 .heat-card strong { display: block; margin: 36px 0 8px; color: var(--accent); font-size: 1.25rem; }
+
+
+.combat--battle { min-height: calc(100vh - 76px); display: flex; flex-direction: column; padding-top: 26px; }
+.battlefield { flex: 1 1 auto; min-height: 300px; display: grid; grid-template-columns: minmax(0, 1fr) 120px minmax(0, 1fr); align-items: center; gap: 20px; padding: 10px 0 22px; }
+.fighter { min-width: 0; display: flex; align-items: center; gap: 18px; }
+.fighter--player { justify-content: flex-start; }
+.fighter--enemy { justify-content: flex-end; }
+.player-health { flex: 0 0 108px; padding: 14px; border: 1px solid rgba(113,227,176,.35); border-radius: 14px; background: rgba(10,20,18,.85); text-align: right; }
+.player-health span { display: block; color: var(--muted); font-size: .68rem; font-weight: 800; letter-spacing: .1em; }
+.player-health strong { display: block; margin: 2px 0; color: var(--good); font-size: 2rem; line-height: 1; }
+.player-health strong small { color: var(--muted); font-size: .9rem; font-weight: 700; }
+.player-health em { display: block; margin-top: 8px; color: #9eb9ff; font-size: .76rem; font-style: normal; font-weight: 800; }
+.character-art, .enemy-art { flex: 0 0 210px; width: 210px; min-height: 230px; display: grid; place-items: center; border-radius: 22px; border: 1px solid #36425f; color: rgba(255,255,255,.22); font-size: 4rem; font-weight: 1000; box-shadow: var(--shadow); }
+.character-art--viper { background: radial-gradient(circle at 45% 30%, rgba(113,227,176,.32), transparent 38%), linear-gradient(160deg, #183128, #0c1513 70%); border-color: rgba(113,227,176,.38); }
+.character-art--bastion { background: radial-gradient(circle at 45% 30%, rgba(123,164,255,.32), transparent 38%), linear-gradient(160deg, #1b2842, #0d1422 70%); border-color: rgba(123,164,255,.42); }
+.enemy-art { background: radial-gradient(circle at 45% 35%, #35415f, #111827 60%); }
+.fighter--elite .enemy-art { border-color: rgba(247,202,69,.6); }
+.fighter--boss .enemy-art { border-color: rgba(255,90,103,.7); box-shadow: 0 20px 70px rgba(255,90,103,.12); }
+.fighter-caption { max-width: 220px; }
+.fighter-caption h2 { margin: 0; font-size: clamp(1.7rem, 3vw, 2.7rem); }
+.fighter-caption p:last-child { margin: 8px 0 0; font-size: .86rem; }
+.fighter-caption--enemy { text-align: right; }
+.battle-center { display: grid; place-items: center; gap: 18px; }
+.battle-center > span { color: rgba(255,255,255,.16); font-size: 2.2rem; font-weight: 1000; letter-spacing: .08em; }
+.enemy-health { flex: 0 0 140px; text-align: right; }
+.enemy-health strong { font-size: .9rem; white-space: nowrap; }
+.enemy-health .bar { margin: 8px 0 0; }
+.status-pill { display: inline-block; margin-top: 10px; padding: 6px 9px; border: 1px solid var(--line); border-radius: 999px; font-size: .72rem; font-weight: 900; }
+.status-pill--poison { color: #9af0bd; border-color: rgba(113,227,176,.4); background: rgba(35,88,62,.22); }
+.hand--bottom { margin-top: auto; }
 
 .enemy-panel { display: grid; grid-template-columns: 220px 1fr; gap: 28px; padding: 24px; border: 1px solid var(--line); border-radius: 20px; background: linear-gradient(145deg, rgba(23,31,51,.95), rgba(13,18,32,.95)); box-shadow: var(--shadow); }
 .enemy-panel--elite { border-color: rgba(247,202,69,.5); }
@@ -103,11 +147,18 @@ p { color: var(--muted); line-height: 1.55; }
 .result-grid { grid-template-columns: repeat(4, 1fr); }
 
 @media (max-width: 900px) {
-  .hud { grid-template-columns: repeat(3, 1fr); position: static; }
+  .hud { grid-template-columns: repeat(2, 1fr); position: static; }
   .hud__brand { grid-column: 1 / -1; }
   .heat-grid { grid-template-columns: repeat(2, 1fr); }
+  .character-select { grid-template-columns: 1fr; }
+  .battlefield { grid-template-columns: 1fr; gap: 18px; }
+  .fighter--player, .fighter--enemy { justify-content: center; }
+  .fighter--enemy { flex-direction: row-reverse; }
+  .fighter-caption--enemy { text-align: left; }
+  .battle-center { grid-template-columns: auto 1fr; }
+  .battle-center > span { font-size: 1.4rem; }
+  .character-art, .enemy-art { flex-basis: 160px; width: 160px; min-height: 170px; }
   .enemy-panel { grid-template-columns: 1fr; }
-  .enemy-art { min-height: 120px; }
   .hand { grid-template-columns: repeat(2, 1fr); }
   .result-grid { grid-template-columns: repeat(2, 1fr); }
 }
@@ -117,6 +168,13 @@ p { color: var(--muted); line-height: 1.55; }
   .records, .result-grid { grid-template-columns: 1fr 1fr; }
   .hud { grid-template-columns: repeat(2, 1fr); }
   .heat-grid, .hand, .reward-grid { grid-template-columns: 1fr; }
+  .character-card { grid-template-columns: 1fr; }
+  .character-card__art { min-height: 150px; }
+  .fighter--player, .fighter--enemy { flex-wrap: wrap; }
+  .player-health { order: 2; flex-basis: 92px; }
+  .character-art, .enemy-art { flex-basis: 130px; width: 130px; min-height: 145px; }
+  .fighter-caption { max-width: 160px; }
+  .enemy-health { flex-basis: 110px; }
   .card { min-height: 210px; }
   .card__art { height: 70px; }
   .combat-meta { flex-wrap: wrap; }
