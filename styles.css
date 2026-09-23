@@ -1258,7 +1258,12 @@ p { color: var(--muted); line-height: 1.55; }
     radial-gradient(circle at 50% 70%, color-mix(in srgb, var(--choice-accent) 14%, transparent), transparent 45%);
 }
 
-.character-choice__portrait .art-image,
+.character-choice__portrait .art-image {
+  width: 82%;
+  height: 82%;
+  object-position: center bottom;
+}
+
 .fantasy-menu__portrait .art-image {
   object-position: center bottom;
 }
