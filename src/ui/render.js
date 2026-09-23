@@ -60,7 +60,7 @@ export class Renderer {
     this.root.innerHTML = `
       <section class="menu shell">
         <div class="logo-mark">DR</div>
-        <p class="eyebrow">10-MINUTE SCORE ATTACK DECKBUILDER</p>
+        <p class="eyebrow">FAST SCORE ATTACK DECKBUILDER</p>
         <h1>DECKRUSH</h1>
         <p class="menu__pitch">Build a vicious little deck. Push the multiplier. Bank your score before the run punches back.</p>
         <div class="menu__buttons">
@@ -72,7 +72,7 @@ export class Renderer {
           <div><span>Daily Best</span><strong>${fmt.format(dailyBest)}</strong></div>
           <div><span>Runs</span><strong>${save.stats.runs}</strong></div>
         </div>
-        <p class="hint">Every run is capped at 10 minutes. Taking damage burns 25% of unbanked score and breaks your combo.</p>
+        <p class="hint">Taking damage burns 25% of unbanked score and breaks your combo.</p>
       </section>`;
   }
 
@@ -85,7 +85,7 @@ export class Renderer {
         <div class="hud__stat"><span>Combo</span><strong>x${s.score.combo}</strong><small>best ${s.score.maxCombo}</small></div>
         <div class="hud__stat"><span>Multiplier</span><strong>x${s.score.multiplier.toFixed(2)}</strong><small>Heat ${s.selectedHeat}</small></div>
         <div class="hud__stat"><span>HP</span><strong>${Math.max(0, s.player.hp)}/${s.player.maxHp}</strong><small>${s.player.block} block</small></div>
-        <div class="hud__stat hud__timer"><span>Time</span><strong data-timer>${formatTime(this.game.getRemainingMs())}</strong><small>fight ${Math.min(s.encounterIndex + 1, 8)}/8</small></div>
+        <div class="hud__stat hud__timer"><span>Elapsed</span><strong data-timer>${formatTime(this.game.getElapsedMs())}</strong><small>fight ${Math.min(s.encounterIndex + 1, 8)}/8</small></div>
       </header>`;
   }
 
@@ -183,6 +183,6 @@ export class Renderer {
 
   updateTimer() {
     const el = this.root.querySelector('[data-timer]');
-    if (el) el.textContent = formatTime(this.game.getRemainingMs());
+    if (el) el.textContent = formatTime(this.game.getElapsedMs());
   }
 }
