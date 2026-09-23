@@ -656,3 +656,17 @@ test('main menu shows weekly seed and all-time best below weekly best', () => {
 
   assert.match(css, /\.fantasy-menu__seed\s*\{/);
 });
+
+
+test('card animation classes stay backend-only', () => {
+  const renderSource = readFileSync(new URL('../src/ui/render.js', import.meta.url), 'utf8');
+  const css = readFileSync(new URL('../styles.css', import.meta.url), 'utf8');
+  const cardSource = readFileSync(new URL('../src/data/cards.js', import.meta.url), 'utf8');
+
+  assert.doesNotMatch(renderSource, /card__animation-class/);
+  assert.doesNotMatch(css, /\.card__animation-class/);
+  assert.match(cardSource, /animationClass:\s*'(magical|melee|defensive)'/);
+  assert.equal(getCard('envenom').animationClass, 'magical');
+  assert.equal(getCard('shield-bash').animationClass, 'melee');
+  assert.equal(getCard('rune-ward').animationClass, 'defensive');
+});
