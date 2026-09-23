@@ -1,4 +1,4 @@
-const FRAME_LIMIT = 16;
+const FRAME_LIMIT = 60;
 
 export const ANIMATION_CLASSES = Object.freeze(['magical', 'melee', 'defensive']);
 
@@ -8,14 +8,15 @@ const STATE_TIMING = Object.freeze({
   melee: { fps: 14, duration: 430, loop: false },
   defensive: { fps: 10, duration: 560, loop: false },
   attack: { fps: 12, duration: 480, loop: false },
-  hit: { fps: 14, duration: 320, loop: false },
+  damage: { fps: 14, duration: 320, loop: false },
   death: { fps: 10, duration: 780, loop: false },
 });
 
 function framePath(group, id, state, frame) {
-  const suffix = String(frame).padStart(2, '0');
-  if (group === 'card-effects') return `./assets/animations/card-effects/${state}-${suffix}.png`;
-  return `./assets/animations/${group}/${id}-${state}-${suffix}.png`;
+  if (group === 'card-effects') {
+    return `./assets/animations/card-effects/${state}/${frame}.png`;
+  }
+  return `./assets/animations/${group}/${id}/${state}/${frame}.png`;
 }
 
 function loadImage(path) {
@@ -108,20 +109,27 @@ export class AnimationDirector {
       return;
     }
 
-    if (event.type === 'enemyHit' || event.type === 'enemyDeath') {
+    if (['enemyDamage', 'enemyHit', 'enemyDeath'].includes(event.type)) {
       const enemy = this.root.querySelector(`[data-enemy-instance="${event.instanceId}"] [data-enemy-sprite]`);
-      if (enemy) this.playSprite(enemy, 'enemies', event.enemyId, event.type === 'enemyDeath' ? 'death' : 'hit');
+      if (enemy) {
+        this.playSprite(
+          enemy,
+          'enemies',
+          event.enemyId,
+          event.type === 'enemyDeath' ? 'death' : 'damage',
+        );
+      }
       return;
     }
 
-    if (event.type === 'playerHit' || event.type === 'playerDeath') {
+    if (['playerDamage', 'playerHit', 'playerDeath'].includes(event.type)) {
       const player = this.root.querySelector('[data-character-sprite]');
       if (player) {
         this.playSprite(
           player,
           'characters',
           event.characterId,
-          event.type === 'playerDeath' ? 'death' : 'hit',
+          event.type === 'playerDeath' ? 'death' : 'damage',
         );
       }
     }
