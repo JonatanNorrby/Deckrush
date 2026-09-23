@@ -313,7 +313,7 @@ export class Game {
     enemy.hp -= amount;
     const lethal = enemy.hp <= 0;
     this.queueAnimation({
-      type: lethal ? 'enemyDeath' : 'enemyHit',
+      type: lethal ? 'enemyDeath' : 'enemyDamage',
       enemyId: enemy.id,
       instanceId: enemy.instanceId,
       targetIndex,
@@ -346,7 +346,7 @@ export class Game {
   applySelfDamage(amount) {
     const s = this.state;
     s.player.hp = Math.max(1, s.player.hp - amount);
-    this.queueAnimation({ type: 'playerHit', characterId: s.characterId, source: 'self' });
+    this.queueAnimation({ type: 'playerDamage', characterId: s.characterId, source: 'self' });
     this.pushLog(`Risk cost: ${amount} HP.`);
   }
 
@@ -403,7 +403,7 @@ export class Game {
         s.score.combo = 0;
         s.score.multiplier = Math.max(1, Math.round((s.score.multiplier - 0.4) * 100) / 100);
         this.queueAnimation({
-          type: s.player.hp <= 0 ? 'playerDeath' : 'playerHit',
+          type: s.player.hp <= 0 ? 'playerDeath' : 'playerDamage',
           characterId: s.characterId,
           source: enemy.id,
         });
