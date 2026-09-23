@@ -1,4 +1,4 @@
-import { CARD_LIBRARY, getCard } from '../data/cards.js';
+import { CARD_LIBRARY, getCard, cardNeedsEnemyTarget } from '../data/cards.js';
 import { loadSave } from '../core/storage.js';
 import { dailySeed } from '../core/rng.js';
 import { CHARACTERS, getCharacter } from '../data/characters.js';
@@ -12,16 +12,56 @@ function formatTime(ms) {
   return `${min}:${String(sec).padStart(2, '0')}`;
 }
 
+function artMarkup(path, alt, fallback, extraClass = '') {
+  return `
+    <img class="art-image ${extraClass}" src="${path}" alt="${alt}" draggable="false"
+      onload="this.nextElementSibling.hidden=true"
+      onerror="this.hidden=true">
+    <span class="art-fallback">${fallback}</span>`;
+}
+
+function cardArtMarkup(card) {
+  return artMarkup(`./assets/cards/${card.id}.png`, '', card.name.slice(0, 2).toUpperCase(), 'card-art-image');
+}
+
 function cardMarkup(card, index = null, action = null) {
   const attrs = action ? `data-action="${action}" ${index !== null ? `data-index="${index}"` : ''} data-card="${card.id}"` : '';
   const rarity = card.rarity || 'common';
   return `
     <button class="card card--${rarity}" ${attrs} ${action ? '' : 'disabled'}>
       <div class="card__top"><span class="card__cost">${card.cost}</span><span class="card__rarity">${rarity}</span></div>
-      <div class="card__art" aria-hidden="true"><span>${card.name.slice(0, 2).toUpperCase()}</span></div>
+      <div class="card__art" aria-hidden="true">${cardArtMarkup(card)}</div>
       <strong class="card__name">${card.name}</strong>
       <p>${card.description}</p>
     </button>`;
+}
+
+function combatCardMarkup(card, index, energy, handSize) {
+  const rarity = card.rarity || 'common';
+  const center = (handSize - 1) / 2;
+  const distance = index - center;
+  const rotation = distance * 4.5;
+  const fanY = Math.abs(distance) * 5;
+  const unaffordable = card.cost > energy;
+
+  return `
+    <article
+      class="combat-card card--${rarity} ${unaffordable ? 'is-unaffordable' : ''}"
+      data-drag-card
+      data-index="${index}"
+      data-card="${card.id}"
+      style="--fan-rotation:${rotation}deg;--fan-y:${fanY}px;--fan-order:${index}"
+      role="button"
+      tabindex="0"
+      aria-label="${card.name}, costs ${card.cost} energy">
+      <div class="card__top">
+        <span class="card__cost">${card.cost}</span>
+        <span class="card__rarity">${rarity}</span>
+      </div>
+      <div class="card__art" aria-hidden="true">${cardArtMarkup(card)}</div>
+      <strong class="card__name">${card.name}</strong>
+      <p>${card.description}</p>
+    </article>`;
 }
 
 export class Renderer {
@@ -30,8 +70,13 @@ export class Renderer {
     this.game = game;
     this.handbookOpen = false;
     this.handbookTab = 'rules';
+    this.drag = null;
+
     this.root.addEventListener('click', (event) => this.handleClick(event));
+    this.root.addEventListener('pointerdown', (event) => this.handlePointerDown(event));
+
     document.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape' && this.drag) this.cancelCardDrag();
       if (event.key === 'Escape' && this.handbookOpen) {
         this.handbookOpen = false;
         this.renderMenu();
@@ -46,7 +91,6 @@ export class Renderer {
     if (action === 'start-normal') this.game.startRun('normal', target.dataset.character);
     if (action === 'start-daily') this.game.startRun('daily', target.dataset.character);
     if (action === 'heat') this.game.chooseHeat(Number(target.dataset.heat));
-    if (action === 'play-card') this.game.playCard(Number(target.dataset.index));
     if (action === 'end-turn') this.game.endTurn();
     if (action === 'reward') this.game.chooseReward(target.dataset.card);
     if (action === 'skip-reward') this.game.skipReward();
@@ -66,7 +110,138 @@ export class Renderer {
     }
   }
 
+  handlePointerDown(event) {
+    const cardEl = event.target.closest('[data-drag-card]');
+    if (!cardEl || this.game.state.phase !== 'combat' || this.drag) return;
+    if (event.pointerType === 'mouse' && event.button !== 0) return;
+
+    const index = Number(cardEl.dataset.index);
+    const card = getCard(this.game.state.hand[index]);
+    if (!card || card.cost > this.game.state.player.energy) {
+      cardEl.classList.remove('card-shake');
+      void cardEl.offsetWidth;
+      cardEl.classList.add('card-shake');
+      return;
+    }
+
+    event.preventDefault();
+    const ghost = cardEl.cloneNode(true);
+    ghost.removeAttribute('data-drag-card');
+    ghost.classList.add('combat-card--dragging');
+    ghost.classList.remove('card-shake');
+    document.body.appendChild(ghost);
+    cardEl.classList.add('combat-card--source');
+
+    this.drag = {
+      pointerId: event.pointerId,
+      index,
+      card,
+      source: cardEl,
+      ghost,
+      targeted: cardNeedsEnemyTarget(card),
+    };
+
+    document.body.classList.add('is-dragging-card');
+    this.positionDragGhost(event.clientX, event.clientY);
+    this.updateDragTargets(event.clientX, event.clientY);
+
+    this.onPointerMove = (moveEvent) => {
+      if (!this.drag || moveEvent.pointerId !== this.drag.pointerId) return;
+      moveEvent.preventDefault();
+      this.positionDragGhost(moveEvent.clientX, moveEvent.clientY);
+      this.updateDragTargets(moveEvent.clientX, moveEvent.clientY);
+    };
+
+    this.onPointerUp = (upEvent) => {
+      if (!this.drag || upEvent.pointerId !== this.drag.pointerId) return;
+      upEvent.preventDefault();
+      this.finishCardDrag(upEvent.clientX, upEvent.clientY);
+    };
+
+    document.addEventListener('pointermove', this.onPointerMove, { passive: false });
+    document.addEventListener('pointerup', this.onPointerUp, { passive: false });
+    document.addEventListener('pointercancel', this.onPointerUp, { passive: false });
+  }
+
+  positionDragGhost(x, y) {
+    if (!this.drag) return;
+    this.drag.ghost.style.left = `${x}px`;
+    this.drag.ghost.style.top = `${y}px`;
+  }
+
+  getDropContext(x, y) {
+    const element = document.elementFromPoint(x, y);
+    const enemyEl = element?.closest?.('[data-enemy-index]') || null;
+    const battlefield = element?.closest?.('[data-battlefield]') || null;
+    return { element, enemyEl, battlefield };
+  }
+
+  updateDragTargets(x, y) {
+    if (!this.drag) return;
+    const battlefield = this.root.querySelector('[data-battlefield]');
+    const enemies = [...this.root.querySelectorAll('[data-enemy-index]')];
+    const { enemyEl, battlefield: hoveredBattlefield } = this.getDropContext(x, y);
+    const aliveEnemies = this.game.getAliveEnemies();
+
+    battlefield?.classList.add('is-drag-active');
+    battlefield?.classList.toggle('is-valid-drop', Boolean(hoveredBattlefield) && (!this.drag.targeted || aliveEnemies.length === 1));
+    enemies.forEach((enemy) => enemy.classList.remove('is-drop-target'));
+
+    if (this.drag.targeted && enemyEl) enemyEl.classList.add('is-drop-target');
+  }
+
+  finishCardDrag(x, y) {
+    if (!this.drag) return;
+    const { enemyEl, battlefield } = this.getDropContext(x, y);
+    const { index, targeted } = this.drag;
+    const aliveIndexes = this.game.state.enemies
+      .map((enemy, enemyIndex) => (enemy.hp > 0 ? enemyIndex : -1))
+      .filter((enemyIndex) => enemyIndex >= 0);
+
+    let valid = Boolean(battlefield);
+    let targetIndex = null;
+
+    if (targeted) {
+      if (enemyEl) {
+        targetIndex = Number(enemyEl.dataset.enemyIndex);
+        valid = aliveIndexes.includes(targetIndex);
+      } else if (battlefield && aliveIndexes.length === 1) {
+        targetIndex = aliveIndexes[0];
+        valid = true;
+      } else {
+        valid = false;
+      }
+    }
+
+    this.cleanupCardDrag();
+    if (valid) this.game.playCard(index, targetIndex);
+  }
+
+  cancelCardDrag() {
+    this.cleanupCardDrag();
+  }
+
+  cleanupCardDrag() {
+    if (!this.drag) return;
+    this.drag.source?.classList.remove('combat-card--source');
+    this.drag.ghost?.remove();
+    this.root.querySelector('[data-battlefield]')?.classList.remove('is-drag-active', 'is-valid-drop');
+    this.root.querySelectorAll('[data-enemy-index]').forEach((enemy) => enemy.classList.remove('is-drop-target'));
+    document.body.classList.remove('is-dragging-card');
+
+    if (this.onPointerMove) document.removeEventListener('pointermove', this.onPointerMove);
+    if (this.onPointerUp) {
+      document.removeEventListener('pointerup', this.onPointerUp);
+      document.removeEventListener('pointercancel', this.onPointerUp);
+    }
+
+    this.drag = null;
+    this.onPointerMove = null;
+    this.onPointerUp = null;
+  }
+
   render(state) {
+    if (this.drag) this.cleanupCardDrag();
     if (state.phase === 'menu') return this.renderMenu();
     const hud = this.hud(state);
     if (state.phase === 'route') this.root.innerHTML = hud + this.route(state);
@@ -92,7 +267,9 @@ export class Renderer {
         <div class="character-select">
           ${Object.values(CHARACTERS).map((character) => `
             <article class="character-card character-card--${character.id}">
-              <div class="character-card__art" aria-hidden="true"><span>${character.name.slice(0, 2).toUpperCase()}</span></div>
+              <div class="character-card__art" aria-hidden="true">
+                ${artMarkup(`./assets/characters/${character.id}/portrait.png`, '', character.name.slice(0, 2).toUpperCase())}
+              </div>
               <div class="character-card__body">
                 <p class="eyebrow">${character.archetype.toUpperCase()}</p>
                 <h2>${character.name}</h2>
@@ -126,18 +303,13 @@ export class Renderer {
       <div class="handbook-backdrop" data-action="close-handbook">
         <section class="handbook" role="dialog" aria-modal="true" aria-label="Deckrush Handbook" onclick="event.stopPropagation()">
           <header class="handbook__header">
-            <div>
-              <p class="eyebrow">REFERENCE</p>
-              <h2>Handbook</h2>
-            </div>
+            <div><p class="eyebrow">REFERENCE</p><h2>Handbook</h2></div>
             <button class="handbook__close" data-action="close-handbook" aria-label="Close handbook">×</button>
           </header>
-
           <nav class="handbook__tabs" aria-label="Handbook tabs">
             <button class="${this.handbookTab === 'rules' ? 'is-active' : ''}" data-action="handbook-tab" data-tab="rules">How to Play</button>
             <button class="${this.handbookTab === 'cards' ? 'is-active' : ''}" data-action="handbook-tab" data-tab="cards">Cards <span>${cards.length}</span></button>
           </nav>
-
           <div class="handbook__content">
             ${this.handbookTab === 'cards' ? this.handbookCards(cards) : this.handbookRules()}
           </div>
@@ -151,80 +323,30 @@ export class Renderer {
         <section class="rule-hero">
           <p class="eyebrow">THE GOAL</p>
           <h3>Score as high as you can before you die.</h3>
-          <p>Runs are endless. Every victory makes later fights tougher, bosses return every 8 fights, and your final score is recorded when your HP reaches zero.</p>
+          <p>Runs are endless. Every victory makes later fights tougher, bosses return every 8 fights, and some encounters contain multiple enemies.</p>
         </section>
-
         <div class="rule-grid">
-          <article>
-            <span class="rule-number">01</span>
-            <h3>Choose Heat</h3>
-            <p>Before every fight, choose Heat 0–3. Higher Heat gives the enemy more HP and damage, but increases every point you earn.</p>
-          </article>
-          <article>
-            <span class="rule-number">02</span>
-            <h3>Play Your Hand</h3>
-            <p>You normally draw 5 cards and start each turn with 3 Energy. Play as many cards as you can afford, then end your turn.</p>
-          </article>
-          <article>
-            <span class="rule-number">03</span>
-            <h3>Build Score</h3>
-            <p>Damage, kills, overkill, perfect fights and score cards all award points. Combo, Multiplier and Heat make those points worth more.</p>
-          </article>
-          <article>
-            <span class="rule-number">04</span>
-            <h3>Avoid Damage</h3>
-            <p>Enemy damage costs HP, breaks your Combo and lowers your Multiplier. Your accumulated score is never lost.</p>
-          </article>
-          <article>
-            <span class="rule-number">05</span>
-            <h3>Grow Your Deck</h3>
-            <p>After a victory, choose 1 of 3 character-specific cards. You can skip the reward instead for +250 score.</p>
-          </article>
-          <article>
-            <span class="rule-number">06</span>
-            <h3>Keep Climbing</h3>
-            <p>Enemies scale as the fight count rises. There is no finish line—survive, build a stronger deck, and keep pushing your score.</p>
-          </article>
+          <article><span class="rule-number">01</span><h3>Choose Heat</h3><p>Before every fight, choose Heat 0–3. Higher Heat gives enemies more HP and damage, but increases every point you earn.</p></article>
+          <article><span class="rule-number">02</span><h3>Drag Cards</h3><p>Draw 5 cards and start with 3 Energy. Drag a card from your hand onto the battlefield to play it.</p></article>
+          <article><span class="rule-number">03</span><h3>Choose Targets</h3><p>When several enemies are alive, drag attacks and targeted effects directly onto the enemy you want to hit.</p></article>
+          <article><span class="rule-number">04</span><h3>Build Score</h3><p>Damage, kills, overkill, perfect fights and score cards award points. Combo, Multiplier and Heat make those points worth more.</p></article>
+          <article><span class="rule-number">05</span><h3>Avoid Damage</h3><p>Enemy damage costs HP, breaks your Combo and lowers your Multiplier. Your accumulated score is never lost.</p></article>
+          <article><span class="rule-number">06</span><h3>Keep Climbing</h3><p>Choose a card after each victory, face recurring bosses, and keep going until your HP reaches zero.</p></article>
         </div>
-
         <div class="mechanic-grid">
-          <article class="mechanic-card">
-            <strong>Combo</strong>
-            <p>Built by many attack cards. Higher Combo increases score value. Taking enemy damage resets it.</p>
-          </article>
-          <article class="mechanic-card">
-            <strong>Multiplier</strong>
-            <p>Raised by special cards and preserved across fights. Taking damage reduces it, so clean play compounds into much bigger scores.</p>
-          </article>
-          <article class="mechanic-card">
-            <strong>Block</strong>
-            <p>Absorbs enemy attack damage for the current turn. Remaining Block is cleared after the enemy attacks.</p>
-          </article>
-          <article class="mechanic-card">
-            <strong>Poison</strong>
-            <p>Ticks at the end of your turn before the enemy attacks, then loses 1 stack. Viper can stack and multiply it rapidly.</p>
-          </article>
-          <article class="mechanic-card">
-            <strong>Bosses</strong>
-            <p>Every 8th fight is a boss encounter. Beat it to take another reward and continue the same run.</p>
-          </article>
-          <article class="mechanic-card">
-            <strong>Daily Run</strong>
-            <p>The Daily uses a deterministic seed for that date, giving you a repeatable run for comparing scores.</p>
-          </article>
+          <article class="mechanic-card"><strong>Combo</strong><p>Built by many attacks. Higher Combo increases score value. Taking enemy damage resets it.</p></article>
+          <article class="mechanic-card"><strong>Multiplier</strong><p>Raised by special cards and preserved across fights. Taking damage reduces it.</p></article>
+          <article class="mechanic-card"><strong>Block</strong><p>Absorbs attacks during the enemy turn. Remaining Block clears after all enemies have acted.</p></article>
+          <article class="mechanic-card"><strong>Poison</strong><p>Ticks on every poisoned enemy before enemies attack, then loses 1 stack on surviving targets.</p></article>
+          <article class="mechanic-card"><strong>Bosses</strong><p>Every 8th fight is a boss. Beat it to claim another reward and continue the same run.</p></article>
+          <article class="mechanic-card"><strong>Daily Run</strong><p>The Daily uses a deterministic seed for that date, making encounters repeatable for score comparison.</p></article>
         </div>
-
         <div class="handbook-characters">
           ${Object.values(CHARACTERS).map((character) => `
             <article class="handbook-character handbook-character--${character.id}">
               <div class="handbook-character__badge">${character.name.slice(0, 2).toUpperCase()}</div>
-              <div>
-                <p class="eyebrow">${character.archetype.toUpperCase()}</p>
-                <h3>${character.name} · ${character.maxHp} HP</h3>
-                <p>${character.description}</p>
-              </div>
-            </article>
-          `).join('')}
+              <div><p class="eyebrow">${character.archetype.toUpperCase()}</p><h3>${character.name} · ${character.maxHp} HP</h3><p>${character.description}</p></div>
+            </article>`).join('')}
         </div>
       </div>`;
   }
@@ -239,21 +361,14 @@ export class Renderer {
           <div><span>Rare</span><strong>${cards.filter((card) => card.rarity === 'rare').length}</strong></div>
         </div>
         <div class="handbook-card-grid">
-          ${cards
-            .slice()
-            .sort((a, b) => a.name.localeCompare(b.name))
-            .map((card) => `
-              <article class="handbook-card handbook-card--${card.rarity}">
-                <div class="handbook-card__top">
-                  <span class="card__cost">${card.cost}</span>
-                  <span class="card__rarity">${card.rarity}</span>
-                </div>
-                <div class="handbook-card__art" aria-hidden="true">${card.name.slice(0, 2).toUpperCase()}</div>
-                <h3>${card.name}</h3>
-                <p>${card.description}</p>
-                <div class="handbook-card__tags">${card.tags.map((tag) => `<span>${tag}</span>`).join('')}</div>
-              </article>
-            `).join('')}
+          ${cards.slice().sort((a, b) => a.name.localeCompare(b.name)).map((card) => `
+            <article class="handbook-card handbook-card--${card.rarity}">
+              <div class="handbook-card__top"><span class="card__cost">${card.cost}</span><span class="card__rarity">${card.rarity}</span></div>
+              <div class="handbook-card__art" aria-hidden="true">${cardArtMarkup(card)}</div>
+              <h3>${card.name}</h3>
+              <p>${card.description}</p>
+              <div class="handbook-card__tags">${card.tags.map((tag) => `<span>${tag}</span>`).join('')}</div>
+            </article>`).join('')}
         </div>
       </div>`;
   }
@@ -265,7 +380,6 @@ export class Renderer {
         <div class="hud__stat"><span>Score</span><strong>${fmt.format(s.score.total)}</strong><small>keep pushing</small></div>
         <div class="hud__stat"><span>Combo</span><strong>x${s.score.combo}</strong><small>best ${s.score.maxCombo}</small></div>
         <div class="hud__stat"><span>Multiplier</span><strong>x${s.score.multiplier.toFixed(2)}</strong><small>Heat ${s.selectedHeat}</small></div>
-        <div class="hud__stat"><span>HP</span><strong>${Math.max(0, s.player.hp)}/${s.player.maxHp}</strong><small>${s.player.block} block</small></div>
         <div class="hud__stat hud__timer"><span>Elapsed</span><strong data-timer>${formatTime(this.game.getElapsedMs())}</strong><small>fight ${s.encounterIndex + 1}</small></div>
       </header>`;
   }
@@ -290,65 +404,82 @@ export class Renderer {
       </section>`;
   }
 
-  combat(s) {
-    const e = s.enemy;
-    const character = getCharacter(s.characterId);
-    const hpPct = Math.max(0, (e.hp / e.maxHp) * 100);
-    const intent = e.baseDamage + e.strength + s.selectedHeat + e.scaling * Math.max(0, e.turn);
+  enemyMarkup(enemy, index) {
+    const hpPct = Math.max(0, (enemy.hp / enemy.maxHp) * 100);
+    const intent = this.game.getEnemyIntent(enemy);
+    const intentText = enemy.trait === 'burst' && enemy.turn + 1 === enemy.burstTurn ? `${intent} BURST` : String(intent);
+
     return `
-      <section class="combat shell combat--battle">
-        <div class="battlefield">
-          <div class="fighter fighter--player">
-            <div class="player-health">
-              <span>HP</span>
+      <article class="enemy-unit ${enemy.elite ? 'enemy-unit--elite' : ''} ${enemy.boss ? 'enemy-unit--boss' : ''}" data-enemy-index="${index}">
+        <div class="enemy-intent" title="Next attack">
+          <span>⚔</span><strong>${intentText}</strong>
+        </div>
+        <div class="enemy-sprite">
+          ${artMarkup(`./assets/enemies/${enemy.id}.png`, enemy.name, enemy.name.slice(0, 2).toUpperCase())}
+        </div>
+        <div class="enemy-name">${enemy.name}</div>
+        <div class="enemy-hp-row"><span>${Math.max(0, enemy.hp)} / ${enemy.maxHp}</span></div>
+        <div class="enemy-hp-bar"><i style="width:${hpPct}%"></i></div>
+        <div class="enemy-status-row">
+          ${enemy.poison > 0 ? `<span class="status-pill status-pill--poison">☠ ${enemy.poison}</span>` : ''}
+          ${enemy.strength > 0 ? `<span class="status-pill">↑ ${enemy.strength}</span>` : ''}
+        </div>
+      </article>`;
+  }
+
+  combat(s) {
+    const character = getCharacter(s.characterId);
+    const aliveEnemies = s.enemies.filter((enemy) => enemy.hp > 0);
+
+    return `
+      <section class="combat-screen">
+        <div class="combat-stage" data-battlefield>
+          <div class="combat-stage__overlay"></div>
+
+          <div class="player-side">
+            <div class="player-vitals">
+              <span class="player-vitals__label">HP</span>
               <strong>${Math.max(0, s.player.hp)}<small>/${s.player.maxHp}</small></strong>
-              <em>${s.player.block} Block</em>
+              <div class="player-hp-bar"><i style="width:${Math.max(0, (s.player.hp / s.player.maxHp) * 100)}%"></i></div>
+              <em>◆ ${s.player.block} Block</em>
             </div>
-            <div class="character-art character-art--${character.id}" aria-label="${character.name}"><span>${character.name.slice(0, 2).toUpperCase()}</span></div>
-            <div class="fighter-caption">
-              <p class="eyebrow">${character.archetype.toUpperCase()}</p>
-              <h2>${character.name}</h2>
+            <div class="player-actor">
+              <div class="player-sprite player-sprite--${character.id}">
+                ${artMarkup(`./assets/characters/${character.id}/combat.png`, character.name, character.name.slice(0, 2).toUpperCase())}
+              </div>
+              <div class="actor-name"><span>${character.name}</span><small>${character.archetype}</small></div>
             </div>
           </div>
 
-          <div class="battle-center">
-            <span>VS</span>
-            <div class="intent">Next attack <strong>${intent}${e.trait === 'burst' && e.turn + 1 === e.burstTurn ? ' + BURST' : ''}</strong></div>
+          <div class="enemy-side enemy-side--${aliveEnemies.length}">
+            ${s.enemies.map((enemy, index) => enemy.hp > 0 ? this.enemyMarkup(enemy, index) : '').join('')}
           </div>
 
-          <div class="fighter fighter--enemy ${e.elite ? 'fighter--elite' : ''} ${e.boss ? 'fighter--boss' : ''}">
-            <div class="fighter-caption fighter-caption--enemy">
-              <p class="eyebrow">${e.boss ? 'BOSS' : e.elite ? 'ELITE' : 'ENEMY'}</p>
-              <h2>${e.name}</h2>
-              <p>${e.tagline}</p>
-              ${e.poison > 0 ? `<div class="status-pill status-pill--poison">☠ ${e.poison} Poison</div>` : ''}
-            </div>
-            <div class="enemy-art"><span>${e.name.slice(0, 2).toUpperCase()}</span></div>
-            <div class="enemy-health">
-              <strong>${Math.max(0, e.hp)} / ${e.maxHp} HP</strong>
-              <div class="bar"><i style="width:${hpPct}%"></i></div>
-            </div>
+          <div class="drag-instruction">
+            ${aliveEnemies.length > 1 ? 'Drag targeted cards onto an enemy' : 'Drag a card onto the battlefield'}
           </div>
         </div>
 
-        <div class="combat-meta">
-          <div><span>Energy</span><strong>${s.player.energy}/${s.player.maxEnergy}</strong></div>
-          <div><span>Draw</span><strong>${s.drawPile.length}</strong></div>
-          <div><span>Discard</span><strong>${s.discardPile.length}</strong></div>
-          <button class="button button--danger" data-action="end-turn">End Turn →</button>
-        </div>
+        <div class="combat-log-strip">${(s.log || []).slice(0, 2).map((line) => `<span>${line}</span>`).join('')}</div>
 
-        <div class="hand hand--bottom">
-          ${s.hand.map((id, index) => cardMarkup(getCard(id), index, 'play-card')).join('')}
+        <div class="combat-tray">
+          <div class="pile pile--draw"><strong>${s.drawPile.length}</strong><span>Draw</span></div>
+          <div class="energy-orb"><strong>${s.player.energy}</strong><span>Energy</span></div>
+
+          <div class="combat-hand" aria-label="Your hand">
+            ${s.hand.map((id, index) => combatCardMarkup(getCard(id), index, s.player.energy, s.hand.length)).join('')}
+          </div>
+
+          <div class="pile pile--discard"><strong>${s.discardPile.length}</strong><span>Discard</span></div>
+          <button class="end-turn-button" data-action="end-turn">End Turn</button>
         </div>
-        ${this.log(s)}
       </section>`;
   }
 
   reward(s) {
     return `
       <section class="shell reward">
-        <p class="eyebrow">TARGET DOWN</p>
+        <p class="eyebrow">ENCOUNTER CLEARED</p>
         <h2>Choose one card.</h2>
         <p>Your deck currently has ${s.deck.length} cards. Keeping it lean makes your best cards appear more often.</p>
         <div class="reward-grid">
