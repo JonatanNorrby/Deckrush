@@ -1,23 +1,13 @@
-# The Auditor assets
+# The Auditor static art
 
-All The Auditor art belongs in this folder.
+This folder contains all artwork for The Auditor.
 
-Expected static PNG:
-- `combat.png`
+## Required static PNG
 
-Animation folders:
+- `combat.png` — static combat fallback shown when no animation frames are available.
 
-```
-idle/1.png ... x.png
-attack/1.png ... x.png
-damage/1.png ... x.png
-death/1.png ... x.png
-```
+Expected path:
 
-Examples:
-- `idle/1.png` — looping combat idle.
-- `attack/1.png` — The Auditor performing its attack.
-- `damage/1.png` — The Auditor taking damage.
-- `death/1.png` — The Auditor being defeated.
+`assets/enemies/auditor/combat.png`
 
-Frames start at `1.png` and play upward numerically until the first missing frame.
+The `idle/`, `attack/`, `damage/`, and `death/` folders each contain their own README explaining the exact PNG sequence required there.
