@@ -84,16 +84,17 @@ export class Renderer {
         <div class="hud__stat"><span>Combo</span><strong>x${s.score.combo}</strong><small>best ${s.score.maxCombo}</small></div>
         <div class="hud__stat"><span>Multiplier</span><strong>x${s.score.multiplier.toFixed(2)}</strong><small>Heat ${s.selectedHeat}</small></div>
         <div class="hud__stat"><span>HP</span><strong>${Math.max(0, s.player.hp)}/${s.player.maxHp}</strong><small>${s.player.block} block</small></div>
-        <div class="hud__stat hud__timer"><span>Elapsed</span><strong data-timer>${formatTime(this.game.getElapsedMs())}</strong><small>fight ${Math.min(s.encounterIndex + 1, 8)}/8</small></div>
+        <div class="hud__stat hud__timer"><span>Elapsed</span><strong data-timer>${formatTime(this.game.getElapsedMs())}</strong><small>fight ${s.encounterIndex + 1}</small></div>
       </header>`;
   }
 
   route(s) {
-    const final = s.encounterIndex === 7;
+    const fightNumber = s.encounterIndex + 1;
+    const bossFight = fightNumber % 8 === 0;
     return `
       <section class="shell route">
-        <p class="eyebrow">${final ? 'FINAL ENCOUNTER' : `ENCOUNTER ${s.encounterIndex + 1} OF 8`}</p>
-        <h2>${final ? 'The Auditor is waiting.' : 'How greedy are you feeling?'}</h2>
+        <p class="eyebrow">${bossFight ? `BOSS FIGHT ${fightNumber}` : `FIGHT ${fightNumber}`}</p>
+        <h2>${bossFight ? 'The Auditor is waiting.' : 'How greedy are you feeling?'}</h2>
         <p>Higher Heat boosts enemy HP and damage, but multiplies every point you earn.</p>
         <div class="heat-grid">
           ${[0, 1, 2, 3].map((heat) => `
@@ -167,6 +168,7 @@ export class Renderer {
           <div><span>Perfect Fights</span><strong>${r.fightsPerfect}</strong></div>
           <div><span>Damage Taken</span><strong>${r.damageTaken}</strong></div>
           <div><span>Cards Played</span><strong>${r.cardsPlayed}</strong></div>
+          <div><span>Fights Cleared</span><strong>${r.fightsCleared}</strong></div>
           <div><span>Time</span><strong>${formatTime(r.elapsedMs)}</strong></div>
         </div>
         <div class="menu__buttons">
