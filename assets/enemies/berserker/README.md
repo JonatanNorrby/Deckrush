@@ -10,4 +10,4 @@ assets/enemies/berserker/idle/1.png
 
 A separate `combat.png` fallback is no longer required.
 
-The `idle/`, `attack/`, `damage/`, and `death/` folders contain their own READMEs explaining the exact numbered PNG sequences used by the animation system.
+The `idle/`, `attack/`, `damage/`, and `death/` folders contain their own READMEs explaining the exact numbered PNG sequences used by the animation system. The `dead/` folder contains the persistent `1.png` corpse pose shown after this enemy dies while other enemies remain.
