@@ -1,4 +1,4 @@
-import { getCard } from '../data/cards.js';
+import { CARD_LIBRARY, getCard } from '../data/cards.js';
 import { loadSave } from '../core/storage.js';
 import { dailySeed } from '../core/rng.js';
 import { CHARACTERS, getCharacter } from '../data/characters.js';
@@ -28,7 +28,15 @@ export class Renderer {
   constructor(root, game) {
     this.root = root;
     this.game = game;
+    this.handbookOpen = false;
+    this.handbookTab = 'rules';
     this.root.addEventListener('click', (event) => this.handleClick(event));
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape' && this.handbookOpen) {
+        this.handbookOpen = false;
+        this.renderMenu();
+      }
+    });
   }
 
   handleClick(event) {
@@ -43,6 +51,19 @@ export class Renderer {
     if (action === 'reward') this.game.chooseReward(target.dataset.card);
     if (action === 'skip-reward') this.game.skipReward();
     if (action === 'menu') this.game.backToMenu();
+    if (action === 'open-handbook') {
+      this.handbookOpen = true;
+      this.handbookTab = 'rules';
+      this.renderMenu();
+    }
+    if (action === 'close-handbook') {
+      this.handbookOpen = false;
+      this.renderMenu();
+    }
+    if (action === 'handbook-tab') {
+      this.handbookTab = target.dataset.tab || 'rules';
+      this.renderMenu();
+    }
   }
 
   render(state) {
@@ -64,6 +85,9 @@ export class Renderer {
         <p class="eyebrow">FAST SCORE ATTACK DECKBUILDER</p>
         <h1>DECKRUSH</h1>
         <p class="menu__pitch">Choose a character, build around their specialty, and push the run until you die.</p>
+        <div class="menu__utility">
+          <button class="button handbook-button" data-action="open-handbook">Handbook</button>
+        </div>
 
         <div class="character-select">
           ${Object.values(CHARACTERS).map((character) => `
@@ -92,7 +116,146 @@ export class Renderer {
           <div><span>Runs</span><strong>${save.stats.runs}</strong></div>
         </div>
         <p class="hint">Taking damage breaks your Combo and reduces your Multiplier, but your score is always safe.</p>
-      </section>`;
+      </section>
+      ${this.handbookOpen ? this.handbook() : ''}`;
+  }
+
+  handbook() {
+    const cards = Object.values(CARD_LIBRARY);
+    return `
+      <div class="handbook-backdrop" data-action="close-handbook">
+        <section class="handbook" role="dialog" aria-modal="true" aria-label="Deckrush Handbook" onclick="event.stopPropagation()">
+          <header class="handbook__header">
+            <div>
+              <p class="eyebrow">REFERENCE</p>
+              <h2>Handbook</h2>
+            </div>
+            <button class="handbook__close" data-action="close-handbook" aria-label="Close handbook">×</button>
+          </header>
+
+          <nav class="handbook__tabs" aria-label="Handbook tabs">
+            <button class="${this.handbookTab === 'rules' ? 'is-active' : ''}" data-action="handbook-tab" data-tab="rules">How to Play</button>
+            <button class="${this.handbookTab === 'cards' ? 'is-active' : ''}" data-action="handbook-tab" data-tab="cards">Cards <span>${cards.length}</span></button>
+          </nav>
+
+          <div class="handbook__content">
+            ${this.handbookTab === 'cards' ? this.handbookCards(cards) : this.handbookRules()}
+          </div>
+        </section>
+      </div>`;
+  }
+
+  handbookRules() {
+    return `
+      <div class="handbook-rules">
+        <section class="rule-hero">
+          <p class="eyebrow">THE GOAL</p>
+          <h3>Score as high as you can before you die.</h3>
+          <p>Runs are endless. Every victory makes later fights tougher, bosses return every 8 fights, and your final score is recorded when your HP reaches zero.</p>
+        </section>
+
+        <div class="rule-grid">
+          <article>
+            <span class="rule-number">01</span>
+            <h3>Choose Heat</h3>
+            <p>Before every fight, choose Heat 0–3. Higher Heat gives the enemy more HP and damage, but increases every point you earn.</p>
+          </article>
+          <article>
+            <span class="rule-number">02</span>
+            <h3>Play Your Hand</h3>
+            <p>You normally draw 5 cards and start each turn with 3 Energy. Play as many cards as you can afford, then end your turn.</p>
+          </article>
+          <article>
+            <span class="rule-number">03</span>
+            <h3>Build Score</h3>
+            <p>Damage, kills, overkill, perfect fights and score cards all award points. Combo, Multiplier and Heat make those points worth more.</p>
+          </article>
+          <article>
+            <span class="rule-number">04</span>
+            <h3>Avoid Damage</h3>
+            <p>Enemy damage costs HP, breaks your Combo and lowers your Multiplier. Your accumulated score is never lost.</p>
+          </article>
+          <article>
+            <span class="rule-number">05</span>
+            <h3>Grow Your Deck</h3>
+            <p>After a victory, choose 1 of 3 character-specific cards. You can skip the reward instead for +250 score.</p>
+          </article>
+          <article>
+            <span class="rule-number">06</span>
+            <h3>Keep Climbing</h3>
+            <p>Enemies scale as the fight count rises. There is no finish line—survive, build a stronger deck, and keep pushing your score.</p>
+          </article>
+        </div>
+
+        <div class="mechanic-grid">
+          <article class="mechanic-card">
+            <strong>Combo</strong>
+            <p>Built by many attack cards. Higher Combo increases score value. Taking enemy damage resets it.</p>
+          </article>
+          <article class="mechanic-card">
+            <strong>Multiplier</strong>
+            <p>Raised by special cards and preserved across fights. Taking damage reduces it, so clean play compounds into much bigger scores.</p>
+          </article>
+          <article class="mechanic-card">
+            <strong>Block</strong>
+            <p>Absorbs enemy attack damage for the current turn. Remaining Block is cleared after the enemy attacks.</p>
+          </article>
+          <article class="mechanic-card">
+            <strong>Poison</strong>
+            <p>Ticks at the end of your turn before the enemy attacks, then loses 1 stack. Viper can stack and multiply it rapidly.</p>
+          </article>
+          <article class="mechanic-card">
+            <strong>Bosses</strong>
+            <p>Every 8th fight is a boss encounter. Beat it to take another reward and continue the same run.</p>
+          </article>
+          <article class="mechanic-card">
+            <strong>Daily Run</strong>
+            <p>The Daily uses a deterministic seed for that date, giving you a repeatable run for comparing scores.</p>
+          </article>
+        </div>
+
+        <div class="handbook-characters">
+          ${Object.values(CHARACTERS).map((character) => `
+            <article class="handbook-character handbook-character--${character.id}">
+              <div class="handbook-character__badge">${character.name.slice(0, 2).toUpperCase()}</div>
+              <div>
+                <p class="eyebrow">${character.archetype.toUpperCase()}</p>
+                <h3>${character.name} · ${character.maxHp} HP</h3>
+                <p>${character.description}</p>
+              </div>
+            </article>
+          `).join('')}
+        </div>
+      </div>`;
+  }
+
+  handbookCards(cards) {
+    return `
+      <div class="handbook-card-view">
+        <div class="handbook-card-summary">
+          <div><span>Total Cards</span><strong>${cards.length}</strong></div>
+          <div><span>Common</span><strong>${cards.filter((card) => card.rarity === 'common').length}</strong></div>
+          <div><span>Uncommon</span><strong>${cards.filter((card) => card.rarity === 'uncommon').length}</strong></div>
+          <div><span>Rare</span><strong>${cards.filter((card) => card.rarity === 'rare').length}</strong></div>
+        </div>
+        <div class="handbook-card-grid">
+          ${cards
+            .slice()
+            .sort((a, b) => a.name.localeCompare(b.name))
+            .map((card) => `
+              <article class="handbook-card handbook-card--${card.rarity}">
+                <div class="handbook-card__top">
+                  <span class="card__cost">${card.cost}</span>
+                  <span class="card__rarity">${card.rarity}</span>
+                </div>
+                <div class="handbook-card__art" aria-hidden="true">${card.name.slice(0, 2).toUpperCase()}</div>
+                <h3>${card.name}</h3>
+                <p>${card.description}</p>
+                <div class="handbook-card__tags">${card.tags.map((tag) => `<span>${tag}</span>`).join('')}</div>
+              </article>
+            `).join('')}
+        </div>
+      </div>`;
   }
 
   hud(s) {
