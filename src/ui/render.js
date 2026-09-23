@@ -581,8 +581,6 @@ export class Renderer {
           </div>
         </div>
 
-        <div class="combat-log-strip">${(s.log || []).slice(0, 2).map((line) => `<span>${line}</span>`).join('')}</div>
-
         <div class="combat-tray">
           <div class="pile pile--draw"><strong>${s.drawPile.length}</strong><span>Draw</span></div>
           <div class="energy-orb"><strong>${s.player.energy}</strong><span>Energy</span></div>
