@@ -130,22 +130,34 @@ test('endless difficulty scales with fight number while Heat remains selectable'
 });
 
 
-test('Viper and Bastion start with different character decks', () => {
+test('Viper, Bastion, and Rune start with distinct character decks', () => {
   const viper = new Game();
   viper.startRun('weekly', 'viper');
 
   const bastion = new Game();
   bastion.startRun('weekly', 'bastion');
 
+  const rune = new Game();
+  rune.startRun('weekly', 'rune');
+
   assert.equal(viper.state.characterId, 'viper');
   assert.equal(viper.state.player.maxHp, getCharacter('viper').maxHp);
   assert.ok(viper.state.deck.includes('toxic-cut'));
   assert.ok(!viper.state.deck.includes('shield-strike'));
+  assert.ok(!viper.state.deck.includes('arcane-bolt'));
 
   assert.equal(bastion.state.characterId, 'bastion');
   assert.equal(bastion.state.player.maxHp, getCharacter('bastion').maxHp);
   assert.ok(bastion.state.deck.includes('shield-strike'));
   assert.ok(!bastion.state.deck.includes('toxic-cut'));
+  assert.ok(!bastion.state.deck.includes('arcane-bolt'));
+
+  assert.equal(rune.state.characterId, 'rune');
+  assert.equal(rune.state.player.maxHp, getCharacter('rune').maxHp);
+  assert.ok(rune.state.deck.includes('arcane-bolt'));
+  assert.ok(rune.state.deck.includes('rune-ward'));
+  assert.ok(!rune.state.deck.includes('toxic-cut'));
+  assert.ok(!rune.state.deck.includes('shield-strike'));
 });
 
 test('poison ticks before the enemy attacks and decays by one', () => {
@@ -190,6 +202,11 @@ test('reward pools are character-specific', () => {
   bastion.startRun('weekly', 'bastion');
   const bastionRewards = bastion.rollRewards(10);
   assert.ok(bastionRewards.every((id) => getCharacter('bastion').rewardPool.includes(id)));
+
+  const rune = new Game();
+  rune.startRun('weekly', 'rune');
+  const runeRewards = rune.rollRewards(10);
+  assert.ok(runeRewards.every((id) => getCharacter('rune').rewardPool.includes(id)));
 });
 
 
@@ -255,7 +272,7 @@ test('every card maps to a supported animation class', () => {
 });
 
 test('characters and enemies declare the required animation states', () => {
-  for (const characterId of ['viper', 'bastion']) {
+  for (const characterId of ['viper', 'bastion', 'rune']) {
     const states = getCharacter(characterId).animations;
     for (const state of ['idle', 'magical', 'melee', 'defensive', 'damage', 'death']) {
       assert.ok(states[state], `${characterId} missing ${state} animation state`);
@@ -534,4 +551,41 @@ test('combat character no longer shows the under-sprite info box', () => {
   assert.doesNotMatch(renderSource, /class="actor-name"/);
   assert.doesNotMatch(css, /\.actor-name/);
   assert.match(renderSource, /\$\{s\.player\.block\} Block/);
+});
+
+
+test('Rune arcane cards support spell chaining', () => {
+  const game = new Game();
+  game.startRun('weekly', 'rune');
+  game.chooseHeat(0);
+  game.state.enemies[0].hp = 40;
+  game.state.enemies[0].maxHp = 40;
+  game.state.hand = ['spark', 'channel', 'arcane-bolt'];
+  game.state.drawPile = ['rune-ward'];
+  game.state.player.energy = 2;
+
+  assert.equal(getCard('spark').animationClass, 'magical');
+  assert.equal(getCard('rune-ward').animationClass, 'defensive');
+  assert.equal(getCard('meteor').animationClass, 'magical');
+
+  game.playCard(0, 0);
+  assert.equal(game.state.enemies[0].hp, 38);
+  assert.equal(game.state.score.combo, 1);
+
+  const energyBeforeChannel = game.state.player.energy;
+  const channelIndex = game.state.hand.indexOf('channel');
+  game.playCard(channelIndex);
+  assert.equal(game.state.player.energy, energyBeforeChannel);
+  assert.ok(game.state.hand.includes('rune-ward'));
+});
+
+test('Rune appears in character selection and has dedicated visual accents', () => {
+  const renderSource = readFileSync(new URL('../src/ui/render.js', import.meta.url), 'utf8');
+  const css = readFileSync(new URL('../styles.css', import.meta.url), 'utf8');
+
+  assert.match(renderSource, /Object\.values\(CHARACTERS\)/);
+  assert.match(css, /\.fantasy-menu__hero-card--rune\s*\{[\s\S]*?--hero-accent:/);
+  assert.match(css, /\.character-choice--rune\s*\{[\s\S]*?--choice-accent:/);
+  assert.match(css, /\.player-sprite--rune\s*\{/);
+  assert.match(css, /\.character-picker__grid\s*\{[\s\S]*?grid-template-columns:\s*repeat\(3,/);
 });
