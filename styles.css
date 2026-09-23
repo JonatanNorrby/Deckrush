@@ -404,19 +404,6 @@ p { color: var(--muted); line-height: 1.55; }
   pointer-events: none;
 }
 
-.combat-log-strip {
-  min-height: 31px;
-  display: flex;
-  justify-content: center;
-  gap: 18px;
-  padding: 7px 20px;
-  border-bottom: 1px solid #20283b;
-  background: rgba(9,13,22,.96);
-  color: var(--muted);
-  font-size: .72rem;
-}
-.combat-log-strip span:first-child { color: #d5dbee; }
-
 .combat-tray {
   position: relative;
   min-height: 310px;
