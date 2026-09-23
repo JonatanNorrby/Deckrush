@@ -1,7 +1,15 @@
-# General combat effect PNGs
+# General effect assets
 
-Reserved for non-card-class visual effects.
+This folder is reserved for effects that do not belong to one specific character or enemy.
 
-No filenames in this folder are required by the runtime yet.
+Character card effects belong inside that character's folder instead:
 
-Use `assets/animations/card-effects/` for the currently implemented magical, melee, and defensive card-play animations.
+```
+assets/characters/<character-id>/effects/magical/1.png
+assets/characters/<character-id>/effects/melee/1.png
+assets/characters/<character-id>/effects/defensive/1.png
+```
+
+Enemy-specific effects and animations belong inside the matching `assets/enemies/<enemy-id>/` folder.
+
+No PNG filename in this folder is currently required by the runtime.
