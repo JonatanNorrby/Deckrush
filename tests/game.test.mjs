@@ -294,14 +294,14 @@ test('combat emits attack and damage animation events', () => {
 test('animation frame paths follow the documented PNG convention', () => {
   assert.equal(
     animationFramePath('characters', 'viper', 'melee', 3),
-    './assets/animations/characters/viper/melee/3.png',
+    './assets/characters/viper/melee/3.png',
   );
   assert.equal(
     animationFramePath('enemies', 'scrapper', 'attack', 1),
-    './assets/animations/enemies/scrapper/attack/1.png',
+    './assets/enemies/scrapper/attack/1.png',
   );
   assert.equal(
-    animationFramePath('card-effects', null, 'defensive', 12),
-    './assets/animations/card-effects/defensive/12.png',
+    animationFramePath('character-effects', 'bastion', 'defensive', 12),
+    './assets/characters/bastion/effects/defensive/12.png',
   );
 });
