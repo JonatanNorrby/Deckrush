@@ -3,7 +3,9 @@ import assert from 'node:assert/strict';
 import { Game } from '../src/game/game.js';
 import { dailySeed } from '../src/core/rng.js';
 import { getCharacter } from '../src/data/characters.js';
-import { CARD_LIBRARY } from '../src/data/cards.js';
+import { CARD_LIBRARY, CARD_ANIMATION_CLASSES, getCard } from '../src/data/cards.js';
+import { ENEMIES } from '../src/data/enemies.js';
+import { animationFramePath } from '../src/ui/animations.js';
 
 global.localStorage = {
   data: new Map(),
@@ -220,4 +222,86 @@ test('non-targeted cards can be played during multi-enemy encounters', () => {
 
   assert.equal(game.playCard(0), true);
   assert.equal(game.state.player.block, 9);
+});
+
+
+test('every card maps to a supported animation class', () => {
+  const supported = new Set(CARD_ANIMATION_CLASSES);
+  for (const card of Object.values(CARD_LIBRARY)) {
+    assert.ok(supported.has(card.animationClass), `${card.id} has invalid animation class ${card.animationClass}`);
+  }
+
+  assert.equal(getCard('envenom').animationClass, 'magical');
+  assert.equal(getCard('uppercut').animationClass, 'melee');
+  assert.equal(getCard('fortify').animationClass, 'defensive');
+});
+
+test('characters and enemies declare the required animation states', () => {
+  for (const characterId of ['viper', 'bastion']) {
+    const states = getCharacter(characterId).animations;
+    for (const state of ['idle', 'magical', 'melee', 'defensive', 'hit', 'death']) {
+      assert.ok(states[state], `${characterId} missing ${state} animation state`);
+    }
+  }
+
+  for (const enemy of Object.values(ENEMIES)) {
+    for (const state of ['idle', 'attack', 'hit', 'death']) {
+      assert.ok(enemy.animations[state], `${enemy.id} missing ${state} animation state`);
+    }
+  }
+});
+
+test('playing a card emits its character and card-class animation event', () => {
+  const game = new Game();
+  game.startRun('daily', 'viper');
+  game.chooseHeat(0);
+  game.consumeAnimationEvents();
+
+  game.state.hand = ['envenom'];
+  game.state.player.energy = 3;
+  game.playCard(0, 0);
+
+  const events = game.consumeAnimationEvents();
+  const cardEvent = events.find((event) => event.type === 'cardPlay');
+  assert.ok(cardEvent);
+  assert.equal(cardEvent.characterId, 'viper');
+  assert.equal(cardEvent.cardId, 'envenom');
+  assert.equal(cardEvent.animationClass, 'magical');
+  assert.equal(cardEvent.targetIndex, 0);
+});
+
+test('combat emits enemy attack and hit animation events', () => {
+  const game = new Game();
+  game.startRun('daily', 'bastion');
+  game.chooseHeat(0);
+  game.consumeAnimationEvents();
+
+  game.state.hand = ['shield-strike'];
+  game.state.player.energy = 3;
+  game.playCard(0, 0);
+  let events = game.consumeAnimationEvents();
+  assert.ok(events.some((event) => event.type === 'enemyHit'));
+
+  game.state.enemies[0].baseDamage = 1;
+  game.state.enemies[0].scaling = 0;
+  game.state.player.block = 0;
+  game.endTurn();
+  events = game.consumeAnimationEvents();
+  assert.ok(events.some((event) => event.type === 'enemyAttack'));
+  assert.ok(events.some((event) => event.type === 'playerHit'));
+});
+
+test('animation frame paths follow the documented PNG convention', () => {
+  assert.equal(
+    animationFramePath('characters', 'viper', 'melee', 3),
+    './assets/animations/characters/viper-melee-03.png',
+  );
+  assert.equal(
+    animationFramePath('enemies', 'scrapper', 'attack', 1),
+    './assets/animations/enemies/scrapper-attack-01.png',
+  );
+  assert.equal(
+    animationFramePath('card-effects', null, 'defensive', 12),
+    './assets/animations/card-effects/defensive-12.png',
+  );
 });
