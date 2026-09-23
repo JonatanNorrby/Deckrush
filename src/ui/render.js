@@ -567,7 +567,6 @@ export class Renderer {
               <div class="player-sprite player-sprite--${character.id}" data-character-sprite="${character.id}">
                 ${animatedSpriteMarkup(`./assets/characters/${character.id}/idle/1.png`, character.name, character.name.slice(0, 2).toUpperCase())}
               </div>
-              <div class="actor-name"><span>${character.name}</span><small>${character.archetype}</small></div>
             </div>
           </div>
 
