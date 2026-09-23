@@ -1980,40 +1980,40 @@ h1, h2,
   pointer-events: none;
 }
 
-.card-drop-play {
+.combat-card.card-drop-play {
   position: fixed !important;
   z-index: 1100 !important;
   width: 170px !important;
   height: 245px !important;
   margin: 0 !important;
   pointer-events: none !important;
-  transform: translate(-50%, -50%) !important;
+  transform: translate(-50%, -50%);
   animation: card-drop-play .14s cubic-bezier(.2,.8,.2,1) both;
 }
 
 @keyframes card-drop-play {
   0% {
     opacity: .28;
-    transform: translate(-50%, -64%) scale(.88) rotate(-4deg) !important;
+    transform: translate(-50%, -64%) scale(.88) rotate(-4deg);
   }
   72% {
     opacity: 1;
-    transform: translate(-50%, -47%) scale(1.03) rotate(1deg) !important;
+    transform: translate(-50%, -47%) scale(1.03) rotate(1deg);
   }
   100% {
     opacity: 1;
-    transform: translate(-50%, -50%) scale(1) rotate(0deg) !important;
+    transform: translate(-50%, -50%) scale(1) rotate(0deg);
   }
 }
 
-.pending-target-card {
+.combat-card.pending-target-card {
   position: absolute !important;
   z-index: 7 !important;
   width: 160px !important;
   height: 230px !important;
   margin: 0 !important;
   cursor: crosshair !important;
-  transform: translate(-50%, -50%) rotate(0deg) scale(.8) !important;
+  transform: translate(-50%, -50%) rotate(0deg) scale(.8);
   transform-origin: center !important;
   box-shadow: 0 20px 48px rgba(0,0,0,.5), 0 0 0 2px rgba(210,160,82,.55) !important;
   animation: pending-card-land .16s cubic-bezier(.2,.8,.2,1) both;
@@ -2044,18 +2044,18 @@ h1, h2,
 @keyframes pending-card-land {
   from {
     opacity: .2;
-    transform: translate(-50%, -34%) rotate(-5deg) scale(.68) !important;
+    transform: translate(-50%, -34%) rotate(-5deg) scale(.68);
   }
   to {
     opacity: 1;
-    transform: translate(-50%, -50%) rotate(0deg) scale(.8) !important;
+    transform: translate(-50%, -50%) rotate(0deg) scale(.8);
   }
 }
 
 @keyframes pending-card-resolve {
   to {
     opacity: 0;
-    transform: translate(-50%, -58%) scale(.68) !important;
+    transform: translate(-50%, -58%) scale(.68);
   }
 }
 
