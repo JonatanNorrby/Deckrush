@@ -185,6 +185,67 @@ export const CARD_LIBRARY = {
     description: 'Deal 14. If this kills while undamaged this fight, gain 700 score.', comboGain: 1,
     effects: [{ type: 'damage', amount: 14, perfectKillScore: 700 }],
   }),
+
+  arcaneBolt: card({
+    id: 'arcane-bolt', name: 'Arcane Bolt', cost: 1, tags: ['attack', 'arcane'], animationClass: 'magical',
+    description: 'Deal 6 damage. Build 1 Combo.', comboGain: 1,
+    effects: [{ type: 'damage', amount: 6 }],
+  }),
+  runeWard: card({
+    id: 'rune-ward', name: 'Rune Ward', cost: 1, tags: ['skill', 'block', 'arcane'], animationClass: 'defensive',
+    description: 'Gain 7 Block.',
+    effects: [{ type: 'block', amount: 7 }],
+  }),
+  spark: card({
+    id: 'spark', name: 'Spark', cost: 0, tags: ['attack', 'arcane'], animationClass: 'magical',
+    description: 'Deal 2 damage. Draw 1. Build 1 Combo.', comboGain: 1,
+    effects: [{ type: 'damage', amount: 2 }, { type: 'draw', amount: 1 }],
+  }),
+  spellweave: card({
+    id: 'spellweave', name: 'Spellweave', cost: 1, tags: ['attack', 'arcane'], animationClass: 'magical',
+    description: 'Deal 4 damage. Draw 1. Build 1 Combo.', comboGain: 1,
+    effects: [{ type: 'damage', amount: 4 }, { type: 'draw', amount: 1 }],
+  }),
+  channel: card({
+    id: 'channel', name: 'Channel', cost: 1, tags: ['skill', 'arcane'], animationClass: 'magical',
+    description: 'Gain 1 Energy. Draw 1.',
+    effects: [{ type: 'energy', amount: 1 }, { type: 'draw', amount: 1 }],
+  }),
+  manaBurn: card({
+    id: 'mana-burn', name: 'Mana Burn', cost: 2, tags: ['attack', 'arcane'], animationClass: 'magical', rarity: 'uncommon',
+    description: 'Deal 13 damage. Build 1 Combo.', comboGain: 1,
+    effects: [{ type: 'damage', amount: 13 }],
+  }),
+  arcaneEcho: card({
+    id: 'arcane-echo', name: 'Arcane Echo', cost: 1, tags: ['attack', 'arcane'], animationClass: 'magical', rarity: 'uncommon',
+    description: 'Deal 3 damage twice. Build 2 Combo.', comboGain: 2,
+    effects: [{ type: 'damage', amount: 3, hits: 2 }],
+  }),
+  mysticBarrier: card({
+    id: 'mystic-barrier', name: 'Mystic Barrier', cost: 2, tags: ['skill', 'block', 'arcane'], animationClass: 'defensive', rarity: 'uncommon',
+    description: 'Gain 15 Block.',
+    effects: [{ type: 'block', amount: 15 }],
+  }),
+  overchannel: card({
+    id: 'overchannel', name: 'Overchannel', cost: 0, tags: ['skill', 'risk', 'arcane'], animationClass: 'magical', rarity: 'uncommon',
+    description: 'Lose 2 HP. Gain 1 Energy.',
+    effects: [{ type: 'selfDamage', amount: 2 }, { type: 'energy', amount: 1 }],
+  }),
+  runeHarvest: card({
+    id: 'rune-harvest', name: 'Rune Harvest', cost: 1, tags: ['score', 'arcane'], animationClass: 'magical', rarity: 'uncommon',
+    description: 'Gain +0.10x multiplier per current Combo.',
+    effects: [{ type: 'multiplierPerCombo', amount: 0.1 }],
+  }),
+  unstableGlyph: card({
+    id: 'unstable-glyph', name: 'Unstable Glyph', cost: 1, tags: ['attack', 'risk', 'arcane'], animationClass: 'magical', rarity: 'uncommon',
+    description: 'Lose 1 HP. Deal 9 damage. Build 1 Combo.', comboGain: 1,
+    effects: [{ type: 'selfDamage', amount: 1 }, { type: 'damage', amount: 9 }],
+  }),
+  meteor: card({
+    id: 'meteor', name: 'Meteor', cost: 2, tags: ['attack', 'risk', 'arcane'], animationClass: 'magical', rarity: 'rare',
+    description: 'Lose 3 HP. Deal 19 damage. Build 1 Combo.', comboGain: 1,
+    effects: [{ type: 'selfDamage', amount: 3 }, { type: 'damage', amount: 19 }],
+  }),
 };
 
 const CARD_BY_ID = Object.fromEntries(
