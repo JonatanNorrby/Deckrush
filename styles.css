@@ -88,7 +88,7 @@ p { color: var(--muted); line-height: 1.55; }
 .handbook-card-summary span { display: block; color: var(--muted); font-size: .68rem; text-transform: uppercase; letter-spacing: .08em; }
 .handbook-card-summary strong { display: block; margin-top: 4px; font-size: 1.25rem; }
 .handbook-card-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
-.handbook-card { min-height: 244px; padding: 13px; border: 1px solid #35415f; border-radius: 14px; background: linear-gradient(165deg, #1a2337, #0e1422 72%); }
+.handbook-card { height: 244px; padding: 13px; overflow: hidden; border: 1px solid #35415f; border-radius: 14px; background: linear-gradient(165deg, #1a2337, #0e1422 72%); }
 .handbook-card--uncommon { border-color: #4d6f8b; }
 .handbook-card--rare { border-color: #9878d5; }
 .handbook-card__top { display: flex; align-items: center; justify-content: space-between; }
@@ -173,7 +173,7 @@ p { color: var(--muted); line-height: 1.55; }
 .combat-meta .button { margin-left: auto; }
 .hand, .reward-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; align-items: stretch; }
 .reward-grid { grid-template-columns: repeat(3, minmax(0, 240px)); justify-content: center; margin: 34px 0 24px; }
-.card { position: relative; min-height: 286px; padding: 13px; border: 1px solid #35415f; border-radius: 16px; background: linear-gradient(165deg, #1b2439, #101625 70%); color: var(--text); text-align: left; cursor: pointer; box-shadow: 0 14px 32px rgba(0,0,0,.24); transition: transform .15s ease, border-color .15s ease, filter .15s ease; }
+.card { position: relative; height: 286px; min-height: 0; padding: 13px; overflow: hidden; border: 1px solid #35415f; border-radius: 16px; background: linear-gradient(165deg, #1b2439, #101625 70%); color: var(--text); text-align: left; cursor: pointer; box-shadow: 0 14px 32px rgba(0,0,0,.24); transition: transform .15s ease, border-color .15s ease, filter .15s ease; }
 .card:hover:not(:disabled) { transform: translateY(-8px); border-color: var(--accent); filter: brightness(1.08); }
 .card:disabled { cursor: default; }
 .card--uncommon { border-color: #4d6f8b; }
@@ -183,7 +183,7 @@ p { color: var(--muted); line-height: 1.55; }
 .card__rarity { color: var(--muted); font-size: .62rem; text-transform: uppercase; letter-spacing: .08em; }
 .card__art { height: 96px; display: grid; place-items: center; margin: 11px 0 14px; border-radius: 10px; background: radial-gradient(circle at 30% 30%, rgba(247,202,69,.22), transparent 42%), #0c1220; color: rgba(255,255,255,.16); font-size: 2.6rem; font-weight: 1000; }
 .card__name { display: block; font-size: 1.05rem; }
-.card p { margin: 8px 0 0; font-size: .86rem; line-height: 1.45; }
+.card p { margin: 8px 0 0; font-size: .86rem; line-height: 1.45; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 4; overflow: hidden; }
 .log { margin-top: 24px; padding: 14px 16px; border-left: 3px solid var(--accent); background: rgba(16,22,38,.5); text-align: left; }
 .log p { margin: 2px 0; font-size: .8rem; }
 .reward { text-align: center; }
@@ -223,14 +223,14 @@ p { color: var(--muted); line-height: 1.55; }
   .handbook__content { padding: 16px; }
   .handbook__tabs { padding: 10px 16px; }
   .rule-grid, .mechanic-grid, .handbook-characters, .handbook-card-summary, .handbook-card-grid { grid-template-columns: 1fr; }
-  .handbook-card { min-height: 200px; }
+  .handbook-card { height: 200px; min-height: 0; }
   .character-card__art { min-height: 150px; }
   .fighter--player, .fighter--enemy { flex-wrap: wrap; }
   .player-health { order: 2; flex-basis: 92px; }
   .character-art, .enemy-art { flex-basis: 130px; width: 130px; min-height: 145px; }
   .fighter-caption { max-width: 160px; }
   .enemy-health { flex-basis: 110px; }
-  .card { min-height: 210px; }
+  .card { height: 210px; min-height: 0; }
   .card__art { height: 70px; }
   .combat-meta { flex-wrap: wrap; }
   .combat-meta .button { width: 100%; margin-left: 0; }
@@ -476,9 +476,11 @@ p { color: var(--muted); line-height: 1.55; }
   position: relative;
   flex: 0 0 clamp(145px, 13vw, 185px);
   width: clamp(145px, 13vw, 185px);
-  min-height: 245px;
+  height: 245px;
+  min-height: 0;
   margin-left: clamp(-42px, -2.7vw, -24px);
   padding: 11px;
+  overflow: hidden;
   border: 1px solid #3a4662;
   border-radius: 15px;
   background: linear-gradient(165deg, #1b2439, #101625 72%);
@@ -508,7 +510,8 @@ p { color: var(--muted); line-height: 1.55; }
   position: fixed !important;
   z-index: 1000 !important;
   width: 185px !important;
-  min-height: 245px !important;
+  height: 245px !important;
+  min-height: 0 !important;
   margin: 0 !important;
   pointer-events: none !important;
   transform: translate(-50%, -56%) rotate(-2deg) scale(1.08) !important;
@@ -562,7 +565,30 @@ p { color: var(--muted); line-height: 1.55; }
   .pile--discard { grid-area: discard; }
   .end-turn-button { grid-area: end; padding: 10px 7px; font-size: .72rem; }
   .pile { width: 48px; height: 68px; }
-  .combat-card { flex-basis: 132px; width: 132px; min-height: 215px; margin-left: -50px; font-size: .8rem; }
+  .combat-card { flex-basis: 132px; width: 132px; height: 215px; min-height: 0; margin-left: -50px; font-size: .8rem; }
   .combat-card .card__art { height: 72px; }
   .combat-card:hover { transform: translateY(-28px) rotate(0) scale(1.05); }
+}
+
+.combat-card .card__name {
+  min-height: 2.45em;
+  max-height: 2.45em;
+  overflow: hidden;
+  line-height: 1.2;
+}
+.combat-card p {
+  flex: 1 1 auto;
+  max-height: 5.2em;
+  margin-bottom: 0;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 4;
+}
+.handbook-card p {
+  max-height: 4.1em;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
 }
