@@ -30,6 +30,17 @@ export const CHARACTERS = {
     startingDeck: ['shield-strike', 'shield-strike', 'shield-strike', 'fortify', 'fortify', 'shield-bash', 'brace', 'cashin'],
     rewardPool: ['iron-wall', 'counterweight', 'insurance', 'vault', 'uppercut', 'momentum', 'second-wind', 'clean-finish', 'jackpot', 'all-in'],
   },
+  rune: {
+    id: 'rune',
+    name: 'Rune',
+    archetype: 'Arcane',
+    maxHp: 40,
+    art: null,
+    animations: CHARACTER_ANIMATIONS,
+    description: 'Chain cheap spells, draw aggressively, bend Energy in your favor, and trade safety for explosive magical turns.',
+    startingDeck: ['arcane-bolt', 'arcane-bolt', 'arcane-bolt', 'rune-ward', 'rune-ward', 'spark', 'spellweave', 'channel'],
+    rewardPool: ['mana-burn', 'arcane-echo', 'mystic-barrier', 'overchannel', 'rune-harvest', 'unstable-glyph', 'meteor', 'adrenaline', 'second-wind', 'jackpot'],
+  },
 };
 
 export const DEFAULT_CHARACTER_ID = 'viper';
