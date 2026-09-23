@@ -737,3 +737,17 @@ test('branding uses shared logo asset instead of text', () => {
   assert.match(css, /\.fantasy-menu__logo\s*\{/);
   assert.match(css, /\.hud__logo\s*\{/);
 });
+
+
+test('diagnostic character PNG dimensions', () => {
+  const imageSize = (path) => {
+    const bytes = readFileSync(new URL(path, import.meta.url));
+    return [bytes.readUInt32BE(16), bytes.readUInt32BE(20)];
+  };
+
+  console.log('CHARACTER_PNG_DIMENSIONS', {
+    rune: imageSize('../assets/characters/rune/idle/1.png'),
+    viper: imageSize('../assets/characters/viper/idle/1.png'),
+    bastion: imageSize('../assets/characters/bastion/idle/1.png'),
+  });
+});
