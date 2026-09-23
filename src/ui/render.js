@@ -323,21 +323,11 @@ export class Renderer {
 
         <div class="fantasy-menu__body">
           <nav class="fantasy-menu__nav" aria-label="Main menu">
-            <button class="fantasy-menu__action fantasy-menu__action--primary" data-action="start-normal">
-              <span class="fantasy-menu__rune">◆</span>
-              <span><strong>Begin Run</strong><small>Enter the endless road</small></span>
-            </button>
-            <button class="fantasy-menu__action" data-action="start-weekly">
-              <span class="fantasy-menu__rune">☼</span>
-              <span><strong>Weekly Run</strong><small>${weekly.label}</small></span>
-            </button>
-            <button class="fantasy-menu__action" data-action="open-character-select">
-              <span class="fantasy-menu__rune">♜</span>
-              <span><strong>Choose Hero</strong><small>Current: ${character.name}</small></span>
-            </button>
             <button class="fantasy-menu__action" data-action="open-handbook">
-              <span class="fantasy-menu__rune">✦</span>
               <span><strong>Handbook</strong><small>Rules & cards</small></span>
+            </button>
+            <button class="fantasy-menu__action" data-action="settings">
+              <span><strong>Settings</strong><small>Coming later</small></span>
             </button>
           </nav>
 
