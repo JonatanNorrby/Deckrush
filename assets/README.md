@@ -5,6 +5,7 @@ Asset documentation is colocated with the folder where the PNG belongs.
 For character art, open the specific character folder:
 - `assets/characters/viper/`
 - `assets/characters/bastion/`
+- `assets/characters/rune/`
 
 For enemy art, open the specific enemy folder under `assets/enemies/<enemy-id>/`.
 
