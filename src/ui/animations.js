@@ -111,7 +111,7 @@ export class AnimationDirector {
 
     if (event.type === 'enemyAttack') {
       const enemy = this.root.querySelector(`[data-enemy-instance="${event.instanceId}"] [data-enemy-sprite]`);
-      if (enemy) this.playSprite(enemy, 'enemies', event.enemyId, 'attack');
+      if (enemy) this.playSprite(enemy, 'enemies', event.enemyId, 'attack', { resumeState: 'idle' });
       return;
     }
 
@@ -190,7 +190,8 @@ export class AnimationDirector {
 
     const token = Symbol(state);
     this.spriteTokens.set(element, token);
-    const timing = { ...(STATE_TIMING[state] || STATE_TIMING.idle), ...overrides };
+    const { resumeState = null, ...timingOverrides } = overrides;
+    const timing = { ...(STATE_TIMING[state] || STATE_TIMING.idle), ...timingOverrides };
     const stateClass = `anim-state--${state}`;
 
     for (const className of [...element.classList]) {
@@ -228,6 +229,9 @@ export class AnimationDirector {
       if (!timing.loop && frameIndex >= frames.length) {
         image.hidden = true;
         element.classList.remove('has-frame-animation', stateClass);
+        if (resumeState && this.spriteTokens.get(element) === token) {
+          this.playSprite(element, group, id, resumeState, { loop: true });
+        }
         return;
       }
 
