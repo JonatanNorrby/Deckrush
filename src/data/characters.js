@@ -3,7 +3,7 @@ const CHARACTER_ANIMATIONS = Object.freeze({
   magical: { loop: false },
   melee: { loop: false },
   defensive: { loop: false },
-  hit: { loop: false },
+  damage: { loop: false },
   death: { loop: false },
 });
 
