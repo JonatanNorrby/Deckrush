@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import { Game } from '../src/game/game.js';
 import { dailySeed } from '../src/core/rng.js';
 import { getCharacter } from '../src/data/characters.js';
+import { CARD_LIBRARY } from '../src/data/cards.js';
 
 global.localStorage = {
   data: new Map(),
@@ -174,4 +175,14 @@ test('reward pools are character-specific', () => {
   bastion.startRun('daily', 'bastion');
   const bastionRewards = bastion.rollRewards(10);
   assert.ok(bastionRewards.every((id) => getCharacter('bastion').rewardPool.includes(id)));
+});
+
+
+test('handbook data exposes every card with display metadata', async () => {
+  await import('../src/ui/render.js');
+  const cards = Object.values(CARD_LIBRARY);
+
+  assert.ok(cards.length > 0);
+  assert.ok(cards.every((card) => card.id && card.name && card.description));
+  assert.ok(cards.every((card) => Array.isArray(card.tags) && card.tags.length > 0));
 });
