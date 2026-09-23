@@ -35,8 +35,8 @@ test('heat increases enemy health', () => {
   high.startRun('daily');
   high.chooseHeat(3);
 
-  assert.equal(low.state.enemy.id, high.state.enemy.id);
-  assert.ok(high.state.enemy.maxHp > low.state.enemy.maxHp);
+  assert.equal(low.state.enemies[0].id, high.state.enemies[0].id);
+  assert.ok(high.state.enemies[0].maxHp > low.state.enemies[0].maxHp);
 });
 
 test('taking enemy damage keeps score safe but breaks combo', () => {
@@ -57,7 +57,7 @@ test('defeating an enemy adds score and opens a reward', () => {
   const game = new Game();
   game.startRun('daily');
   game.chooseHeat(0);
-  game.state.enemy.hp = 1;
+  game.state.enemies[0].hp = 1;
   game.state.hand = ['strike'];
   game.state.player.energy = 3;
 
@@ -85,8 +85,8 @@ test('boss fights recur without ending the run', () => {
   game.state.encounterIndex = 7;
   game.chooseHeat(0);
 
-  assert.equal(game.state.enemy.boss, true);
-  game.state.enemy.hp = 1;
+  assert.equal(game.state.enemies[0].boss, true);
+  game.state.enemies[0].hp = 1;
   game.state.hand = ['strike'];
   game.state.player.energy = 3;
   game.playCard(0);
@@ -103,7 +103,7 @@ test('endless difficulty scales with fight number while Heat remains selectable'
   const early = new Game();
   early.startRun('daily');
   early.chooseHeat(0);
-  const earlyDamage = early.state.enemy.baseDamage;
+  const earlyDamage = early.state.enemies[0].baseDamage;
 
   const late = new Game();
   late.startRun('daily');
@@ -111,7 +111,7 @@ test('endless difficulty scales with fight number while Heat remains selectable'
   late.chooseHeat(3);
 
   assert.equal(late.state.selectedHeat, 3);
-  assert.ok(late.state.enemy.baseDamage >= earlyDamage + 3);
+  assert.ok(late.state.enemies[0].baseDamage >= earlyDamage + 3);
 });
 
 
@@ -137,24 +137,24 @@ test('poison ticks before the enemy attacks and decays by one', () => {
   const game = new Game();
   game.startRun('daily', 'viper');
   game.chooseHeat(0);
-  game.state.enemy.hp = 30;
-  game.state.enemy.maxHp = 30;
-  game.state.enemy.baseDamage = 0;
-  game.state.enemy.scaling = 0;
-  game.state.enemy.poison = 5;
+  game.state.enemies[0].hp = 30;
+  game.state.enemies[0].maxHp = 30;
+  game.state.enemies[0].baseDamage = 0;
+  game.state.enemies[0].scaling = 0;
+  game.state.enemies[0].poison = 5;
 
   game.endTurn();
 
-  assert.equal(game.state.enemy.hp, 25);
-  assert.equal(game.state.enemy.poison, 4);
+  assert.equal(game.state.enemies[0].hp, 25);
+  assert.equal(game.state.enemies[0].poison, 4);
 });
 
 test('Bastion shield bash converts current Block into damage', () => {
   const game = new Game();
   game.startRun('daily', 'bastion');
   game.chooseHeat(0);
-  game.state.enemy.hp = 40;
-  game.state.enemy.maxHp = 40;
+  game.state.enemies[0].hp = 40;
+  game.state.enemies[0].maxHp = 40;
   game.state.hand = ['fortify', 'shield-bash'];
   game.state.player.energy = 3;
 
@@ -162,7 +162,7 @@ test('Bastion shield bash converts current Block into damage', () => {
   assert.equal(game.state.player.block, 9);
 
   game.playCard(0);
-  assert.equal(game.state.enemy.hp, 31);
+  assert.equal(game.state.enemies[0].hp, 31);
 });
 
 test('reward pools are character-specific', () => {
@@ -185,4 +185,39 @@ test('handbook data exposes every card with display metadata', async () => {
   assert.ok(cards.length > 0);
   assert.ok(cards.every((card) => card.id && card.name && card.description));
   assert.ok(cards.every((card) => Array.isArray(card.tags) && card.tags.length > 0));
+});
+
+
+test('multi-enemy encounters require a target for attack cards', () => {
+  const game = new Game();
+  game.startRun('daily', 'bastion');
+  game.state.encounterIndex = 2;
+  game.chooseHeat(0);
+
+  assert.equal(game.state.enemies.length, 2);
+  game.state.enemies.forEach((enemy) => {
+    enemy.hp = 30;
+    enemy.maxHp = 30;
+  });
+  game.state.hand = ['shield-strike'];
+  game.state.player.energy = 3;
+
+  assert.equal(game.playCard(0), false);
+  assert.equal(game.state.hand.length, 1);
+
+  assert.equal(game.playCard(0, 1), true);
+  assert.equal(game.state.enemies[0].hp, 30);
+  assert.equal(game.state.enemies[1].hp, 26);
+});
+
+test('non-targeted cards can be played during multi-enemy encounters', () => {
+  const game = new Game();
+  game.startRun('daily', 'bastion');
+  game.state.encounterIndex = 2;
+  game.chooseHeat(0);
+  game.state.hand = ['fortify'];
+  game.state.player.energy = 3;
+
+  assert.equal(game.playCard(0), true);
+  assert.equal(game.state.player.block, 9);
 });
