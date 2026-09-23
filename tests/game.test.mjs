@@ -1,5 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
 import { Game } from '../src/game/game.js';
 import { weeklySeed } from '../src/core/rng.js';
 import { getCharacter } from '../src/data/characters.js';
@@ -340,4 +341,11 @@ test('modal backdrop delegation lets X buttons work without closing on panel cli
     },
   };
   assert.equal(shouldIgnoreBackdropAction(closeButton, closeButton), false);
+});
+
+
+test('combat cards stay large and do not clamp rules text', () => {
+  const css = readFileSync(new URL('../styles.css', import.meta.url), 'utf8');
+  assert.match(css, /\.combat-card\s*\{[\s\S]*?height:\s*310px;/);
+  assert.match(css, /\.combat-card p\s*\{[\s\S]*?overflow:\s*visible;[\s\S]*?display:\s*block;/);
 });
