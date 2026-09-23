@@ -6,6 +6,12 @@ import { AnimationDirector } from './animations.js';
 
 const fmt = new Intl.NumberFormat('en-US');
 
+export function shouldIgnoreBackdropAction(eventTarget, actionTarget) {
+  const isBackdrop = actionTarget?.classList?.contains('character-picker-backdrop')
+    || actionTarget?.classList?.contains('handbook-backdrop');
+  return Boolean(isBackdrop && eventTarget !== actionTarget);
+}
+
 function formatTime(ms) {
   const total = Math.max(0, Math.ceil(ms / 1000));
   const min = Math.floor(total / 60);
@@ -105,6 +111,7 @@ export class Renderer {
   handleClick(event) {
     const target = event.target.closest('[data-action]');
     if (!target) return;
+    if (shouldIgnoreBackdropAction(event.target, target)) return;
     const action = target.dataset.action;
     if (action === 'start-normal') this.game.startRun('normal', target.dataset.character || this.selectedCharacterId);
     if (action === 'start-daily') this.game.startRun('daily', target.dataset.character || this.selectedCharacterId);
@@ -374,7 +381,7 @@ export class Renderer {
   characterSelector() {
     return `
       <div class="character-picker-backdrop" data-action="close-character-select">
-        <section class="character-picker" role="dialog" aria-modal="true" aria-label="Choose hero" onclick="event.stopPropagation()">
+        <section class="character-picker" role="dialog" aria-modal="true" aria-label="Choose hero">
           <header class="character-picker__header">
             <div>
               <p class="eyebrow">CHOOSE YOUR WANDERER</p>
@@ -413,7 +420,7 @@ export class Renderer {
     const cards = Object.values(CARD_LIBRARY);
     return `
       <div class="handbook-backdrop" data-action="close-handbook">
-        <section class="handbook" role="dialog" aria-modal="true" aria-label="Deckrush Handbook" onclick="event.stopPropagation()">
+        <section class="handbook" role="dialog" aria-modal="true" aria-label="Deckrush Handbook">
           <header class="handbook__header">
             <div><p class="eyebrow">REFERENCE</p><h2>Handbook</h2></div>
             <button class="handbook__close" data-action="close-handbook" aria-label="Close handbook">×</button>
