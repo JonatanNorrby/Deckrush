@@ -1,7 +1,7 @@
 const ENEMY_ANIMATIONS = Object.freeze({
   idle: { loop: true },
   attack: { loop: false },
-  hit: { loop: false },
+  damage: { loop: false },
   death: { loop: false },
 });
 
