@@ -1,4 +1,4 @@
-import { RNG, dailySeed } from '../core/rng.js';
+import { RNG, weeklySeed } from '../core/rng.js';
 import { getCard, cardNeedsEnemyTarget } from '../data/cards.js';
 import { saveRunResult } from '../core/storage.js';
 import { DEFAULT_CHARACTER_ID, getCharacter } from '../data/characters.js';
@@ -41,15 +41,15 @@ export class Game {
   }
 
   startRun(mode = 'normal', characterId = DEFAULT_CHARACTER_ID) {
-    const daily = dailySeed();
+    const weekly = weeklySeed();
     const character = getCharacter(characterId);
-    const seed = mode === 'daily' ? daily.seed : (Date.now() ^ Math.floor(Math.random() * 0xffffffff)) >>> 0;
+    const seed = mode === 'weekly' ? weekly.seed : (Date.now() ^ Math.floor(Math.random() * 0xffffffff)) >>> 0;
     this.rng = new RNG(seed);
     this.state = {
       phase: 'route',
       mode,
       seed,
-      dailyLabel: mode === 'daily' ? daily.label : null,
+      weeklyLabel: mode === 'weekly' ? weekly.label : null,
       startedAt: Date.now(),
       characterId: character.id,
       encounterIndex: 0,
@@ -478,7 +478,7 @@ export class Game {
       score,
       mode: s.mode,
       characterId: s.characterId,
-      dailyLabel: s.dailyLabel,
+      weeklyLabel: s.weeklyLabel,
       maxCombo: s.score.maxCombo,
       maxMultiplier: s.score.maxMultiplier,
       biggestHit: s.stats.biggestHit,
