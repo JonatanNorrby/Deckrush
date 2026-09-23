@@ -1,16 +1,14 @@
 # Viper static art
 
-This folder contains Viper's static PNGs and animation subfolders.
+Character selection art uses `idle/1.png`. This folder contains Viper's static PNGs and animation subfolders.
 
 ## Required static PNGs
 
-- `portrait.png` — used on the main menu and character-selection screen.
 - `combat.png` — static combat fallback shown when no animation frames are available.
 
 Expected paths:
 
 ```
-assets/characters/viper/portrait.png
 assets/characters/viper/combat.png
 ```
 
