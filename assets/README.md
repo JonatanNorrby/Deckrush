@@ -1,10 +1,10 @@
 # Deckrush asset pipeline
 
-Every asset directory contains its own README with the exact filenames expected there.
+Character and enemy art is intentionally self-contained. Do not put character/enemy animation art in a separate global animation folder.
 
-## Core rule for animations
+## Animation rule
 
-An animation is a folder containing sequential PNG files:
+Every animation is a folder containing sequential PNG files:
 
 ```
 1.png
@@ -14,43 +14,66 @@ An animation is a folder containing sequential PNG files:
 x.png
 ```
 
-The runtime starts at `1.png` and plays upward in numerical order. It stops at the first missing frame, with a safety limit of 60 frames. There is no need to declare the frame count in code.
+The runtime starts at `1.png`, plays upward numerically, and stops at the first missing frame. It checks up to 60 frames.
+
+## Characters
+
+All art for one character lives together:
+
+```
+assets/characters/<character-id>/
+├── portrait.png
+├── combat.png
+├── idle/
+│   └── 1.png ... x.png
+├── magical/
+│   └── 1.png ... x.png
+├── melee/
+│   └── 1.png ... x.png
+├── defensive/
+│   └── 1.png ... x.png
+├── damage/
+│   └── 1.png ... x.png
+├── death/
+│   └── 1.png ... x.png
+└── effects/
+    ├── magical/
+    │   └── 1.png ... x.png
+    ├── melee/
+    │   └── 1.png ... x.png
+    └── defensive/
+        └── 1.png ... x.png
+```
 
 Examples:
+- `assets/characters/viper/magical/1.png`
+- `assets/characters/viper/damage/1.png`
+- `assets/characters/viper/effects/magical/1.png`
+- `assets/characters/bastion/defensive/1.png`
+
+## Enemies
+
+All art for one enemy also lives together:
 
 ```
-assets/animations/characters/viper/melee/1.png
-assets/animations/characters/viper/melee/2.png
-assets/animations/characters/viper/melee/3.png
-
-assets/animations/enemies/scrapper/damage/1.png
-assets/animations/enemies/scrapper/damage/2.png
-
-assets/animations/card-effects/magical/1.png
-assets/animations/card-effects/magical/2.png
+assets/enemies/<enemy-id>/
+├── combat.png
+├── idle/
+│   └── 1.png ... x.png
+├── attack/
+│   └── 1.png ... x.png
+├── damage/
+│   └── 1.png ... x.png
+└── death/
+    └── 1.png ... x.png
 ```
 
-## Supported animation states
+Examples:
+- `assets/enemies/scrapper/combat.png`
+- `assets/enemies/scrapper/attack/1.png`
+- `assets/enemies/scrapper/damage/1.png`
+- `assets/enemies/auditor/death/1.png`
 
-Characters:
-- `idle`
-- `magical`
-- `melee`
-- `defensive`
-- `damage` — plays whenever the character takes HP damage, including self-damage.
-- `death`
+If an animation has no `1.png`, Deckrush uses the built-in CSS fallback animation.
 
-Enemies:
-- `idle`
-- `attack`
-- `damage` — plays whenever that enemy takes damage.
-- `death`
-
-Shared card effects:
-- `magical`
-- `melee`
-- `defensive`
-
-If an animation folder has no `1.png`, Deckrush uses its built-in CSS fallback animation.
-
-See the README inside each subfolder for the exact paths expected there.
+Other asset folders such as `cards/`, `backgrounds/`, `ui/`, `effects/`, and `audio/` are for non-character/non-enemy assets. Each contains its own README.
