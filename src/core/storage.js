@@ -2,7 +2,7 @@ const STORAGE_KEY = 'deckrush.save.v1';
 
 const defaults = {
   bestScore: 0,
-  dailyBest: {},
+  weeklyBest: {},
   stats: {
     runs: 0,
     wins: 0,
@@ -19,7 +19,7 @@ export function loadSave() {
       ...defaults,
       ...parsed,
       stats: { ...defaults.stats, ...(parsed.stats || {}) },
-      dailyBest: { ...defaults.dailyBest, ...(parsed.dailyBest || {}) },
+      weeklyBest: { ...defaults.weeklyBest, ...(parsed.weeklyBest || {}) },
     };
   } catch {
     return structuredClone(defaults);
@@ -34,8 +34,8 @@ export function saveRunResult(result) {
   save.stats.highestCombo = Math.max(save.stats.highestCombo, result.maxCombo);
   save.stats.highestMultiplier = Math.max(save.stats.highestMultiplier, result.maxMultiplier);
   save.stats.biggestHit = Math.max(save.stats.biggestHit, result.biggestHit);
-  if (result.mode === 'daily' && result.dailyLabel) {
-    save.dailyBest[result.dailyLabel] = Math.max(save.dailyBest[result.dailyLabel] || 0, result.score);
+  if (result.mode === 'weekly' && result.weeklyLabel) {
+    save.weeklyBest[result.weeklyLabel] = Math.max(save.weeklyBest[result.weeklyLabel] || 0, result.score);
   }
   localStorage.setItem(STORAGE_KEY, JSON.stringify(save));
   return save;
