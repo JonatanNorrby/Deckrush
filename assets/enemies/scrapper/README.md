@@ -1,13 +1,13 @@
-# Scrapper static art
+# Scrapper artwork
 
-This folder contains all artwork for Scrapper.
+`idle/1.png` is the required fallback image for Scrapper. It is used anywhere the game needs a static enemy image and also serves as the first frame of the looping idle animation.
 
-## Required static PNG
+Expected fallback path:
 
-- `combat.png` — static combat fallback shown when no animation frames are available.
+```
+assets/enemies/scrapper/idle/1.png
+```
 
-Expected path:
+A separate `combat.png` fallback is no longer required.
 
-`assets/enemies/scrapper/combat.png`
-
-The `idle/`, `attack/`, `damage/`, and `death/` folders each contain their own README explaining the exact PNG sequence required there.
+The `idle/`, `attack/`, `damage/`, and `death/` folders contain their own READMEs explaining the exact numbered PNG sequences used by the animation system.
