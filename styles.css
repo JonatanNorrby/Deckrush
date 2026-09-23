@@ -1591,3 +1591,364 @@ p { color: var(--muted); line-height: 1.55; }
     animation-iteration-count: 1 !important;
   }
 }
+
+
+/* === Unified dark-fantasy theme === */
+:root {
+  --bg: #0b0704;
+  --panel: #171007;
+  --panel-2: #24170b;
+  --line: #5b3a1d;
+  --text: #f0dfbf;
+  --muted: #9b8462;
+  --accent: #c98c39;
+  --accent-2: #e3b15f;
+  --danger: #d85b4b;
+  --good: #82ad72;
+}
+
+body {
+  background:
+    linear-gradient(180deg, rgba(11,7,4,.96), rgba(17,10,5,.98)),
+    radial-gradient(circle at 20% 0%, rgba(155,96,35,.14), transparent 34rem),
+    #0b0704;
+}
+
+h1, h2,
+.card__name,
+.actor-name span,
+.enemy-name,
+.result-screen__score-block > strong,
+.heat-card strong,
+.reward h2 {
+  font-family: Georgia, "Times New Roman", serif;
+}
+
+.button {
+  border-color: rgba(190,133,65,.42);
+  border-radius: 3px;
+  background: linear-gradient(180deg, rgba(62,38,18,.95), rgba(31,20,11,.98));
+  color: #e9d4ae;
+  box-shadow: 0 8px 20px rgba(0,0,0,.26);
+}
+.button:hover {
+  border-color: rgba(231,181,100,.72);
+  background: linear-gradient(180deg, rgba(86,51,22,.98), rgba(43,26,12,.98));
+}
+.button--primary {
+  border-color: #d9a24e;
+  background: linear-gradient(180deg, #d1a052, #a96228);
+  color: #241508;
+}
+.button--primary:hover {
+  border-color: #f0c878;
+  background: linear-gradient(180deg, #e7b966, #bf7833);
+}
+
+.hud {
+  border-bottom-color: #51341b;
+  background: rgba(18,11,6,.95);
+  box-shadow: 0 8px 26px rgba(0,0,0,.28);
+}
+.hud__brand,
+.hud__stat {
+  border-right-color: rgba(120,78,37,.42);
+}
+.hud__brand,
+.hud__timer strong {
+  color: #d7a24f;
+}
+
+.route,
+.reward,
+.result-screen {
+  width: 100%;
+  max-width: none;
+  background:
+    linear-gradient(90deg, rgba(15,9,5,.95), rgba(31,19,9,.82) 50%, rgba(15,9,5,.95)),
+    url('./assets/backgrounds/menu.png') center / cover fixed no-repeat,
+    #130c07;
+}
+.route.shell,
+.reward.shell {
+  width: 100%;
+  min-height: calc(100vh - 70px);
+  padding-inline: max(24px, calc((100vw - 1180px) / 2));
+}
+.route > h2,
+.reward > h2 {
+  color: #f0ddba;
+}
+.route > p:not(.eyebrow),
+.reward > p {
+  color: #a88e68;
+}
+
+.heat-card {
+  border-color: rgba(183,126,58,.4);
+  border-radius: 3px;
+  background:
+    linear-gradient(145deg, rgba(64,39,18,.96), rgba(26,17,10,.98));
+  color: #e9d6b4;
+  box-shadow: inset 0 0 0 1px rgba(255,217,157,.03), 0 12px 30px rgba(0,0,0,.28);
+}
+.heat-card:hover {
+  border-color: #d9a85f;
+  box-shadow: inset 0 0 0 1px rgba(245,200,126,.14), 0 18px 36px rgba(0,0,0,.36);
+}
+.heat-card span,
+.heat-card small {
+  color: #9f8561;
+}
+.heat-card strong {
+  color: #d8a653;
+}
+
+.combat-screen {
+  background: #0d0805;
+}
+.combat-stage {
+  background:
+    linear-gradient(to bottom, rgba(20,12,7,.18), rgba(15,9,5,.8)),
+    linear-gradient(90deg, rgba(91,54,21,.12), transparent 42%, rgba(102,61,24,.12)),
+    url('./assets/backgrounds/combat.png') center / cover no-repeat,
+    radial-gradient(circle at 65% 42%, rgba(151,96,38,.18), transparent 24rem),
+    linear-gradient(#24170d, #100a06);
+  border-bottom-color: #4b3018;
+}
+.combat-stage__overlay {
+  background:
+    linear-gradient(to top, rgba(12,7,4,.78), transparent 38%),
+    radial-gradient(circle at 50% 110%, rgba(201,140,57,.13), transparent 38%);
+}
+.combat-stage.is-drag-active {
+  box-shadow: inset 0 0 0 2px rgba(201,140,57,.2);
+}
+.combat-stage.is-valid-drop {
+  box-shadow: inset 0 0 0 2px rgba(135,172,105,.42);
+}
+
+.player-vitals {
+  border-color: rgba(154,112,57,.56);
+  border-radius: 4px;
+  background: linear-gradient(160deg, rgba(45,29,14,.94), rgba(19,13,8,.96));
+}
+.player-vitals strong {
+  color: #cbd69e;
+}
+.player-vitals em {
+  color: #d3ae6c;
+}
+.player-hp-bar,
+.enemy-hp-bar {
+  border-color: rgba(201,155,91,.16);
+  background: #120b06;
+}
+.player-hp-bar i {
+  background: linear-gradient(90deg, #678c55, #aac87d);
+}
+.enemy-hp-bar i {
+  background: linear-gradient(90deg, #8f352d, #d5684e);
+}
+.player-sprite--viper {
+  filter: drop-shadow(0 20px 24px rgba(92,128,63,.16));
+}
+.player-sprite--bastion {
+  filter: drop-shadow(0 20px 24px rgba(177,125,55,.16));
+}
+.actor-name {
+  border-color: rgba(171,118,55,.45);
+  border-radius: 3px;
+  background: rgba(26,17,9,.92);
+}
+.actor-name small {
+  color: #9f8561;
+}
+
+.enemy-unit.is-drop-target {
+  border-color: #d2a052;
+  background: rgba(126,76,28,.16);
+}
+.enemy-unit--elite .enemy-name {
+  color: #e0ad59;
+}
+.enemy-intent {
+  border-color: rgba(190,75,58,.5);
+  border-radius: 3px;
+  background: rgba(54,20,14,.92);
+  color: #e8c1af;
+}
+.enemy-hp-row {
+  color: #d8c3a0;
+}
+.drag-instruction {
+  border: 1px solid rgba(151,105,51,.28);
+  border-radius: 3px;
+  background: rgba(27,17,9,.82);
+  color: rgba(226,205,171,.58);
+}
+
+.combat-tray {
+  border-top: 1px solid #493018;
+  background:
+    radial-gradient(ellipse at 50% 100%, rgba(111,68,27,.22), transparent 58%),
+    repeating-linear-gradient(90deg, rgba(255,255,255,.012) 0 1px, transparent 1px 48px),
+    linear-gradient(#21150c, #100a06);
+}
+.pile {
+  border-color: #6e4824;
+  border-radius: 3px;
+  background:
+    repeating-linear-gradient(135deg, #392514, #392514 5px, #2b1c10 5px, #2b1c10 10px);
+  box-shadow: 5px 5px 0 #0b0704, 9px 9px 0 #4a3018;
+}
+.energy-orb {
+  border-color: #ba7f2f;
+  background: radial-gradient(circle at 35% 28%, #f3d18a, #bd7624 48%, #4c2d0d 100%);
+  color: #211308;
+  box-shadow: 0 0 28px rgba(193,124,37,.22);
+}
+
+.combat-card,
+.card,
+.handbook-card {
+  border-color: #694722;
+  border-radius: 5px;
+  background:
+    linear-gradient(165deg, rgba(62,40,20,.98), rgba(28,18,10,.99) 72%);
+  color: #ead8b7;
+  box-shadow:
+    inset 0 0 0 1px rgba(255,224,170,.03),
+    0 13px 28px rgba(0,0,0,.34);
+}
+.combat-card:hover,
+.card:hover:not(:disabled) {
+  border-color: #d2a257;
+}
+.combat-card.is-unaffordable {
+  filter: grayscale(.55) brightness(.56) sepia(.18);
+}
+.combat-card.is-unaffordable:hover {
+  border-color: #755433;
+}
+.card--uncommon,
+.handbook-card--uncommon {
+  border-color: #8b6840;
+}
+.card--rare,
+.handbook-card--rare {
+  border-color: #ad854e;
+}
+.card__cost {
+  background: linear-gradient(#e0b35d, #b8752e);
+  color: #281708;
+}
+.card__rarity {
+  color: #9c825d;
+}
+.card__art,
+.handbook-card__art {
+  background:
+    radial-gradient(circle at 30% 30%, rgba(210,155,70,.2), transparent 42%),
+    #1a1008;
+}
+.art-fallback {
+  color: rgba(221,193,147,.22);
+}
+.end-turn-button {
+  border-color: rgba(169,69,52,.56);
+  border-radius: 3px;
+  background: linear-gradient(#5b251c, #2c130e);
+  color: #efd0bd;
+}
+.end-turn-button:hover {
+  border-color: #c45d47;
+}
+
+.log {
+  border-left-color: #bd8134;
+  background: rgba(39,25,12,.62);
+}
+.reward-grid .card {
+  border-color: rgba(181,127,62,.52);
+}
+
+.result-screen__score-block > strong {
+  color: #d7a04a;
+}
+.result-screen .result-grid div,
+.records div {
+  border-color: rgba(163,111,51,.38);
+  border-radius: 3px;
+  background: rgba(42,27,14,.82);
+}
+.result-screen .result-grid span,
+.records span {
+  color: #9d835e;
+}
+
+.handbook-backdrop {
+  background: rgba(9,5,3,.88);
+}
+.handbook {
+  border-color: #68451f;
+  border-radius: 5px;
+  background:
+    linear-gradient(160deg, #2a1a0d, #120b06 76%);
+}
+.handbook__header,
+.handbook__tabs {
+  border-color: #55381b;
+}
+.handbook__tabs {
+  background: rgba(21,13,7,.7);
+}
+.handbook__tabs button:hover {
+  background: #382311;
+}
+.handbook__tabs button.is-active {
+  color: #251608;
+  background: #c98c39;
+  border-color: #c98c39;
+}
+.rule-hero,
+.rule-grid article,
+.mechanic-card,
+.handbook-character,
+.handbook-card-summary div {
+  border-color: rgba(152,101,45,.4);
+  border-radius: 4px;
+  background:
+    linear-gradient(155deg, rgba(54,34,16,.94), rgba(23,15,8,.97));
+}
+.rule-hero {
+  background:
+    radial-gradient(circle at 10% 0%, rgba(201,140,57,.12), transparent 34rem),
+    #211409;
+}
+.rule-number,
+.mechanic-card strong {
+  color: #d7a34e;
+}
+.handbook-character__badge {
+  border-radius: 3px;
+  background: #3b2613;
+  color: rgba(232,205,162,.32);
+}
+.handbook-character--viper {
+  border-color: rgba(112,153,87,.42);
+}
+.handbook-character--bastion {
+  border-color: rgba(188,133,61,.5);
+}
+
+.status-pill {
+  border-color: rgba(159,109,51,.45);
+  border-radius: 3px;
+  background: rgba(43,27,13,.72);
+}
+.status-pill--poison {
+  color: #b9d68c;
+  border-color: rgba(112,153,87,.5);
+  background: rgba(48,75,33,.3);
+}
