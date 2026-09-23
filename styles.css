@@ -58,8 +58,23 @@ p { color: var(--muted); line-height: 1.55; }
 .handbook { width: min(1120px, 100%); max-height: min(90vh, 920px); overflow: hidden; display: flex; flex-direction: column; border: 1px solid #37445f; border-radius: 22px; background: linear-gradient(160deg, #131b2d, #090d17 76%); box-shadow: 0 34px 100px rgba(0,0,0,.62); }
 .handbook__header { display: flex; align-items: center; justify-content: space-between; gap: 20px; padding: 24px 26px 16px; border-bottom: 1px solid var(--line); }
 .handbook__header h2 { margin: 0; font-size: 2.5rem; }
-.handbook__close { width: 44px; height: 44px; border: 1px solid var(--line); border-radius: 12px; background: #0e1422; color: var(--text); font-size: 1.8rem; line-height: 1; cursor: pointer; }
-.handbook__close:hover { border-color: var(--accent); }
+.handbook__close {
+  width: 44px;
+  height: 44px;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: var(--text);
+  font-size: 1.8rem;
+  line-height: 1;
+  cursor: pointer;
+  box-shadow: none;
+  transition: color .14s ease, transform .14s ease;
+}
+.handbook__close:hover {
+  color: var(--danger);
+  transform: scale(1.08);
+}
 .handbook__tabs { display: flex; gap: 8px; padding: 14px 26px; border-bottom: 1px solid var(--line); background: rgba(7,10,18,.55); }
 .handbook__tabs button { padding: 10px 14px; border: 1px solid transparent; border-radius: 10px; background: transparent; color: var(--muted); font-weight: 900; cursor: pointer; }
 .handbook__tabs button:hover { color: var(--text); background: #131b2c; }
@@ -1186,17 +1201,19 @@ p { color: var(--muted); line-height: 1.55; }
   width: 40px;
   height: 40px;
   flex: 0 0 auto;
-  border: 1px solid rgba(202,151,74,.25);
-  border-radius: 3px;
-  background: rgba(52,31,14,.6);
+  border: 0;
+  border-radius: 0;
+  background: transparent;
   color: #c9ad7b;
   font-size: 1.55rem;
   cursor: pointer;
+  box-shadow: none;
+  transition: color .14s ease, transform .14s ease;
 }
 
 .character-picker__close:hover {
-  border-color: #dba859;
-  color: #f1dbb2;
+  color: var(--danger);
+  transform: scale(1.08);
 }
 
 .character-picker__grid {
