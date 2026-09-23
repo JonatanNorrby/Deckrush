@@ -38,11 +38,26 @@ export class RNG {
   }
 }
 
-export function dailySeed(date = new Date()) {
-  const utcDate = [
+function utcDateLabel(date) {
+  return [
     date.getUTCFullYear(),
     String(date.getUTCMonth() + 1).padStart(2, '0'),
     String(date.getUTCDate()).padStart(2, '0'),
   ].join('-');
-  return { label: utcDate, seed: hashString(`deckrush:${utcDate}`) };
+}
+
+export function weeklySeed(date = new Date()) {
+  const monday = new Date(Date.UTC(
+    date.getUTCFullYear(),
+    date.getUTCMonth(),
+    date.getUTCDate(),
+  ));
+  const daysSinceMonday = (monday.getUTCDay() + 6) % 7;
+  monday.setUTCDate(monday.getUTCDate() - daysSinceMonday);
+
+  const label = utcDateLabel(monday);
+  return {
+    label,
+    seed: hashString(`deckrush:week:${label}`),
+  };
 }
