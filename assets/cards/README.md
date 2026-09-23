@@ -11,6 +11,9 @@ Examples:
 - `fortify.png`
 - `jackpot.png`
 - `clean-finish.png`
+- `arcane-bolt.png`
+- `rune-ward.png`
+- `meteor.png`
 
 The filename must exactly match the card's stable `id` in `src/data/cards.js`.
 
