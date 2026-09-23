@@ -1,6 +1,7 @@
 import { getCard } from '../data/cards.js';
 import { loadSave } from '../core/storage.js';
 import { dailySeed } from '../core/rng.js';
+import { CHARACTERS, getCharacter } from '../data/characters.js';
 
 const fmt = new Intl.NumberFormat('en-US');
 
@@ -34,8 +35,8 @@ export class Renderer {
     const target = event.target.closest('[data-action]');
     if (!target) return;
     const action = target.dataset.action;
-    if (action === 'start-normal') this.game.startRun('normal');
-    if (action === 'start-daily') this.game.startRun('daily');
+    if (action === 'start-normal') this.game.startRun('normal', target.dataset.character);
+    if (action === 'start-daily') this.game.startRun('daily', target.dataset.character);
     if (action === 'heat') this.game.chooseHeat(Number(target.dataset.heat));
     if (action === 'play-card') this.game.playCard(Number(target.dataset.index));
     if (action === 'end-turn') this.game.endTurn();
@@ -58,15 +59,33 @@ export class Renderer {
     const daily = dailySeed();
     const dailyBest = save.dailyBest[daily.label] || 0;
     this.root.innerHTML = `
-      <section class="menu shell">
+      <section class="menu shell menu--wide">
         <div class="logo-mark">DR</div>
         <p class="eyebrow">FAST SCORE ATTACK DECKBUILDER</p>
         <h1>DECKRUSH</h1>
-        <p class="menu__pitch">Build a vicious little deck. Chain cards, push the multiplier, and turn every hit into a bigger score.</p>
-        <div class="menu__buttons">
-          <button class="button button--primary" data-action="start-normal">Start Run</button>
-          <button class="button" data-action="start-daily">Daily Seed <small>${daily.label}</small></button>
+        <p class="menu__pitch">Choose a character, build around their specialty, and push the run until you die.</p>
+
+        <div class="character-select">
+          ${Object.values(CHARACTERS).map((character) => `
+            <article class="character-card character-card--${character.id}">
+              <div class="character-card__art" aria-hidden="true"><span>${character.name.slice(0, 2).toUpperCase()}</span></div>
+              <div class="character-card__body">
+                <p class="eyebrow">${character.archetype.toUpperCase()}</p>
+                <h2>${character.name}</h2>
+                <p>${character.description}</p>
+                <div class="character-card__stats">
+                  <span><strong>${character.maxHp}</strong> HP</span>
+                  <span><strong>${character.startingDeck.length}</strong> cards</span>
+                </div>
+                <div class="character-card__actions">
+                  <button class="button button--primary" data-action="start-normal" data-character="${character.id}">Start Run</button>
+                  <button class="button" data-action="start-daily" data-character="${character.id}">Daily <small>${daily.label}</small></button>
+                </div>
+              </div>
+            </article>
+          `).join('')}
         </div>
+
         <div class="records">
           <div><span>Personal Best</span><strong>${fmt.format(save.bestScore)}</strong></div>
           <div><span>Daily Best</span><strong>${fmt.format(dailyBest)}</strong></div>
@@ -110,17 +129,42 @@ export class Renderer {
 
   combat(s) {
     const e = s.enemy;
+    const character = getCharacter(s.characterId);
     const hpPct = Math.max(0, (e.hp / e.maxHp) * 100);
     const intent = e.baseDamage + e.strength + s.selectedHeat + e.scaling * Math.max(0, e.turn);
     return `
-      <section class="combat shell">
-        <div class="enemy-panel ${e.elite ? 'enemy-panel--elite' : ''} ${e.boss ? 'enemy-panel--boss' : ''}">
-          <div class="enemy-art"><span>${e.name.slice(0, 2).toUpperCase()}</span></div>
-          <div class="enemy-info">
-            <div class="enemy-title"><div><p class="eyebrow">${e.boss ? 'BOSS' : e.elite ? 'ELITE' : 'TARGET'}</p><h2>${e.name}</h2></div><strong>${Math.max(0, e.hp)} / ${e.maxHp} HP</strong></div>
-            <div class="bar"><i style="width:${hpPct}%"></i></div>
-            <p>${e.tagline}</p>
-            <div class="intent">Next attack: <strong>${intent}${e.trait === 'burst' && e.turn + 1 === e.burstTurn ? ' + BURST' : ''}</strong></div>
+      <section class="combat shell combat--battle">
+        <div class="battlefield">
+          <div class="fighter fighter--player">
+            <div class="player-health">
+              <span>HP</span>
+              <strong>${Math.max(0, s.player.hp)}<small>/${s.player.maxHp}</small></strong>
+              <em>${s.player.block} Block</em>
+            </div>
+            <div class="character-art character-art--${character.id}" aria-label="${character.name}"><span>${character.name.slice(0, 2).toUpperCase()}</span></div>
+            <div class="fighter-caption">
+              <p class="eyebrow">${character.archetype.toUpperCase()}</p>
+              <h2>${character.name}</h2>
+            </div>
+          </div>
+
+          <div class="battle-center">
+            <span>VS</span>
+            <div class="intent">Next attack <strong>${intent}${e.trait === 'burst' && e.turn + 1 === e.burstTurn ? ' + BURST' : ''}</strong></div>
+          </div>
+
+          <div class="fighter fighter--enemy ${e.elite ? 'fighter--elite' : ''} ${e.boss ? 'fighter--boss' : ''}">
+            <div class="fighter-caption fighter-caption--enemy">
+              <p class="eyebrow">${e.boss ? 'BOSS' : e.elite ? 'ELITE' : 'ENEMY'}</p>
+              <h2>${e.name}</h2>
+              <p>${e.tagline}</p>
+              ${e.poison > 0 ? `<div class="status-pill status-pill--poison">☠ ${e.poison} Poison</div>` : ''}
+            </div>
+            <div class="enemy-art"><span>${e.name.slice(0, 2).toUpperCase()}</span></div>
+            <div class="enemy-health">
+              <strong>${Math.max(0, e.hp)} / ${e.maxHp} HP</strong>
+              <div class="bar"><i style="width:${hpPct}%"></i></div>
+            </div>
           </div>
         </div>
 
@@ -131,7 +175,7 @@ export class Renderer {
           <button class="button button--danger" data-action="end-turn">End Turn →</button>
         </div>
 
-        <div class="hand">
+        <div class="hand hand--bottom">
           ${s.hand.map((id, index) => cardMarkup(getCard(id), index, 'play-card')).join('')}
         </div>
         ${this.log(s)}
@@ -157,7 +201,7 @@ export class Renderer {
     const newBest = r.score >= s.save.bestScore && r.score > 0;
     return `
       <section class="shell result">
-        <p class="eyebrow">${r.victory ? 'RUN CLEARED' : 'RUN OVER'}</p>
+        <p class="eyebrow">RUN OVER</p>
         <h1>${fmt.format(r.score)}</h1>
         <p class="result__reason">${r.reason}${newBest ? ' · PERSONAL BEST' : ''}</p>
         <div class="result-grid">
@@ -172,7 +216,7 @@ export class Renderer {
           <div><span>Time</span><strong>${formatTime(r.elapsedMs)}</strong></div>
         </div>
         <div class="menu__buttons">
-          <button class="button button--primary" data-action="${s.mode === 'daily' ? 'start-daily' : 'start-normal'}">Run It Back</button>
+          <button class="button button--primary" data-action="${s.mode === 'daily' ? 'start-daily' : 'start-normal'}" data-character="${s.characterId}">Run It Back</button>
           <button class="button" data-action="menu">Main Menu</button>
         </div>
       </section>`;
