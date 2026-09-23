@@ -3,7 +3,6 @@ import { saveRunResult } from '../core/storage.js';
 import { STARTING_DECK, REWARD_POOL, getCard } from '../data/cards.js';
 import { ENEMIES, NORMAL_ENEMIES, ELITE_ENEMIES, BOSS_ID } from '../data/enemies.js';
 
-const RUN_LIMIT_MS = 10 * 60 * 1000;
 const HAND_SIZE = 5;
 const MAX_ENCOUNTERS = 8;
 
@@ -36,7 +35,6 @@ export class Game {
       seed,
       dailyLabel: mode === 'daily' ? daily.label : null,
       startedAt: Date.now(),
-      runLimitMs: RUN_LIMIT_MS,
       encounterIndex: 0,
       selectedHeat: 0,
       player: { hp: 50, maxHp: 50, block: 0, energy: 3, maxEnergy: 3 },
@@ -55,15 +53,11 @@ export class Game {
     this.emit();
   }
 
-  getRemainingMs(now = Date.now()) {
-    if (!this.state.startedAt) return RUN_LIMIT_MS;
-    return Math.max(0, this.state.runLimitMs - (now - this.state.startedAt));
+  getElapsedMs(now = Date.now()) {
+    if (!this.state.startedAt) return 0;
+    return Math.max(0, now - this.state.startedAt);
   }
 
-  tick() {
-    if (!['route', 'combat', 'reward'].includes(this.state.phase)) return;
-    if (this.getRemainingMs() <= 0) this.endRun(false, 'Time expired');
-  }
 
   chooseHeat(heat) {
     if (this.state.phase !== 'route') return;
@@ -295,10 +289,6 @@ export class Game {
     this.bankPending();
 
     if (e.boss) {
-      const secondsLeft = Math.floor(this.getRemainingMs() / 1000);
-      const speedBonus = Math.max(0, secondsLeft * 12);
-      s.score.banked += speedBonus;
-      this.pushLog(`TIME BONUS +${speedBonus}`);
       this.endRun(true, 'The Auditor is defeated');
       return;
     }
@@ -353,7 +343,7 @@ export class Game {
       fightsPerfect: s.stats.fightsPerfect,
       damageTaken: s.stats.damageTaken,
       overkill: s.stats.overkill,
-      elapsedMs: Math.min(RUN_LIMIT_MS, Date.now() - s.startedAt),
+      elapsedMs: this.getElapsedMs(),
     };
     s.save = saveRunResult(s.result);
     s.phase = 'gameover';
