@@ -413,3 +413,17 @@ test('main menu left nav only shows handbook and settings without icons', () => 
   assert.match(renderSource, /class="fantasy-menu__hero-card[^"]*" data-action="open-character-select"/);
   assert.doesNotMatch(css, /\.fantasy-menu__rune/);
 });
+
+
+test('character picker artwork fits inside its information card', () => {
+  const css = readFileSync(new URL('../styles.css', import.meta.url), 'utf8');
+
+  assert.match(
+    css,
+    /\.character-choice__portrait \.art-image\s*\{[\s\S]*?width:\s*82%;[\s\S]*?height:\s*82%;/,
+  );
+  assert.match(
+    css,
+    /\.fantasy-menu__portrait \.art-image\s*\{[\s\S]*?object-position:\s*center bottom;/,
+  );
+});
