@@ -464,7 +464,7 @@ p { color: var(--muted); line-height: 1.55; }
 .combat-hand {
   position: relative;
   min-width: 0;
-  height: 274px;
+  height: 344px;
   display: flex;
   justify-content: center;
   align-items: flex-end;
@@ -474,9 +474,9 @@ p { color: var(--muted); line-height: 1.55; }
 
 .combat-card {
   position: relative;
-  flex: 0 0 clamp(145px, 13vw, 185px);
-  width: clamp(145px, 13vw, 185px);
-  height: 245px;
+  flex: 0 0 clamp(175px, 14.5vw, 215px);
+  width: clamp(175px, 14.5vw, 215px);
+  height: 310px;
   min-height: 0;
   margin-left: clamp(-42px, -2.7vw, -24px);
   padding: 11px;
@@ -509,8 +509,8 @@ p { color: var(--muted); line-height: 1.55; }
 .combat-card--dragging {
   position: fixed !important;
   z-index: 1000 !important;
-  width: 185px !important;
-  height: 245px !important;
+  width: 215px !important;
+  height: 310px !important;
   min-height: 0 !important;
   margin: 0 !important;
   pointer-events: none !important;
@@ -549,7 +549,8 @@ p { color: var(--muted); line-height: 1.55; }
   .combat-tray { grid-template-columns: 58px 68px minmax(0,1fr) 58px 88px; gap: 7px; padding-inline: 10px; }
   .pile { width: 55px; height: 82px; }
   .energy-orb { width: 62px; height: 62px; }
-  .combat-card { flex-basis: 150px; width: 150px; margin-left: -38px; }
+  .combat-hand { height: 320px; }
+  .combat-card { flex-basis: 178px; width: 178px; height: 285px; margin-left: -42px; }
 }
 
 @media (max-width: 720px) {
@@ -560,13 +561,13 @@ p { color: var(--muted); line-height: 1.55; }
   .enemy-unit { width: 150px; min-width: 120px; }
   .combat-tray { min-height: 260px; grid-template-columns: 52px minmax(0,1fr) 52px; grid-template-areas: "energy hand end" "draw hand discard"; align-items: center; }
   .energy-orb { grid-area: energy; width: 54px; height: 54px; }
-  .combat-hand { grid-area: hand; height: 236px; padding-inline: 4px; }
+  .combat-hand { grid-area: hand; height: 306px; padding-inline: 4px; }
   .pile--draw { grid-area: draw; }
   .pile--discard { grid-area: discard; }
   .end-turn-button { grid-area: end; padding: 10px 7px; font-size: .72rem; }
   .pile { width: 48px; height: 68px; }
-  .combat-card { flex-basis: 132px; width: 132px; height: 215px; min-height: 0; margin-left: -50px; font-size: .8rem; }
-  .combat-card .card__art { height: 72px; }
+  .combat-card { flex-basis: 150px; width: 150px; height: 275px; min-height: 0; margin-left: -52px; font-size: .8rem; }
+  .combat-card .card__art { height: 78px; }
   .combat-card:hover { transform: translateY(-28px) rotate(0) scale(1.05); }
 }
 
@@ -577,13 +578,11 @@ p { color: var(--muted); line-height: 1.55; }
   line-height: 1.2;
 }
 .combat-card p {
-  flex: 1 1 auto;
-  max-height: 5.2em;
-  margin-bottom: 0;
-  overflow: hidden;
-  display: -webkit-box;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 4;
+  margin: 9px 0 0;
+  font-size: .88rem;
+  line-height: 1.42;
+  overflow: visible;
+  display: block;
 }
 .handbook-card p {
   max-height: 4.1em;
