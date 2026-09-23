@@ -51,6 +51,52 @@ p { color: var(--muted); line-height: 1.55; }
 .records strong, .result-grid strong { display: block; margin-top: 5px; font-size: 1.45rem; }
 .hint { margin-top: 22px; font-size: .9rem; }
 
+
+.menu__utility { display: flex; gap: 10px; margin: 18px 0 4px; }
+.handbook-button { border-color: rgba(247,202,69,.45); }
+.handbook-backdrop { position: fixed; inset: 0; z-index: 100; display: grid; place-items: center; padding: 22px; background: rgba(3,5,10,.84); backdrop-filter: blur(10px); }
+.handbook { width: min(1120px, 100%); max-height: min(90vh, 920px); overflow: hidden; display: flex; flex-direction: column; border: 1px solid #37445f; border-radius: 22px; background: linear-gradient(160deg, #131b2d, #090d17 76%); box-shadow: 0 34px 100px rgba(0,0,0,.62); }
+.handbook__header { display: flex; align-items: center; justify-content: space-between; gap: 20px; padding: 24px 26px 16px; border-bottom: 1px solid var(--line); }
+.handbook__header h2 { margin: 0; font-size: 2.5rem; }
+.handbook__close { width: 44px; height: 44px; border: 1px solid var(--line); border-radius: 12px; background: #0e1422; color: var(--text); font-size: 1.8rem; line-height: 1; cursor: pointer; }
+.handbook__close:hover { border-color: var(--accent); }
+.handbook__tabs { display: flex; gap: 8px; padding: 14px 26px; border-bottom: 1px solid var(--line); background: rgba(7,10,18,.55); }
+.handbook__tabs button { padding: 10px 14px; border: 1px solid transparent; border-radius: 10px; background: transparent; color: var(--muted); font-weight: 900; cursor: pointer; }
+.handbook__tabs button:hover { color: var(--text); background: #131b2c; }
+.handbook__tabs button.is-active { color: #191408; background: var(--accent); border-color: var(--accent); }
+.handbook__tabs button span { margin-left: 6px; opacity: .7; font-size: .76rem; }
+.handbook__content { overflow-y: auto; padding: 26px; scrollbar-gutter: stable; }
+.rule-hero { padding: 24px; margin-bottom: 18px; border: 1px solid rgba(247,202,69,.28); border-radius: 16px; background: radial-gradient(circle at 10% 0%, rgba(247,202,69,.1), transparent 34rem), #0d1321; }
+.rule-hero h3 { margin: 0 0 8px; font-size: clamp(1.7rem, 4vw, 2.8rem); letter-spacing: -.035em; }
+.rule-hero p:last-child { max-width: 760px; margin-bottom: 0; }
+.rule-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+.rule-grid article { min-height: 180px; padding: 18px; border: 1px solid var(--line); border-radius: 14px; background: rgba(15,21,35,.82); }
+.rule-grid h3, .mechanic-card strong, .handbook-character h3, .handbook-card h3 { margin: 8px 0; }
+.rule-grid p, .mechanic-card p, .handbook-character p, .handbook-card p { margin-bottom: 0; font-size: .88rem; }
+.rule-number { color: var(--accent); font-size: .72rem; font-weight: 1000; letter-spacing: .12em; }
+.mechanic-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 20px; }
+.mechanic-card { padding: 17px; border: 1px solid var(--line); border-radius: 14px; background: #0b101c; }
+.mechanic-card strong { display: block; color: var(--accent); font-size: 1rem; }
+.handbook-characters { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-top: 20px; }
+.handbook-character { display: grid; grid-template-columns: 70px 1fr; gap: 15px; align-items: center; padding: 16px; border: 1px solid var(--line); border-radius: 14px; background: #0c111e; }
+.handbook-character--viper { border-color: rgba(113,227,176,.3); }
+.handbook-character--bastion { border-color: rgba(123,164,255,.35); }
+.handbook-character__badge { width: 70px; height: 70px; display: grid; place-items: center; border-radius: 14px; background: #182238; color: rgba(255,255,255,.28); font-size: 1.5rem; font-weight: 1000; }
+.handbook-character h3 { margin-top: 0; }
+.handbook-card-summary { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 18px; }
+.handbook-card-summary div { padding: 13px 15px; border: 1px solid var(--line); border-radius: 12px; background: #0d1320; }
+.handbook-card-summary span { display: block; color: var(--muted); font-size: .68rem; text-transform: uppercase; letter-spacing: .08em; }
+.handbook-card-summary strong { display: block; margin-top: 4px; font-size: 1.25rem; }
+.handbook-card-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
+.handbook-card { min-height: 244px; padding: 13px; border: 1px solid #35415f; border-radius: 14px; background: linear-gradient(165deg, #1a2337, #0e1422 72%); }
+.handbook-card--uncommon { border-color: #4d6f8b; }
+.handbook-card--rare { border-color: #9878d5; }
+.handbook-card__top { display: flex; align-items: center; justify-content: space-between; }
+.handbook-card__art { height: 66px; display: grid; place-items: center; margin: 10px 0 12px; border-radius: 9px; background: radial-gradient(circle at 30% 30%, rgba(247,202,69,.18), transparent 42%), #090e19; color: rgba(255,255,255,.14); font-size: 1.8rem; font-weight: 1000; }
+.handbook-card h3 { font-size: 1rem; }
+.handbook-card__tags { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 12px; }
+.handbook-card__tags span { padding: 4px 7px; border: 1px solid #33405b; border-radius: 999px; color: var(--muted); font-size: .62rem; font-weight: 800; text-transform: uppercase; letter-spacing: .05em; }
+
 .character-select { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; margin: 34px 0 10px; }
 .character-card { display: grid; grid-template-columns: 180px 1fr; overflow: hidden; border: 1px solid var(--line); border-radius: 20px; background: linear-gradient(145deg, rgba(23,31,51,.96), rgba(12,17,29,.96)); box-shadow: var(--shadow); }
 .character-card--viper { border-color: rgba(113,227,176,.35); }
@@ -151,6 +197,8 @@ p { color: var(--muted); line-height: 1.55; }
   .hud__brand { grid-column: 1 / -1; }
   .heat-grid { grid-template-columns: repeat(2, 1fr); }
   .character-select { grid-template-columns: 1fr; }
+  .rule-grid, .mechanic-grid { grid-template-columns: repeat(2, 1fr); }
+  .handbook-card-grid { grid-template-columns: repeat(3, 1fr); }
   .battlefield { grid-template-columns: 1fr; gap: 18px; }
   .fighter--player, .fighter--enemy { justify-content: center; }
   .fighter--enemy { flex-direction: row-reverse; }
@@ -169,6 +217,13 @@ p { color: var(--muted); line-height: 1.55; }
   .hud { grid-template-columns: repeat(2, 1fr); }
   .heat-grid, .hand, .reward-grid { grid-template-columns: 1fr; }
   .character-card { grid-template-columns: 1fr; }
+  .handbook-backdrop { padding: 8px; }
+  .handbook { max-height: 95vh; border-radius: 15px; }
+  .handbook__header { padding: 18px; }
+  .handbook__content { padding: 16px; }
+  .handbook__tabs { padding: 10px 16px; }
+  .rule-grid, .mechanic-grid, .handbook-characters, .handbook-card-summary, .handbook-card-grid { grid-template-columns: 1fr; }
+  .handbook-card { min-height: 200px; }
   .character-card__art { min-height: 150px; }
   .fighter--player, .fighter--enemy { flex-wrap: wrap; }
   .player-health { order: 2; flex-basis: 92px; }
