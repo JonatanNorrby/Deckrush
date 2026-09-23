@@ -377,7 +377,6 @@ p { color: var(--muted); line-height: 1.55; }
 }
 .player-hp-bar {
   width: min(190px, 76%);
-  height: 11px;
   justify-self: center;
 }
 .player-block-row {
@@ -389,13 +388,14 @@ p { color: var(--muted); line-height: 1.55; }
   text-align: center;
 }
 .player-hp-bar, .enemy-hp-bar {
-  height: 9px;
   overflow: hidden;
   margin-top: 8px;
   border: 1px solid rgba(255,255,255,.08);
   border-radius: 99px;
   background: #070a10;
 }
+.player-hp-bar { height: 11px; }
+.enemy-hp-bar { height: 9px; }
 .player-hp-bar i { display: block; height: 100%; background: linear-gradient(90deg, #53c98f, #9cf0c4); }
 .enemy-hp-bar i { display: block; height: 100%; background: linear-gradient(90deg, #d74355, #ff765f); }
 
