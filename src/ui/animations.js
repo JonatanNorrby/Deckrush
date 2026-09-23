@@ -13,10 +13,16 @@ const STATE_TIMING = Object.freeze({
 });
 
 function framePath(group, id, state, frame) {
-  if (group === 'card-effects') {
-    return `./assets/animations/card-effects/${state}/${frame}.png`;
+  if (group === 'characters') {
+    return `./assets/characters/${id}/${state}/${frame}.png`;
   }
-  return `./assets/animations/${group}/${id}/${state}/${frame}.png`;
+  if (group === 'character-effects') {
+    return `./assets/characters/${id}/effects/${state}/${frame}.png`;
+  }
+  if (group === 'enemies') {
+    return `./assets/enemies/${id}/${state}/${frame}.png`;
+  }
+  throw new Error(`Unknown animation group: ${group}`);
 }
 
 function loadImage(path) {
@@ -158,12 +164,12 @@ export class AnimationDirector {
 
     effect.innerHTML = '<img data-effect-frame alt="" draggable="false">';
     layer.append(effect);
-    this.playEffectFrames(effect, event.animationClass);
+    this.playEffectFrames(effect, event.characterId, event.animationClass);
     this.later(() => effect.remove(), 760);
   }
 
-  async playEffectFrames(effect, animationClass) {
-    const frames = await this.discoverFrames('card-effects', null, animationClass);
+  async playEffectFrames(effect, characterId, animationClass) {
+    const frames = await this.discoverFrames('character-effects', characterId, animationClass);
     if (!frames.length || !effect.isConnected) return;
 
     const image = effect.querySelector('[data-effect-frame]');
