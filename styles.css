@@ -1255,16 +1255,17 @@ p { color: var(--muted); line-height: 1.55; }
 .character-choice__portrait {
   position: relative;
   display: grid;
-  place-items: end center;
-  padding: 10px 20px 0;
+  place-items: center;
+  padding: 12px 20px;
   background:
-    radial-gradient(circle at 50% 70%, color-mix(in srgb, var(--choice-accent) 14%, transparent), transparent 45%);
+    radial-gradient(circle at 50% 54%, color-mix(in srgb, var(--choice-accent) 14%, transparent), transparent 45%);
 }
 
 .character-choice__portrait .art-image {
   width: 82%;
   height: 82%;
-  object-position: center bottom;
+  object-position: center;
+  transform: translateY(-8px);
 }
 
 .fantasy-menu__portrait .art-image {
