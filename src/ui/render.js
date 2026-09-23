@@ -62,7 +62,7 @@ export class Renderer {
         <div class="logo-mark">DR</div>
         <p class="eyebrow">FAST SCORE ATTACK DECKBUILDER</p>
         <h1>DECKRUSH</h1>
-        <p class="menu__pitch">Build a vicious little deck. Push the multiplier. Bank your score before the run punches back.</p>
+        <p class="menu__pitch">Build a vicious little deck. Chain cards, push the multiplier, and turn every hit into a bigger score.</p>
         <div class="menu__buttons">
           <button class="button button--primary" data-action="start-normal">Start Run</button>
           <button class="button" data-action="start-daily">Daily Seed <small>${daily.label}</small></button>
@@ -72,16 +72,15 @@ export class Renderer {
           <div><span>Daily Best</span><strong>${fmt.format(dailyBest)}</strong></div>
           <div><span>Runs</span><strong>${save.stats.runs}</strong></div>
         </div>
-        <p class="hint">Taking damage burns 25% of unbanked score and breaks your combo.</p>
+        <p class="hint">Taking damage breaks your Combo and reduces your Multiplier, but your score is always safe.</p>
       </section>`;
   }
 
   hud(s) {
-    const total = s.score.banked + s.score.pending;
     return `
       <header class="hud">
         <div class="hud__brand">DECKRUSH</div>
-        <div class="hud__stat"><span>Score</span><strong>${fmt.format(total)}</strong><small>+${fmt.format(s.score.pending)} exposed</small></div>
+        <div class="hud__stat"><span>Score</span><strong>${fmt.format(s.score.total)}</strong><small>keep pushing</small></div>
         <div class="hud__stat"><span>Combo</span><strong>x${s.score.combo}</strong><small>best ${s.score.maxCombo}</small></div>
         <div class="hud__stat"><span>Multiplier</span><strong>x${s.score.multiplier.toFixed(2)}</strong><small>Heat ${s.selectedHeat}</small></div>
         <div class="hud__stat"><span>HP</span><strong>${Math.max(0, s.player.hp)}/${s.player.maxHp}</strong><small>${s.player.block} block</small></div>
