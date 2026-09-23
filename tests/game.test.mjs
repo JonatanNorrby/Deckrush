@@ -510,3 +510,18 @@ test('all character and enemy static fallbacks use idle frame one', () => {
   assert.match(renderSource, /assets\/characters\/\$\{character\.id\}\/idle\/1\.png/);
   assert.match(renderSource, /assets\/enemies\/\$\{enemy\.id\}\/idle\/1\.png/);
 });
+
+
+test('defeated enemies remain visible as non-targetable corpses', () => {
+  const renderSource = readFileSync(new URL('../src/ui/render.js', import.meta.url), 'utf8');
+  const css = readFileSync(new URL('../styles.css', import.meta.url), 'utf8');
+
+  assert.match(renderSource, /if \(enemy\.hp <= 0\)[\s\S]*?enemy-unit--dead[\s\S]*?assets\/enemies\/\$\{enemy\.id\}\/dead\/1\.png/);
+  assert.match(renderSource, /\$\{s\.enemies\.map\(\(enemy, index\) => this\.enemyMarkup\(enemy, index\)\)\.join\(''\)\}/);
+  const deadBranch = renderSource.slice(renderSource.indexOf('if (enemy.hp <= 0)'), renderSource.indexOf('const hpPct'));
+  assert.ok(deadBranch.length > 0);
+  assert.doesNotMatch(deadBranch, /data-enemy-index=/);
+  assert.doesNotMatch(deadBranch, /data-enemy-sprite=/);
+  assert.match(css, /\.enemy-unit--dead\s*\{[\s\S]*?pointer-events:\s*none;/);
+  assert.match(css, /\.enemy-sprite--dead\s*\{[\s\S]*?transform:\s*translateY\(22px\);/);
+});
