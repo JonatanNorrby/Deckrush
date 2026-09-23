@@ -175,6 +175,10 @@ export const CARD_LIBRARY = {
   }),
 };
 
+const CARD_BY_ID = Object.fromEntries(
+  Object.values(CARD_LIBRARY).map((cardData) => [cardData.id, cardData]),
+);
+
 export function getCard(id) {
-  return CARD_LIBRARY[id];
+  return CARD_BY_ID[id];
 }
