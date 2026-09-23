@@ -1,6 +1,6 @@
 # Viper — idle animation
 
-Looping combat idle. Plays while the character is waiting for input.
+Looping combat idle. Plays while the character is waiting for input. The first frame, `1.png`, is also used as Viper's main-menu and character-selection artwork.
 
 ## Required PNG files
 
