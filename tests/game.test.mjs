@@ -75,3 +75,39 @@ test('runs do not expire after ten minutes', () => {
   assert.ok(game.getElapsedMs() >= 20 * 60 * 1000);
   assert.equal(game.state.phase, 'route');
 });
+
+
+test('boss fights recur without ending the run', () => {
+  const game = new Game();
+  game.startRun('daily');
+  game.state.encounterIndex = 7;
+  game.chooseHeat(0);
+
+  assert.equal(game.state.enemy.boss, true);
+  game.state.enemy.hp = 1;
+  game.state.hand = ['strike'];
+  game.state.player.energy = 3;
+  game.playCard(0);
+
+  assert.equal(game.state.phase, 'reward');
+  assert.equal(game.state.result, null);
+
+  game.skipReward();
+  assert.equal(game.state.phase, 'route');
+  assert.equal(game.state.encounterIndex, 8);
+});
+
+test('endless difficulty scales with fight number while Heat remains selectable', () => {
+  const early = new Game();
+  early.startRun('daily');
+  early.chooseHeat(0);
+  const earlyDamage = early.state.enemy.baseDamage;
+
+  const late = new Game();
+  late.startRun('daily');
+  late.state.encounterIndex = 12;
+  late.chooseHeat(3);
+
+  assert.equal(late.state.selectedHeat, 3);
+  assert.ok(late.state.enemy.baseDamage >= earlyDamage + 3);
+});
