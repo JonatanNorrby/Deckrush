@@ -96,6 +96,7 @@ p { color: var(--muted); line-height: 1.55; }
 .handbook-character { display: grid; grid-template-columns: 70px 1fr; gap: 15px; align-items: center; padding: 16px; border: 1px solid var(--line); border-radius: 14px; background: #0c111e; }
 .handbook-character--viper { border-color: rgba(113,227,176,.3); }
 .handbook-character--bastion { border-color: rgba(123,164,255,.35); }
+.handbook-character--rune { border-color: rgba(171,132,225,.38); }
 .handbook-character__badge { width: 70px; height: 70px; display: grid; place-items: center; border-radius: 14px; background: #182238; color: rgba(255,255,255,.28); font-size: 1.5rem; font-weight: 1000; }
 .handbook-character h3 { margin-top: 0; }
 .handbook-card-summary { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 18px; }
@@ -116,8 +117,10 @@ p { color: var(--muted); line-height: 1.55; }
 .character-card { display: grid; grid-template-columns: 180px 1fr; overflow: hidden; border: 1px solid var(--line); border-radius: 20px; background: linear-gradient(145deg, rgba(23,31,51,.96), rgba(12,17,29,.96)); box-shadow: var(--shadow); }
 .character-card--viper { border-color: rgba(113,227,176,.35); }
 .character-card--bastion { border-color: rgba(123,164,255,.4); }
+.character-card--rune { border-color: rgba(171,132,225,.42); }
 .character-card__art { min-height: 250px; display: grid; place-items: center; background: radial-gradient(circle at 50% 35%, rgba(113,227,176,.24), transparent 38%), linear-gradient(160deg, #14251f, #0c1215); color: rgba(255,255,255,.22); font-size: 4rem; font-weight: 1000; }
 .character-card--bastion .character-card__art { background: radial-gradient(circle at 50% 35%, rgba(123,164,255,.25), transparent 40%), linear-gradient(160deg, #172238, #0d121d); }
+.character-card--rune .character-card__art { background: radial-gradient(circle at 50% 35%, rgba(171,132,225,.25), transparent 40%), linear-gradient(160deg, #241b32, #120d19); }
 .character-card__body { padding: 22px; }
 .character-card__body h2 { margin: 0 0 8px; font-size: 2.1rem; }
 .character-card__stats { display: flex; gap: 18px; margin: 20px 0; color: var(--muted); font-size: .82rem; text-transform: uppercase; letter-spacing: .07em; }
@@ -154,6 +157,7 @@ p { color: var(--muted); line-height: 1.55; }
 .character-art, .enemy-art { flex: 0 0 210px; width: 210px; min-height: 230px; display: grid; place-items: center; border-radius: 22px; border: 1px solid #36425f; color: rgba(255,255,255,.22); font-size: 4rem; font-weight: 1000; box-shadow: var(--shadow); }
 .character-art--viper { background: radial-gradient(circle at 45% 30%, rgba(113,227,176,.32), transparent 38%), linear-gradient(160deg, #183128, #0c1513 70%); border-color: rgba(113,227,176,.38); }
 .character-art--bastion { background: radial-gradient(circle at 45% 30%, rgba(123,164,255,.32), transparent 38%), linear-gradient(160deg, #1b2842, #0d1422 70%); border-color: rgba(123,164,255,.42); }
+.character-art--rune { background: radial-gradient(circle at 45% 30%, rgba(171,132,225,.32), transparent 38%), linear-gradient(160deg, #2b2040, #120d1c 70%); border-color: rgba(171,132,225,.44); }
 .enemy-art { background: radial-gradient(circle at 45% 35%, #35415f, #111827 60%); }
 .fighter--elite .enemy-art { border-color: rgba(247,202,69,.6); }
 .fighter--boss .enemy-art { border-color: rgba(255,90,103,.7); box-shadow: 0 20px 70px rgba(255,90,103,.12); }
@@ -398,6 +402,7 @@ p { color: var(--muted); line-height: 1.55; }
 }
 .player-sprite--viper { filter: drop-shadow(0 20px 24px rgba(70,170,120,.12)); }
 .player-sprite--bastion { filter: drop-shadow(0 20px 24px rgba(90,130,220,.14)); }
+.player-sprite--rune { filter: drop-shadow(0 20px 24px rgba(154,106,220,.16)); }
 .enemy-side {
   display: flex;
   align-items: end;
@@ -903,6 +908,7 @@ p { color: var(--muted); line-height: 1.55; }
 
 .fantasy-menu__hero-card--viper { --hero-accent: #6fbf78; }
 .fantasy-menu__hero-card--bastion { --hero-accent: #b98d50; }
+.fantasy-menu__hero-card--rune { --hero-accent: #a681d8; }
 
 .fantasy-menu__halo {
   position: absolute;
@@ -1129,7 +1135,7 @@ p { color: var(--muted); line-height: 1.55; }
 }
 
 .character-picker {
-  width: min(980px, 100%);
+  width: min(1180px, 100%);
   max-height: min(91vh, 850px);
   overflow: auto;
   border: 1px solid rgba(198,145,72,.35);
@@ -1185,7 +1191,7 @@ p { color: var(--muted); line-height: 1.55; }
 
 .character-picker__grid {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 16px;
   margin-top: 20px;
 }
@@ -1211,6 +1217,7 @@ p { color: var(--muted); line-height: 1.55; }
 
 .character-choice--viper { --choice-accent: #69b877; }
 .character-choice--bastion { --choice-accent: #c09153; }
+.character-choice--rune { --choice-accent: #a681d8; }
 
 .character-choice:hover {
   transform: translateY(-5px);
@@ -1312,6 +1319,7 @@ p { color: var(--muted); line-height: 1.55; }
 
   .fantasy-menu__brief { display: none; }
   .fantasy-menu__hero-stage { min-height: 540px; }
+  .character-picker__grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 
 @media (max-width: 700px) {
@@ -1748,6 +1756,9 @@ h1, h2,
 .player-sprite--bastion {
   filter: drop-shadow(0 20px 24px rgba(177,125,55,.16));
 }
+.player-sprite--rune {
+  filter: drop-shadow(0 20px 24px rgba(151,108,207,.2));
+}
 .enemy-unit.is-drop-target {
   border-color: #d2a052;
   background: rgba(126,76,28,.16);
@@ -1923,6 +1934,9 @@ h1, h2,
 }
 .handbook-character--bastion {
   border-color: rgba(188,133,61,.5);
+}
+.handbook-character--rune {
+  border-color: rgba(162,121,214,.52);
 }
 
 .status-pill {
