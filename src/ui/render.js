@@ -346,7 +346,7 @@ export class Renderer {
             <button class="fantasy-menu__hero-card fantasy-menu__hero-card--${character.id}" data-action="open-character-select" aria-label="Change selected hero">
               <div class="fantasy-menu__halo" aria-hidden="true"></div>
               <div class="fantasy-menu__portrait">
-                ${artMarkup(`./assets/characters/${character.id}/portrait.png`, character.name, character.name.slice(0, 2).toUpperCase())}
+                ${artMarkup(`./assets/characters/${character.id}/idle/1.png`, character.name, character.name.slice(0, 2).toUpperCase())}
               </div>
               <div class="fantasy-menu__hero-info">
                 <span>${character.archetype}</span>
@@ -398,7 +398,7 @@ export class Renderer {
                 <button class="character-choice character-choice--${character.id} ${selected ? 'is-selected' : ''}" data-action="choose-character" data-character="${character.id}" aria-pressed="${selected}">
                   <span class="character-choice__state">${selected ? '✓ CHOSEN' : 'CHOOSE'}</span>
                   <div class="character-choice__portrait">
-                    ${artMarkup(`./assets/characters/${character.id}/portrait.png`, character.name, character.name.slice(0, 2).toUpperCase())}
+                    ${artMarkup(`./assets/characters/${character.id}/idle/1.png`, character.name, character.name.slice(0, 2).toUpperCase())}
                   </div>
                   <div class="character-choice__content">
                     <span class="eyebrow">${character.archetype.toUpperCase()}</span>
