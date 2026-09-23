@@ -25,6 +25,66 @@ export const CARD_LIBRARY = {
     description: 'Gain 120 score. Lose half your Combo.',
     effects: [{ type: 'score', amount: 120 }, { type: 'halveCombo' }],
   }),
+  toxicCut: card({
+    id: 'toxic-cut', name: 'Toxic Cut', cost: 1, tags: ['attack', 'poison'],
+    description: 'Deal 4 damage. Apply 3 Poison. Build 1 Combo.', comboGain: 1,
+    effects: [{ type: 'damage', amount: 4 }, { type: 'poison', amount: 3 }],
+  }),
+  envenom: card({
+    id: 'envenom', name: 'Envenom', cost: 1, tags: ['poison'],
+    description: 'Apply 5 Poison.',
+    effects: [{ type: 'poison', amount: 5 }],
+  }),
+  quickStab: card({
+    id: 'quick-stab', name: 'Quick Stab', cost: 0, tags: ['attack'],
+    description: 'Deal 3 damage. Draw 1. Build 1 Combo.', comboGain: 1,
+    effects: [{ type: 'damage', amount: 3 }, { type: 'draw', amount: 1 }],
+  }),
+  evade: card({
+    id: 'evade', name: 'Evade', cost: 1, tags: ['skill'],
+    description: 'Gain 7 Block.',
+    effects: [{ type: 'block', amount: 7 }],
+  }),
+  catalyst: card({
+    id: 'catalyst', name: 'Catalyst', cost: 1, tags: ['poison'], rarity: 'uncommon',
+    description: 'Double the enemy’s Poison.',
+    effects: [{ type: 'doublePoison' }],
+  }),
+  venomBloom: card({
+    id: 'venom-bloom', name: 'Venom Bloom', cost: 2, tags: ['poison'], rarity: 'uncommon',
+    description: 'Apply 9 Poison. Gain +0.15x multiplier.',
+    effects: [{ type: 'poison', amount: 9 }, { type: 'multiplier', amount: 0.15 }],
+  }),
+  toxicPayoff: card({
+    id: 'toxic-payoff', name: 'Toxic Payoff', cost: 1, tags: ['score', 'poison'], rarity: 'uncommon',
+    description: 'Gain 35 score per Poison on the enemy.',
+    effects: [{ type: 'scorePerPoison', amount: 35 }],
+  }),
+  shieldStrike: card({
+    id: 'shield-strike', name: 'Shield Strike', cost: 1, tags: ['attack', 'block'],
+    description: 'Deal 4 damage. Gain 4 Block. Build 1 Combo.', comboGain: 1,
+    effects: [{ type: 'damage', amount: 4 }, { type: 'block', amount: 4 }],
+  }),
+  fortify: card({
+    id: 'fortify', name: 'Fortify', cost: 1, tags: ['skill', 'block'],
+    description: 'Gain 9 Block.',
+    effects: [{ type: 'block', amount: 9 }],
+  }),
+  shieldBash: card({
+    id: 'shield-bash', name: 'Shield Bash', cost: 1, tags: ['attack', 'block'],
+    description: 'Deal 4 + 60% of your current Block as damage. Build 1 Combo.', comboGain: 1,
+    effects: [{ type: 'damageFromBlock', base: 4, ratio: 0.6 }],
+  }),
+  ironWall: card({
+    id: 'iron-wall', name: 'Iron Wall', cost: 2, tags: ['skill', 'block'], rarity: 'uncommon',
+    description: 'Gain 16 Block.',
+    effects: [{ type: 'block', amount: 16 }],
+  }),
+  counterweight: card({
+    id: 'counterweight', name: 'Counterweight', cost: 1, tags: ['score', 'block'], rarity: 'uncommon',
+    description: 'Gain 22 score per current Block.',
+    effects: [{ type: 'scorePerBlock', amount: 22 }],
+  }),
   uppercut: card({
     id: 'uppercut', name: 'Uppercut', cost: 1, tags: ['attack'],
     description: 'Deal 10 damage. Build 1 Combo.', comboGain: 1,
@@ -114,9 +174,6 @@ export const CARD_LIBRARY = {
     effects: [{ type: 'damage', amount: 14, perfectKillScore: 700 }],
   }),
 };
-
-export const STARTING_DECK = ['strike', 'strike', 'strike', 'guard', 'guard', 'jab', 'greed', 'cashin'];
-export const REWARD_POOL = Object.keys(CARD_LIBRARY).filter((id) => !['strike', 'guard', 'jab', 'greed', 'cashin'].includes(id));
 
 export function getCard(id) {
   return CARD_LIBRARY[id];
