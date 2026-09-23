@@ -885,11 +885,13 @@ p { color: var(--muted); line-height: 1.55; }
 .fantasy-menu__hero-kicker {
   position: relative;
   z-index: 3;
+  align-self: end;
+  margin-bottom: -34px;
   color: #b88a4f;
   font-family: Georgia, "Times New Roman", serif;
-  font-size: 14px;
+  font-size: clamp(17px, 1.35vw, 22px);
   font-weight: 700;
-  letter-spacing: .2em;
+  letter-spacing: .18em;
   text-transform: uppercase;
 }
 
@@ -1002,6 +1004,7 @@ p { color: var(--muted); line-height: 1.55; }
   position: relative;
   z-index: 3;
   min-width: min(330px, 80%);
+  margin-top: -28px;
   min-height: 48px;
   border: 1px solid rgba(216,158,72,.65);
   border-radius: 3px;
