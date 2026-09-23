@@ -1,6 +1,6 @@
 # Deckrush
 
-Deckrush is a fast, browser-only score-attack deckbuilder roguelite. A complete run is capped at 10 minutes and is built around greed: increase Combo and Score Multiplier, expose points to risk, then bank them before enemies hit back.
+Deckrush is a fast, browser-only score-attack deckbuilder roguelite built around greed: increase Combo and Score Multiplier, expose points to risk, then bank them before enemies hit back.
 
 ## Current prototype
 
