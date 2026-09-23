@@ -182,3 +182,17 @@ const CARD_BY_ID = Object.fromEntries(
 export function getCard(id) {
   return CARD_BY_ID[id];
 }
+
+
+const TARGETED_EFFECTS = new Set([
+  'damage',
+  'damagePerCombo',
+  'damageFromBlock',
+  'poison',
+  'doublePoison',
+  'scorePerPoison',
+]);
+
+export function cardNeedsEnemyTarget(card) {
+  return Boolean(card?.effects?.some((effect) => TARGETED_EFFECTS.has(effect.type)));
+}
