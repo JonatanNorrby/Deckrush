@@ -525,3 +525,13 @@ test('defeated enemies remain visible as non-targetable corpses', () => {
   assert.match(css, /\.enemy-unit--dead\s*\{[\s\S]*?pointer-events:\s*none;/);
   assert.match(css, /\.enemy-sprite--dead\s*\{[\s\S]*?transform:\s*translateY\(22px\);/);
 });
+
+
+test('combat character no longer shows the under-sprite info box', () => {
+  const renderSource = readFileSync(new URL('../src/ui/render.js', import.meta.url), 'utf8');
+  const css = readFileSync(new URL('../styles.css', import.meta.url), 'utf8');
+
+  assert.doesNotMatch(renderSource, /class="actor-name"/);
+  assert.doesNotMatch(css, /\.actor-name/);
+  assert.match(renderSource, /\$\{s\.player\.block\} Block/);
+});
