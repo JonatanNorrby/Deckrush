@@ -2120,3 +2120,22 @@ h1, h2,
   object-fit: contain;
   object-position: left center;
 }
+
+
+/* Rune's source frames are landscape (1536x1024) while the other heroes use square canvases.
+   Scale Rune's rendered art so his visible character height matches the other heroes. */
+.fantasy-menu__hero-card--rune .fantasy-menu__portrait .art-image {
+  transform: scale(1.45);
+  transform-origin: center center;
+}
+.character-choice--rune .character-choice__portrait .art-image {
+  width: 82%;
+  height: 82%;
+  transform: translateY(-8px) scale(1.45);
+  transform-origin: center center;
+}
+.player-sprite--rune .sprite-static-art > .art-image,
+.player-sprite--rune .sprite-animation-frame {
+  transform: scale(1.45);
+  transform-origin: center center;
+}
