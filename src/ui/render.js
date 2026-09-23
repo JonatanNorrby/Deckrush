@@ -520,9 +520,14 @@ export class Renderer {
           <aside class="fantasy-menu__brief" aria-label="Records">
             <div class="fantasy-menu__brief-block fantasy-menu__brief-block--records">
               <span>Records</span>
+              <div class="fantasy-menu__seed">
+                <small>Week ${weekly.week} Seed</small>
+                <strong>${weekly.seed}</strong>
+                <em>Same seed all week</em>
+              </div>
               <div class="fantasy-menu__records">
-                <div><small>Best Score</small><b>${fmt.format(save.bestScore)}</b></div>
                 <div><small>Weekly Best</small><b>${fmt.format(weeklyBest)}</b></div>
+                <div><small>All-Time Best</small><b>${fmt.format(save.bestScore)}</b></div>
                 <div><small>Runs</small><b>${save.stats.runs}</b></div>
               </div>
             </div>
