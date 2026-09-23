@@ -358,3 +358,18 @@ test('combat view has no log strip above the cards', () => {
   assert.doesNotMatch(renderSource, /combat-log-strip/);
   assert.doesNotMatch(css, /\.combat-log-strip/);
 });
+
+
+test('game over screen centers score and prioritizes retry action', () => {
+  const renderSource = readFileSync(new URL('../src/ui/render.js', import.meta.url), 'utf8');
+  const css = readFileSync(new URL('../styles.css', import.meta.url), 'utf8');
+
+  assert.match(renderSource, /class="result-screen"/);
+  assert.match(renderSource, /class="result-screen__score-block"/);
+  assert.match(renderSource, /class="button button--primary result-screen__retry"/);
+  assert.match(renderSource, /class="result-screen__menu"/);
+
+  assert.match(css, /\.result-screen\s*\{[\s\S]*?place-items:\s*center;/);
+  assert.match(css, /\.result-screen__retry\s*\{[\s\S]*?min-height:\s*64px;/);
+  assert.match(css, /\.result-screen__menu\s*\{[\s\S]*?background:\s*transparent;/);
+});
