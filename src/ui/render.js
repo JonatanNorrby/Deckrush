@@ -1,6 +1,6 @@
 import { CARD_LIBRARY, getCard, cardNeedsEnemyTarget } from '../data/cards.js';
 import { loadSave } from '../core/storage.js';
-import { dailySeed } from '../core/rng.js';
+import { weeklySeed } from '../core/rng.js';
 import { CHARACTERS, getCharacter } from '../data/characters.js';
 import { AnimationDirector } from './animations.js';
 
@@ -114,7 +114,7 @@ export class Renderer {
     if (shouldIgnoreBackdropAction(event.target, target)) return;
     const action = target.dataset.action;
     if (action === 'start-normal') this.game.startRun('normal', target.dataset.character || this.selectedCharacterId);
-    if (action === 'start-daily') this.game.startRun('daily', target.dataset.character || this.selectedCharacterId);
+    if (action === 'start-weekly') this.game.startRun('weekly', target.dataset.character || this.selectedCharacterId);
     if (action === 'heat') this.game.chooseHeat(Number(target.dataset.heat));
     if (action === 'end-turn') this.game.endTurn();
     if (action === 'reward') this.game.chooseReward(target.dataset.card);
@@ -306,8 +306,8 @@ export class Renderer {
 
   renderMenu() {
     const save = loadSave();
-    const daily = dailySeed();
-    const dailyBest = save.dailyBest[daily.label] || 0;
+    const weekly = weeklySeed();
+    const weeklyBest = save.weeklyBest[weekly.label] || 0;
     const character = getCharacter(this.selectedCharacterId);
 
     this.root.innerHTML = `
@@ -327,9 +327,9 @@ export class Renderer {
               <span class="fantasy-menu__rune">◆</span>
               <span><strong>Begin Run</strong><small>Enter the endless road</small></span>
             </button>
-            <button class="fantasy-menu__action" data-action="start-daily">
+            <button class="fantasy-menu__action" data-action="start-weekly">
               <span class="fantasy-menu__rune">☼</span>
-              <span><strong>Daily Run</strong><small>${daily.label}</small></span>
+              <span><strong>Weekly Run</strong><small>${weekly.label}</small></span>
             </button>
             <button class="fantasy-menu__action" data-action="open-character-select">
               <span class="fantasy-menu__rune">♜</span>
@@ -366,7 +366,7 @@ export class Renderer {
               <span>Records</span>
               <div class="fantasy-menu__records">
                 <div><small>Best Score</small><b>${fmt.format(save.bestScore)}</b></div>
-                <div><small>Daily Best</small><b>${fmt.format(dailyBest)}</b></div>
+                <div><small>Weekly Best</small><b>${fmt.format(weeklyBest)}</b></div>
                 <div><small>Runs</small><b>${save.stats.runs}</b></div>
               </div>
             </div>
@@ -458,7 +458,7 @@ export class Renderer {
           <article class="mechanic-card"><strong>Block</strong><p>Absorbs attacks during the enemy turn. Remaining Block clears after all enemies have acted.</p></article>
           <article class="mechanic-card"><strong>Poison</strong><p>Ticks on every poisoned enemy before enemies attack, then loses 1 stack on surviving targets.</p></article>
           <article class="mechanic-card"><strong>Bosses</strong><p>Every 8th fight is a boss. Beat it to claim another reward and continue the same run.</p></article>
-          <article class="mechanic-card"><strong>Daily Run</strong><p>The Daily uses a deterministic seed for that date, making encounters repeatable for score comparison.</p></article>
+          <article class="mechanic-card"><strong>Weekly Run</strong><p>The Weekly Run uses a deterministic seed that changes every Monday, making encounters repeatable for score comparison.</p></article>
         </div>
         <div class="handbook-characters">
           ${Object.values(CHARACTERS).map((character) => `
@@ -631,7 +631,7 @@ export class Renderer {
           <div><span>Time</span><strong>${formatTime(r.elapsedMs)}</strong></div>
         </div>
         <div class="menu__buttons">
-          <button class="button button--primary" data-action="${s.mode === 'daily' ? 'start-daily' : 'start-normal'}" data-character="${s.characterId}">Run It Back</button>
+          <button class="button button--primary" data-action="${s.mode === 'weekly' ? 'start-weekly' : 'start-normal'}" data-character="${s.characterId}">Run It Back</button>
           <button class="button" data-action="menu">Main Menu</button>
         </div>
       </section>`;
