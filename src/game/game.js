@@ -26,6 +26,20 @@ export class Game {
     for (const listener of this.listeners) listener(this.state);
   }
 
+  queueAnimation(event) {
+    if (!this.state.animationEvents) this.state.animationEvents = [];
+    this.state.animationEvents.push({
+      id: ++this.state.animationSerial,
+      ...event,
+    });
+  }
+
+  consumeAnimationEvents() {
+    const events = [...(this.state.animationEvents || [])];
+    if (this.state.animationEvents) this.state.animationEvents.length = 0;
+    return events;
+  }
+
   startRun(mode = 'normal', characterId = DEFAULT_CHARACTER_ID) {
     const daily = dailySeed();
     const character = getCharacter(characterId);
@@ -47,6 +61,8 @@ export class Game {
       hand: [],
       enemies: [],
       rewardOptions: [],
+      animationSerial: 0,
+      animationEvents: [],
       score: { total: 0, combo: 0, multiplier: 1, maxCombo: 0, maxMultiplier: 1 },
       stats: { biggestHit: 0, cardsPlayed: 0, fightsPerfect: 0, damageTaken: 0, overkill: 0 },
       fight: { damageTaken: 0, turn: 1 },
@@ -185,6 +201,13 @@ export class Game {
 
     if (card.comboGain) this.addCombo(card.comboGain);
     this.pushLog(`Played ${card.name}.`);
+    this.queueAnimation({
+      type: 'cardPlay',
+      characterId: s.characterId,
+      cardId: card.id,
+      animationClass: card.animationClass,
+      targetIndex: resolvedTarget,
+    });
 
     for (const effect of card.effects) {
       if (s.phase !== 'combat') break;
@@ -288,6 +311,14 @@ export class Game {
 
     const previousHp = enemy.hp;
     enemy.hp -= amount;
+    const lethal = enemy.hp <= 0;
+    this.queueAnimation({
+      type: lethal ? 'enemyDeath' : 'enemyHit',
+      enemyId: enemy.id,
+      instanceId: enemy.instanceId,
+      targetIndex,
+      source: effect.source || 'card',
+    });
     s.stats.biggestHit = Math.max(s.stats.biggestHit, amount);
     this.addScore(amount * 10);
 
@@ -315,6 +346,7 @@ export class Game {
   applySelfDamage(amount) {
     const s = this.state;
     s.player.hp = Math.max(1, s.player.hp - amount);
+    this.queueAnimation({ type: 'playerHit', characterId: s.characterId, source: 'self' });
     this.pushLog(`Risk cost: ${amount} HP.`);
   }
 
@@ -354,6 +386,11 @@ export class Game {
     for (const enemy of s.enemies) {
       if (enemy.hp <= 0) continue;
       enemy.turn += 1;
+      this.queueAnimation({
+        type: 'enemyAttack',
+        enemyId: enemy.id,
+        instanceId: enemy.instanceId,
+      });
       const incoming = this.getEnemyIntent({ ...enemy, turn: enemy.turn - 1 });
       const blocked = Math.min(s.player.block, incoming);
       const damage = Math.max(0, incoming - blocked);
@@ -365,6 +402,11 @@ export class Game {
         s.stats.damageTaken += damage;
         s.score.combo = 0;
         s.score.multiplier = Math.max(1, Math.round((s.score.multiplier - 0.4) * 100) / 100);
+        this.queueAnimation({
+          type: s.player.hp <= 0 ? 'playerDeath' : 'playerHit',
+          characterId: s.characterId,
+          source: enemy.id,
+        });
         if (enemy.trait === 'drain') {
           s.score.multiplier = Math.max(1, Math.round((s.score.multiplier - 0.2) * 100) / 100);
         }
