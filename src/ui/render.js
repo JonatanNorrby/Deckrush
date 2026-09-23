@@ -70,6 +70,8 @@ export class Renderer {
     this.game = game;
     this.handbookOpen = false;
     this.handbookTab = 'rules';
+    this.characterSelectOpen = false;
+    this.selectedCharacterId = 'viper';
     this.drag = null;
 
     this.root.addEventListener('click', (event) => this.handleClick(event));
@@ -77,6 +79,11 @@ export class Renderer {
 
     document.addEventListener('keydown', (event) => {
       if (event.key === 'Escape' && this.drag) this.cancelCardDrag();
+      if (event.key === 'Escape' && this.characterSelectOpen) {
+        this.characterSelectOpen = false;
+        this.renderMenu();
+        return;
+      }
       if (event.key === 'Escape' && this.handbookOpen) {
         this.handbookOpen = false;
         this.renderMenu();
@@ -88,13 +95,27 @@ export class Renderer {
     const target = event.target.closest('[data-action]');
     if (!target) return;
     const action = target.dataset.action;
-    if (action === 'start-normal') this.game.startRun('normal', target.dataset.character);
-    if (action === 'start-daily') this.game.startRun('daily', target.dataset.character);
+    if (action === 'start-normal') this.game.startRun('normal', target.dataset.character || this.selectedCharacterId);
+    if (action === 'start-daily') this.game.startRun('daily', target.dataset.character || this.selectedCharacterId);
     if (action === 'heat') this.game.chooseHeat(Number(target.dataset.heat));
     if (action === 'end-turn') this.game.endTurn();
     if (action === 'reward') this.game.chooseReward(target.dataset.card);
     if (action === 'skip-reward') this.game.skipReward();
     if (action === 'menu') this.game.backToMenu();
+    if (action === 'open-character-select') {
+      this.characterSelectOpen = true;
+      this.renderMenu();
+    }
+    if (action === 'close-character-select') {
+      this.characterSelectOpen = false;
+      this.renderMenu();
+    }
+    if (action === 'choose-character') {
+      const characterId = target.dataset.character;
+      if (CHARACTERS[characterId]) this.selectedCharacterId = characterId;
+      this.characterSelectOpen = false;
+      this.renderMenu();
+    }
     if (action === 'open-handbook') {
       this.handbookOpen = true;
       this.handbookTab = 'rules';
@@ -254,47 +275,127 @@ export class Renderer {
     const save = loadSave();
     const daily = dailySeed();
     const dailyBest = save.dailyBest[daily.label] || 0;
+    const character = getCharacter(this.selectedCharacterId);
+
     this.root.innerHTML = `
-      <section class="menu shell menu--wide">
-        <div class="logo-mark">DR</div>
-        <p class="eyebrow">FAST SCORE ATTACK DECKBUILDER</p>
-        <h1>DECKRUSH</h1>
-        <p class="menu__pitch">Choose a character, build around their specialty, and push the run until you die.</p>
-        <div class="menu__utility">
-          <button class="button handbook-button" data-action="open-handbook">Handbook</button>
-        </div>
+      <section class="fantasy-menu">
+        <div class="fantasy-menu__veil"></div>
 
-        <div class="character-select">
-          ${Object.values(CHARACTERS).map((character) => `
-            <article class="character-card character-card--${character.id}">
-              <div class="character-card__art" aria-hidden="true">
-                ${artMarkup(`./assets/characters/${character.id}/portrait.png`, '', character.name.slice(0, 2).toUpperCase())}
+        <header class="fantasy-menu__masthead">
+          <div class="fantasy-menu__identity">
+            <p class="eyebrow">ENDLESS FANTASY DECKBRAWLER</p>
+            <h1>DECKRUSH</h1>
+          </div>
+          <div class="fantasy-menu__sigil"><span>DR</span></div>
+        </header>
+
+        <div class="fantasy-menu__body">
+          <nav class="fantasy-menu__nav" aria-label="Main menu">
+            <span class="fantasy-menu__section-label">The Road Ahead</span>
+            <button class="fantasy-menu__action fantasy-menu__action--primary" data-action="start-normal">
+              <span class="fantasy-menu__rune">◆</span>
+              <span><strong>Begin Run</strong><small>Enter the endless road</small></span>
+            </button>
+            <button class="fantasy-menu__action" data-action="start-daily">
+              <span class="fantasy-menu__rune">☼</span>
+              <span><strong>Daily Run</strong><small>${daily.label}</small></span>
+            </button>
+            <button class="fantasy-menu__action" data-action="open-character-select">
+              <span class="fantasy-menu__rune">♜</span>
+              <span><strong>Choose Hero</strong><small>Current: ${character.name}</small></span>
+            </button>
+            <button class="fantasy-menu__action" data-action="open-handbook">
+              <span class="fantasy-menu__rune">✦</span>
+              <span><strong>Handbook</strong><small>Rules & cards</small></span>
+            </button>
+          </nav>
+
+          <section class="fantasy-menu__hero-stage" aria-label="Selected hero">
+            <span class="fantasy-menu__hero-kicker">Chosen Wanderer</span>
+            <button class="fantasy-menu__hero-card fantasy-menu__hero-card--${character.id}" data-action="open-character-select" aria-label="Change selected hero">
+              <div class="fantasy-menu__halo" aria-hidden="true"></div>
+              <div class="fantasy-menu__portrait">
+                ${artMarkup(`./assets/characters/${character.id}/portrait.png`, character.name, character.name.slice(0, 2).toUpperCase())}
               </div>
-              <div class="character-card__body">
-                <p class="eyebrow">${character.archetype.toUpperCase()}</p>
-                <h2>${character.name}</h2>
+              <div class="fantasy-menu__hero-info">
+                <span>${character.archetype}</span>
+                <strong>${character.name}</strong>
                 <p>${character.description}</p>
-                <div class="character-card__stats">
-                  <span><strong>${character.maxHp}</strong> HP</span>
-                  <span><strong>${character.startingDeck.length}</strong> cards</span>
-                </div>
-                <div class="character-card__actions">
-                  <button class="button button--primary" data-action="start-normal" data-character="${character.id}">Start Run</button>
-                  <button class="button" data-action="start-daily" data-character="${character.id}">Daily <small>${daily.label}</small></button>
+                <div class="fantasy-menu__hero-stats">
+                  <span><b>${character.maxHp}</b> HP</span>
+                  <span><b>${character.startingDeck.length}</b> Starting Cards</span>
                 </div>
               </div>
-            </article>
-          `).join('')}
+            </button>
+            <button class="fantasy-menu__begin" data-action="start-normal">Begin Run — ${character.name}</button>
+          </section>
+
+          <aside class="fantasy-menu__brief" aria-label="Run briefing">
+            <div class="fantasy-menu__brief-block">
+              <span>Quest</span>
+              <strong>Push deeper. Score higher. Die later.</strong>
+              <p>Choose Heat before each battle, shape your deck around your hero, and survive an endless procession of enemies and recurring bosses.</p>
+            </div>
+            <div class="fantasy-menu__brief-block">
+              <span>Records</span>
+              <div class="fantasy-menu__records">
+                <div><small>Best Score</small><b>${fmt.format(save.bestScore)}</b></div>
+                <div><small>Daily Best</small><b>${fmt.format(dailyBest)}</b></div>
+                <div><small>Runs</small><b>${save.stats.runs}</b></div>
+              </div>
+            </div>
+            <div class="fantasy-menu__brief-block">
+              <span>Remember</span>
+              <p>Damage breaks Combo and lowers Multiplier, but your accumulated score is safe. Every eighth fight is a boss.</p>
+            </div>
+          </aside>
         </div>
 
-        <div class="records">
-          <div><span>Personal Best</span><strong>${fmt.format(save.bestScore)}</strong></div>
-          <div><span>Daily Best</span><strong>${fmt.format(dailyBest)}</strong></div>
-          <div><span>Runs</span><strong>${save.stats.runs}</strong></div>
-        </div>
-        <p class="hint">Taking damage breaks your Combo and reduces your Multiplier, but your score is always safe.</p>
+        <footer class="fantasy-menu__footer">
+          <span>Drag cards into battle. Target enemies directly when several stand against you.</span>
+          <span>The road ends only when you fall.</span>
+        </footer>
       </section>
+      ${this.characterSelectOpen ? this.characterSelector() : ''}
       ${this.handbookOpen ? this.handbook() : ''}`;
+  }
+
+  characterSelector() {
+    return `
+      <div class="character-picker-backdrop" data-action="close-character-select">
+        <section class="character-picker" role="dialog" aria-modal="true" aria-label="Choose hero" onclick="event.stopPropagation()">
+          <header class="character-picker__header">
+            <div>
+              <p class="eyebrow">CHOOSE YOUR WANDERER</p>
+              <h2>Select Hero</h2>
+              <p>Each hero begins with a different deck and rewards a different style of play.</p>
+            </div>
+            <button class="character-picker__close" data-action="close-character-select" aria-label="Close hero selection">×</button>
+          </header>
+
+          <div class="character-picker__grid">
+            ${Object.values(CHARACTERS).map((character) => {
+              const selected = character.id === this.selectedCharacterId;
+              return `
+                <button class="character-choice character-choice--${character.id} ${selected ? 'is-selected' : ''}" data-action="choose-character" data-character="${character.id}" aria-pressed="${selected}">
+                  <span class="character-choice__state">${selected ? '✓ CHOSEN' : 'CHOOSE'}</span>
+                  <div class="character-choice__portrait">
+                    ${artMarkup(`./assets/characters/${character.id}/portrait.png`, character.name, character.name.slice(0, 2).toUpperCase())}
+                  </div>
+                  <div class="character-choice__content">
+                    <span class="eyebrow">${character.archetype.toUpperCase()}</span>
+                    <strong>${character.name}</strong>
+                    <p>${character.description}</p>
+                    <div class="character-choice__stats">
+                      <span><b>${character.maxHp}</b> HP</span>
+                      <span><b>${character.startingDeck.length}</b> Cards</span>
+                    </div>
+                  </div>
+                </button>`;
+            }).join('')}
+          </div>
+        </section>
+      </div>`;
   }
 
   handbook() {
