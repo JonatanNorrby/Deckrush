@@ -382,3 +382,13 @@ test('character selection uses idle frame one instead of portrait art', () => {
   const idleSelectionRefs = renderSource.match(/\.\/assets\/characters\/\$\{character\.id\}\/idle\/1\.png/g) || [];
   assert.equal(idleSelectionRefs.length, 2);
 });
+
+
+test('menu close buttons are unboxed and turn red on hover', () => {
+  const css = readFileSync(new URL('../styles.css', import.meta.url), 'utf8');
+
+  assert.match(css, /\.handbook__close\s*\{[\s\S]*?border:\s*0;[\s\S]*?background:\s*transparent;/);
+  assert.match(css, /\.handbook__close:hover\s*\{[\s\S]*?color:\s*var\(--danger\);/);
+  assert.match(css, /\.character-picker__close\s*\{[\s\S]*?border:\s*0;[\s\S]*?background:\s*transparent;/);
+  assert.match(css, /\.character-picker__close:hover\s*\{[\s\S]*?color:\s*var\(--danger\);/);
+});
