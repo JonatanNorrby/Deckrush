@@ -1,16 +1,14 @@
 # Bastion static art
 
-This folder contains Bastion's static PNGs and animation subfolders.
+Character selection art uses `idle/1.png`. This folder contains Bastion's static PNGs and animation subfolders.
 
 ## Required static PNGs
 
-- `portrait.png` — used on the main menu and character-selection screen.
 - `combat.png` — static combat fallback shown when no animation frames are available.
 
 Expected paths:
 
 ```
-assets/characters/bastion/portrait.png
 assets/characters/bastion/combat.png
 ```
 
