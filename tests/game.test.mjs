@@ -684,12 +684,17 @@ test('card animation classes stay backend-only', () => {
 test('cards use shared base artwork plus separate illustrations', () => {
   const renderSource = readFileSync(new URL('../src/ui/render.js', import.meta.url), 'utf8');
   const css = readFileSync(new URL('../styles.css', import.meta.url), 'utf8');
+  const baseBytes = readFileSync(new URL('../assets/cards/base/card.png', import.meta.url));
 
-  assert.match(renderSource, /assets\/cards\/base\/card\.png/);
+  assert.equal(baseBytes.subarray(1, 4).toString('ascii'), 'PNG');
   assert.match(renderSource, /assets\/cards\/art\/\$\{card\.id\}\.png/);
-  assert.equal((renderSource.match(/\$\{cardBaseMarkup\(\)\}/g) || []).length, 3);
+  assert.doesNotMatch(renderSource, /cardBaseMarkup/);
   assert.doesNotMatch(renderSource, /assets\/cards\/\$\{card\.id\}\.png/);
-  assert.match(css, /\.card-base-image\s*\{[\s\S]*?position:\s*absolute;[\s\S]*?z-index:\s*0;/);
+  assert.match(
+    css,
+    /\.combat-card,[\s\S]*?\.card,[\s\S]*?\.handbook-card\s*\{[\s\S]*?url\('\.\/assets\/cards\/base\/card\.png'\) center \/ 100% 100% no-repeat/,
+  );
+  assert.doesNotMatch(css, /\.card-base-image/);
 });
 
 
