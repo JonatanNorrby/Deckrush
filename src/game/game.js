@@ -91,7 +91,7 @@ export class Game {
 
   chooseHeat(heat) {
     if (this.state.phase !== 'route') return;
-    this.state.selectedHeat = Number(heat);
+    this.state.selectedHeat = Math.max(0, Math.min(5, Number(heat) || 0));
     this.startEncounter();
   }
 
