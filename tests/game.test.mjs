@@ -811,7 +811,7 @@ test('asset entrypoints are cache-busted and Pages deploys latest push', () => {
   const indexSource = readFileSync(new URL('../index.html', import.meta.url), 'utf8');
   const pagesWorkflow = readFileSync(new URL('../.github/workflows/pages.yml', import.meta.url), 'utf8');
 
-  assert.match(indexSource, /styles\.css\?v=20260924-assets2/);
+  assert.match(indexSource, /styles\.css\?v=20260924-logo3/);
   assert.match(indexSource, /src\/main\.js\?v=20260924-assets2/);
   assert.match(pagesWorkflow, /concurrency:[\s\S]*?cancel-in-progress:\s*true/);
 });
@@ -833,4 +833,15 @@ test('all visible card text is black', () => {
     css,
     /\.combat-card,[\s\S]*?\.card,[\s\S]*?\.handbook-card,[\s\S]*?\.combat-card \*,[\s\S]*?\.card \*,[\s\S]*?\.handbook-card \*\s*\{[\s\S]*?color:\s*#000;/,
   );
+});
+
+
+test('logos use expanded menu and HUD space', () => {
+  const css = readFileSync(new URL('../styles.css', import.meta.url), 'utf8');
+
+  assert.match(css, /\.fantasy-menu__masthead\s*\{[\s\S]*?justify-content:\s*center;/);
+  assert.match(css, /\.fantasy-menu__identity\s*\{[\s\S]*?justify-items:\s*center;[\s\S]*?text-align:\s*center;/);
+  assert.match(css, /\.fantasy-menu__logo\s*\{[\s\S]*?width:\s*clamp\(420px,\s*58vw,\s*860px\);[\s\S]*?max-height:\s*190px;[\s\S]*?object-position:\s*center;/);
+  assert.match(css, /\.hud__brand\s*\{[\s\S]*?align-items:\s*stretch;[\s\S]*?justify-content:\s*center;[\s\S]*?padding:\s*4px 8px;/);
+  assert.match(css, /\.hud__logo\s*\{[\s\S]*?width:\s*100%;[\s\S]*?height:\s*100%;[\s\S]*?max-height:\s*58px;/);
 });
