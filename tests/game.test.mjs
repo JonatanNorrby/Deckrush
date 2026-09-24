@@ -654,6 +654,14 @@ test('multi-enemy targeted cards stage on battlefield before choosing an enemy',
   );
   assert.match(css, /\.combat-card\.pending-target-card\s*\{/);
   assert.match(css, /\.targeting-arrow-layer\s*\{/);
+  assert.match(
+    renderSource,
+    /this\.pendingTarget = \{ index, card, source, element: landingCard \};[\s\S]*?requestAnimationFrame\([\s\S]*?startTargetArrow\(landingCard, x, y\)/,
+  );
+  assert.match(
+    css,
+    /\.enemy-unit\.is-drop-target \.enemy-sprite\s*\{[\s\S]*?drop-shadow\(2px 0 0 rgba\(255,255,255,\.62\)\)[\s\S]*?drop-shadow\(0 0 8px rgba\(255,255,255,\.38\)\)/,
+  );
 });
 
 test('dropping a playable card uses a brief battlefield landing animation', () => {
