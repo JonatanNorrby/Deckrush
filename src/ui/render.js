@@ -175,18 +175,11 @@ export class Renderer {
     const damage = selector.querySelector('[data-heat-damage]');
     const confirm = selector.querySelector('[data-heat-confirm]');
 
-    if (score) score.textContent = `Heat ${heat} · x${(1 + heat * 0.25).toFixed(2)} score`;
-    if (hp) hp.textContent = `+${heat * 16}% enemy HP`;
-    if (damage) damage.textContent = `+${heat} enemy damage`;
-    if (confirm) confirm.textContent = `Enter Fight — Heat ${heat}`;
+    if (score) score.textContent = `Heat ${heat} · Score x${(1 + heat * 0.25).toFixed(2)}`;
+    if (hp) hp.textContent = `Enemy health +${heat * 16}%`;
+    if (damage) damage.textContent = `Enemy damage +${heat}`;
+    if (confirm) confirm.textContent = `Start Fight · Heat ${heat}`;
 
-    const flameAsset = selector.querySelector('[data-heat-flame-asset]');
-    const flameFallback = selector.querySelector('[data-heat-flame-fallback]');
-    if (flameAsset) {
-      flameAsset.hidden = false;
-      if (flameFallback) flameFallback.hidden = true;
-      flameAsset.src = `./assets/heat/flames/${heat + 1}.png`;
-    }
   }
 
   handlePointerDown(event) {
@@ -301,17 +294,25 @@ export class Renderer {
   }
 
   playCardWithDropAnimation(index, targetIndex, landingCard, x, y) {
-    this.cardPlayLocked = true;
+    const played = this.game.playCard(index, targetIndex);
+    if (!played) return false;
+
+    this.animatePlayedCard(landingCard, x, y);
+    return true;
+  }
+
+  animatePlayedCard(landingCard, x, y) {
+    const safeX = Number.isFinite(x) ? x : window.innerWidth / 2;
+    const safeY = Number.isFinite(y) ? y : window.innerHeight / 2;
+
+    landingCard.classList.remove('pending-target-card', 'is-resolved');
+    landingCard.removeAttribute('data-pending-target-card');
     landingCard.classList.add('card-drop-play');
-    landingCard.style.left = `${x}px`;
-    landingCard.style.top = `${y}px`;
+    landingCard.style.left = `${safeX}px`;
+    landingCard.style.top = `${safeY}px`;
     document.body.appendChild(landingCard);
 
-    window.setTimeout(() => {
-      landingCard.remove();
-      this.cardPlayLocked = false;
-      this.game.playCard(index, targetIndex);
-    }, 140);
+    window.setTimeout(() => landingCard.remove(), 140);
   }
 
   stagePendingTarget(index, card, source, landingCard, x, y) {
@@ -420,16 +421,17 @@ export class Renderer {
     if (!valid) return;
 
     const { index, element, source } = this.pendingTarget;
-    element.classList.add('is-resolved');
+    const rect = element.getBoundingClientRect();
+    const landingCard = element.cloneNode(true);
+    const visualX = rect.left + rect.width / 2;
+    const visualY = rect.top + rect.height / 2;
+
     source?.classList.remove('combat-card--pending-source');
     this.pendingTarget = null;
-    this.cardPlayLocked = true;
+    element.remove();
 
-    window.setTimeout(() => {
-      element.remove();
-      this.cardPlayLocked = false;
-      this.game.playCard(index, targetIndex);
-    }, 100);
+    const played = this.game.playCard(index, targetIndex);
+    if (played) this.animatePlayedCard(landingCard, visualX, visualY);
   }
 
   cleanupTargetArrow() {
@@ -551,12 +553,12 @@ export class Renderer {
               <div class="fantasy-menu__hero-info">
                 <strong>${character.name}</strong>
                 <p>${character.description}</p>
-                <div class="fantasy-menu__hero-stats">
-                  <span><b>${character.maxHp}</b> HP</span>
-                  <span><b>${character.startingDeck.length}</b> Starting Cards</span>
-                </div>
               </div>
             </button>
+            <div class="fantasy-menu__hero-stats" aria-label="Character stats">
+              <span><b>${character.maxHp}</b> HP</span>
+              <span><b>${character.startingDeck.length}</b> Starting Cards</span>
+            </div>
             <button class="fantasy-menu__begin" data-action="start-normal">Begin Run — ${character.name}</button>
           </section>
 
@@ -713,31 +715,17 @@ export class Renderer {
       <section class="shell route">
         <div class="route__content">
           <p class="eyebrow">${bossFight ? `BOSS FIGHT ${fightNumber}` : `FIGHT ${fightNumber}`}</p>
-          <h2>${bossFight ? 'The Auditor is waiting.' : 'How greedy are you feeling?'}</h2>
-          <p>Raise the Heat for tougher enemies and a stronger score multiplier.</p>
+          <h2>${bossFight ? 'Boss Fight Ahead' : 'Choose Your Heat'}</h2>
+          <p>Higher Heat makes enemies tougher, but every point you earn is worth more.</p>
 
-          <div class="heat-selector" data-heat="${heat}" style="--heat-level:${heat}; --heat-pct:${heatPct}%;">
-            <div class="heat-flames" aria-hidden="true">
-              <img
-                class="heat-flame-asset"
-                data-heat-flame-asset
-                src="./assets/heat/flames/${heat + 1}.png"
-                alt=""
-                draggable="false"
-                onerror="this.hidden=true;this.nextElementSibling.hidden=false"
-              >
-              <div class="heat-flame-fallback" data-heat-flame-fallback hidden>
-                <span></span><span></span><span></span><span></span><span></span><span></span><span></span>
-              </div>
-            </div>
-
+          <div class="heat-selector" data-heat="${heat}" style="--heat-pct:${heatPct}%;">
             <div class="heat-readout">
-              <span>HEAT</span>
-              <em data-heat-score>Heat ${heat} · x${(1 + heat * 0.25).toFixed(2)} score</em>
+              <span>Risk / Reward</span>
+              <strong data-heat-score>Heat ${heat} · Score x${(1 + heat * 0.25).toFixed(2)}</strong>
             </div>
 
             <label class="heat-slider-wrap">
-              <span class="heat-slider-label">Choose intensity</span>
+              <span class="heat-slider-label">Heat level</span>
               <input
                 class="heat-slider"
                 type="range"
@@ -755,12 +743,12 @@ export class Renderer {
             </label>
 
             <div class="heat-effects" aria-live="polite">
-              <span data-heat-hp>+${heat * 16}% enemy HP</span>
-              <span data-heat-damage>+${heat} enemy damage</span>
+              <span data-heat-hp>Enemy health +${heat * 16}%</span>
+              <span data-heat-damage>Enemy damage +${heat}</span>
             </div>
 
             <button class="button button--primary heat-confirm" data-action="heat" data-heat-confirm>
-              Enter Fight — Heat ${heat}
+              Start Fight · Heat ${heat}
             </button>
           </div>
         </div>
