@@ -725,7 +725,8 @@ p { color: var(--muted); line-height: 1.55; }
   grid-template-columns: minmax(220px, 285px) minmax(360px, 1fr) minmax(280px, 390px);
   align-items: flex-end;
   gap: clamp(24px, 4vw, 66px);
-  padding: clamp(28px, 4vh, 56px) 0 4px;
+  padding-top: clamp(28px, 4vh, 56px);
+  padding-bottom: 4px;
 }
 
 .fantasy-menu__identity {
