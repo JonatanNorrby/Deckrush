@@ -812,7 +812,7 @@ test('asset entrypoints are cache-busted and Pages deploys latest push', () => {
   const indexSource = readFileSync(new URL('../index.html', import.meta.url), 'utf8');
   const pagesWorkflow = readFileSync(new URL('../.github/workflows/pages.yml', import.meta.url), 'utf8');
 
-  assert.match(indexSource, /styles\.css\?v=20260924-card5/);
+  assert.match(indexSource, /styles\.css\?v=20260924-cardtext6/);
   assert.match(indexSource, /src\/main\.js\?v=20260924-assets2/);
   assert.match(pagesWorkflow, /concurrency:[\s\S]*?cancel-in-progress:\s*true/);
 });
@@ -872,5 +872,15 @@ test('cards have no brown fallback fills', () => {
   assert.doesNotMatch(
     css.slice(css.indexOf('.combat-card,\n.card,\n.handbook-card {'), css.indexOf('.combat-card:hover')),
     /linear-gradient\(165deg,\s*rgba\(62,40,20/,
+  );
+});
+
+
+test('card names and rules text are centered', () => {
+  const css = readFileSync(new URL('../styles.css', import.meta.url), 'utf8');
+
+  assert.match(
+    css,
+    /\/\* Center card title and rules text \*\/[\s\S]*?\.card__name,[\s\S]*?\.card > p,[\s\S]*?\.combat-card > p,[\s\S]*?\.handbook-card h3,[\s\S]*?\.handbook-card > p\s*\{[\s\S]*?width:\s*100%;[\s\S]*?text-align:\s*center;/,
   );
 });
