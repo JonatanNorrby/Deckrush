@@ -692,7 +692,7 @@ test('cards use shared base artwork plus separate illustrations', () => {
   assert.doesNotMatch(renderSource, /assets\/cards\/\$\{card\.id\}\.png/);
   assert.match(
     css,
-    /\.combat-card,[\s\S]*?\.card,[\s\S]*?\.handbook-card\s*\{[\s\S]*?url\('\.\/assets\/cards\/base\/card\.png'\) center \/ 100% 100% no-repeat/,
+    /\.combat-card,[\s\S]*?\.card,[\s\S]*?\.handbook-card\s*\{[\s\S]*?url\('\.\/assets\/cards\/base\/card\.png\?v=20260924-assets2'\) center \/ 100% 100% no-repeat/,
   );
   assert.doesNotMatch(css, /\.card-base-image/);
 });
@@ -742,8 +742,10 @@ test('combat tray controls are larger and end turn matches the fantasy tray', ()
 test('branding uses shared logo asset instead of text', () => {
   const renderSource = readFileSync(new URL('../src/ui/render.js', import.meta.url), 'utf8');
   const css = readFileSync(new URL('../styles.css', import.meta.url), 'utf8');
+  const logoBytes = readFileSync(new URL('../assets/logo/logo.png', import.meta.url));
 
-  assert.equal((renderSource.match(/assets\/logo\/logo\.png/g) || []).length, 2);
+  assert.equal(logoBytes.subarray(1, 4).toString('ascii'), 'PNG');
+  assert.equal((renderSource.match(/assets\/logo\/logo\.png\?v=20260924-assets2/g) || []).length, 2);
   assert.doesNotMatch(renderSource, /<h1>DECKRUSH<\/h1>/);
   assert.doesNotMatch(renderSource, /<div class="hud__brand">DECKRUSH<\/div>/);
   assert.match(renderSource, /class="fantasy-menu__identity" aria-label="Deckrush"/);
@@ -802,4 +804,14 @@ test('enemy damage cannot reduce combo below zero', () => {
   game.enemyTurn();
 
   assert.equal(game.state.score.combo, 0);
+});
+
+
+test('asset entrypoints are cache-busted and Pages deploys latest push', () => {
+  const indexSource = readFileSync(new URL('../index.html', import.meta.url), 'utf8');
+  const pagesWorkflow = readFileSync(new URL('../.github/workflows/pages.yml', import.meta.url), 'utf8');
+
+  assert.match(indexSource, /styles\.css\?v=20260924-assets2/);
+  assert.match(indexSource, /src\/main\.js\?v=20260924-assets2/);
+  assert.match(pagesWorkflow, /concurrency:[\s\S]*?cancel-in-progress:\s*true/);
 });
