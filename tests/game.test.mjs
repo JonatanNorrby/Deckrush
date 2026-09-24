@@ -487,15 +487,16 @@ test('gameplay surfaces use the unified dark-fantasy theme', () => {
 });
 
 
-test('chosen wanderer label sits closer to hero and begin button is raised', () => {
+test('main menu removes branding helper text and divider', () => {
+  const renderSource = readFileSync(new URL('../src/ui/render.js', import.meta.url), 'utf8');
   const css = readFileSync(new URL('../styles.css', import.meta.url), 'utf8');
 
-  assert.match(css, /\.fantasy-menu__hero-kicker\s*\{[\s\S]*?margin-bottom:\s*-34px;/);
-  assert.match(css, /\.fantasy-menu__hero-kicker\s*\{[\s\S]*?font-size:\s*clamp\(17px,/);
-  assert.match(
-    css,
-    /\.fantasy-menu__begin\s*\{[\s\S]*?margin-top:\s*-28px;/,
-  );
+  assert.doesNotMatch(renderSource, /ENDLESS FANTASY DECKBRAWLER/i);
+  assert.doesNotMatch(renderSource, /Chosen Wanderer/i);
+  assert.doesNotMatch(css, /\.fantasy-menu__hero-kicker\s*\{/);
+  assert.match(css, /\.fantasy-menu__masthead\s*\{[\s\S]*?padding-bottom:\s*4px;/);
+  assert.doesNotMatch(css, /\.fantasy-menu__masthead::after\s*\{/);
+  assert.match(css, /\.fantasy-menu__hero-stage\s*\{[\s\S]*?grid-template-rows:\s*1fr auto;/);
 });
 
 
@@ -811,7 +812,7 @@ test('asset entrypoints are cache-busted and Pages deploys latest push', () => {
   const indexSource = readFileSync(new URL('../index.html', import.meta.url), 'utf8');
   const pagesWorkflow = readFileSync(new URL('../.github/workflows/pages.yml', import.meta.url), 'utf8');
 
-  assert.match(indexSource, /styles\.css\?v=20260924-logo3/);
+  assert.match(indexSource, /styles\.css\?v=20260924-menu4/);
   assert.match(indexSource, /src\/main\.js\?v=20260924-assets2/);
   assert.match(pagesWorkflow, /concurrency:[\s\S]*?cancel-in-progress:\s*true/);
 });
@@ -841,7 +842,17 @@ test('logos use expanded menu and HUD space', () => {
 
   assert.match(css, /\.fantasy-menu__masthead\s*\{[\s\S]*?justify-content:\s*center;/);
   assert.match(css, /\.fantasy-menu__identity\s*\{[\s\S]*?justify-items:\s*center;[\s\S]*?text-align:\s*center;/);
-  assert.match(css, /\.fantasy-menu__logo\s*\{[\s\S]*?width:\s*clamp\(420px,\s*58vw,\s*860px\);[\s\S]*?max-height:\s*190px;[\s\S]*?object-position:\s*center;/);
+  assert.match(css, /\.fantasy-menu__logo\s*\{[\s\S]*?width:\s*clamp\(520px,\s*70vw,\s*1040px\);[\s\S]*?max-height:\s*230px;[\s\S]*?object-position:\s*center;/);
   assert.match(css, /\.hud__brand\s*\{[\s\S]*?align-items:\s*stretch;[\s\S]*?justify-content:\s*center;[\s\S]*?padding:\s*4px 8px;/);
   assert.match(css, /\.hud__logo\s*\{[\s\S]*?width:\s*100%;[\s\S]*?height:\s*100%;[\s\S]*?max-height:\s*58px;/);
+});
+
+
+test('Rune main-menu artwork is bottom-anchored', () => {
+  const css = readFileSync(new URL('../styles.css', import.meta.url), 'utf8');
+
+  assert.match(
+    css,
+    /\.fantasy-menu__hero-card--rune \.fantasy-menu__portrait \.art-image\s*\{[\s\S]*?object-position:\s*center bottom;[\s\S]*?translateY\(18px\) scale\(1\.45\);[\s\S]*?transform-origin:\s*center bottom;/,
+  );
 });
