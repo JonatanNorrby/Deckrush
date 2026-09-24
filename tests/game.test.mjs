@@ -382,6 +382,13 @@ test('combat cards stay large and do not clamp rules text', () => {
   assert.match(css, /\.combat-card p\s*\{[\s\S]*?overflow:\s*visible;[\s\S]*?display:\s*block;/);
 });
 
+test('reward cards match combat card dimensions', () => {
+  const css = readFileSync(new URL('../styles.css', import.meta.url), 'utf8');
+
+  assert.match(css, /\.reward-grid\s*\{[\s\S]*?grid-template-columns:\s*repeat\(3,\s*minmax\(0,\s*215px\)\);[\s\S]*?justify-items:\s*center;/);
+  assert.match(css, /\.reward-grid \.card\s*\{[\s\S]*?width:\s*min\(215px,\s*100%\);[\s\S]*?height:\s*310px;[\s\S]*?padding:\s*11px;/);
+});
+
 
 test('combat view has no log strip above the cards', () => {
   const renderSource = readFileSync(new URL('../src/ui/render.js', import.meta.url), 'utf8');
