@@ -213,7 +213,7 @@ export class Renderer {
     cardEl.classList.add('combat-card--source');
 
     this.drag = {
-      pointerId,
+      pointerId: event.pointerId,
       index,
       card,
       source: cardEl,
