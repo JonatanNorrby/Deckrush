@@ -220,7 +220,7 @@ export class Renderer {
     cardEl.classList.add('combat-card--source');
 
     this.drag = {
-      pointerId: event.pointerId,
+      pointerId,
       index,
       card,
       source: cardEl,
@@ -335,11 +335,22 @@ export class Renderer {
     if (instruction) instruction.textContent = 'Drag the arrow from the played card to an enemy';
 
     this.pendingTarget = { index, card, source, element: landingCard };
+
+    requestAnimationFrame(() => {
+      if (this.pendingTarget?.element === landingCard && !this.targetArrow) {
+        this.startTargetArrow(landingCard, x, y);
+      }
+    });
   }
 
   beginTargetArrow(event, pendingCard) {
     if (!this.pendingTarget || this.targetArrow) return;
     event.preventDefault();
+    this.startTargetArrow(pendingCard, event.clientX, event.clientY, event.pointerId);
+  }
+
+  startTargetArrow(pendingCard, x, y, pointerId = null) {
+    if (!this.pendingTarget || this.targetArrow) return;
 
     const battlefield = this.root.querySelector('[data-battlefield]');
     if (!battlefield) return;
@@ -368,15 +379,17 @@ export class Renderer {
       line: svg.querySelector('line'),
     };
     document.body.classList.add('is-targeting-enemy');
-    this.updateTargetArrow(event.clientX, event.clientY);
+    this.updateTargetArrow(x, y);
 
     this.onTargetPointerMove = (moveEvent) => {
-      if (!this.targetArrow || moveEvent.pointerId !== this.targetArrow.pointerId) return;
+      if (!this.targetArrow) return;
+      if (this.targetArrow.pointerId !== null && moveEvent.pointerId !== this.targetArrow.pointerId) return;
       moveEvent.preventDefault();
       this.updateTargetArrow(moveEvent.clientX, moveEvent.clientY);
     };
     this.onTargetPointerUp = (upEvent) => {
-      if (!this.targetArrow || upEvent.pointerId !== this.targetArrow.pointerId) return;
+      if (!this.targetArrow) return;
+      if (this.targetArrow.pointerId !== null && upEvent.pointerId !== this.targetArrow.pointerId) return;
       upEvent.preventDefault();
       this.finishTargetArrow(upEvent.clientX, upEvent.clientY);
     };
