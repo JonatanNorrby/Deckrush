@@ -612,11 +612,11 @@ export class Renderer {
           <article><span class="rule-number">02</span><h3>Drag Cards</h3><p>Draw 5 cards and start with 3 Energy. Drag a card from your hand onto the battlefield to play it.</p></article>
           <article><span class="rule-number">03</span><h3>Choose Targets</h3><p>When several enemies are alive, drop a targeted card onto the battlefield, then drag its aiming arrow onto the enemy you want to hit.</p></article>
           <article><span class="rule-number">04</span><h3>Build Score</h3><p>Damage, kills, overkill, perfect fights and score cards award points. Combo, Multiplier and Heat make those points worth more.</p></article>
-          <article><span class="rule-number">05</span><h3>Avoid Damage</h3><p>Enemy damage costs HP, breaks your Combo and lowers your Multiplier. Your accumulated score is never lost.</p></article>
+          <article><span class="rule-number">05</span><h3>Avoid Damage</h3><p>Enemy damage costs HP, reduces Combo by the HP damage taken after Block, and lowers your Multiplier. Your accumulated score is never lost.</p></article>
           <article><span class="rule-number">06</span><h3>Keep Climbing</h3><p>Choose a card after each victory, face recurring bosses, and keep going until your HP reaches zero.</p></article>
         </div>
         <div class="mechanic-grid">
-          <article class="mechanic-card"><strong>Combo</strong><p>Built by many attacks. Higher Combo increases score value. Taking enemy damage resets it.</p></article>
+          <article class="mechanic-card"><strong>Combo</strong><p>Built by many attacks. Higher Combo increases score value. HP damage after Block reduces Combo by the same amount.</p></article>
           <article class="mechanic-card"><strong>Multiplier</strong><p>Raised by special cards and preserved across fights. Taking damage reduces it.</p></article>
           <article class="mechanic-card"><strong>Block</strong><p>Absorbs attacks during the enemy turn. Remaining Block clears after all enemies have acted.</p></article>
           <article class="mechanic-card"><strong>Poison</strong><p>Ticks on every poisoned enemy before enemies attack, then loses 1 stack on surviving targets.</p></article>
