@@ -677,6 +677,20 @@ test('multi-enemy targeted cards stage on battlefield before choosing an enemy',
   );
 });
 
+test('card drag stores the pointer id from the pointer event', () => {
+  const renderSource = readFileSync(new URL('../src/ui/render.js', import.meta.url), 'utf8');
+  const start = renderSource.indexOf('handlePointerDown(event) {');
+  const end = renderSource.indexOf('positionDragGhost(x, y) {', start);
+  const methodSource = renderSource.slice(start, end);
+
+  assert.ok(start >= 0 && end > start);
+  assert.match(
+    methodSource,
+    /this\.drag = \{[\s\S]*?pointerId:\s*event\.pointerId,[\s\S]*?index,[\s\S]*?card,/,
+  );
+  assert.doesNotMatch(methodSource, /this\.drag = \{[\s\S]*?\n\s*pointerId,\n/);
+});
+
 test('automatic target arrow does not depend on a pointer event object', () => {
   const renderSource = readFileSync(new URL('../src/ui/render.js', import.meta.url), 'utf8');
   const start = renderSource.indexOf('startTargetArrow(pendingCard, x, y, pointerId = null)');
