@@ -55,18 +55,27 @@ test('heat increases enemy health', () => {
   assert.ok(high.state.enemies[0].maxHp > low.state.enemies[0].maxHp);
 });
 
-test('taking enemy damage keeps score safe but breaks combo', () => {
+test('enemy HP damage reduces combo by post-block damage amount', () => {
   const game = new Game();
   game.startRun('weekly');
   game.chooseHeat(0);
   game.state.score.total = 1000;
-  game.state.score.combo = 5;
-  game.state.player.block = 0;
+  game.state.score.combo = 7;
+  game.state.player.block = 2;
 
-  game.endTurn();
+  const enemy = game.state.enemies[0];
+  enemy.baseDamage = 4;
+  enemy.strength = 0;
+  enemy.scaling = 0;
+  enemy.trait = null;
+  enemy.turn = 0;
+
+  game.enemyTurn();
 
   assert.equal(game.state.score.total, 1000);
-  assert.equal(game.state.score.combo, 0);
+  assert.equal(game.state.player.block, 0);
+  assert.equal(game.state.fight.damageTaken, 2);
+  assert.equal(game.state.score.combo, 5);
 });
 
 test('defeating an enemy adds score and opens a reward', () => {
@@ -768,4 +777,24 @@ test('artwork fallbacks never show two-letter initials', () => {
     renderSource,
     /function artMarkup\(path, alt, extraClass = ''\)[\s\S]*?onerror="this\.hidden=true"/,
   );
+});
+
+
+test('enemy damage cannot reduce combo below zero', () => {
+  const game = new Game();
+  game.startRun('weekly');
+  game.chooseHeat(0);
+  game.state.score.combo = 2;
+  game.state.player.block = 0;
+
+  const enemy = game.state.enemies[0];
+  enemy.baseDamage = 5;
+  enemy.strength = 0;
+  enemy.scaling = 0;
+  enemy.trait = null;
+  enemy.turn = 0;
+
+  game.enemyTurn();
+
+  assert.equal(game.state.score.combo, 0);
 });
