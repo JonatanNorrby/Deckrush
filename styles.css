@@ -129,7 +129,7 @@ p { color: var(--muted); line-height: 1.55; }
 
 .hud { position: sticky; top: 0; z-index: 10; display: grid; grid-template-columns: 1.1fr repeat(4, 1fr); gap: 1px; border-bottom: 1px solid var(--line); background: rgba(8,11,20,.93); backdrop-filter: blur(12px); }
 .hud__brand, .hud__stat { min-width: 0; padding: 13px 16px; border-right: 1px solid var(--line); }
-.hud__brand { display: flex; align-items: center; color: var(--accent); font-weight: 1000; letter-spacing: .12em; }
+.hud__brand { display: flex; align-items: stretch; justify-content: center; padding: 4px 8px; color: var(--accent); font-weight: 1000; letter-spacing: .12em; }
 .hud__stat span, .hud__stat small { display: block; color: var(--muted); font-size: .68rem; text-transform: uppercase; letter-spacing: .08em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .hud__stat strong { display: block; margin: 2px 0; font-size: 1.15rem; }
 .hud__timer strong { color: var(--accent); }
@@ -723,7 +723,7 @@ p { color: var(--muted); line-height: 1.55; }
   z-index: 1;
   display: flex;
   align-items: flex-end;
-  justify-content: space-between;
+  justify-content: center;
   gap: 26px;
   padding-bottom: 17px;
   border-bottom: 1px solid rgba(202,151,74,.2);
@@ -740,6 +740,13 @@ p { color: var(--muted); line-height: 1.55; }
   box-shadow: 0 0 16px rgba(201,140,57,.35);
 }
 
+.fantasy-menu__identity {
+  display: grid;
+  justify-items: center;
+  width: 100%;
+  text-align: center;
+}
+
 .fantasy-menu__identity .eyebrow {
   color: #a87a40;
   font-family: Georgia, "Times New Roman", serif;
@@ -749,11 +756,12 @@ p { color: var(--muted); line-height: 1.55; }
 
 .fantasy-menu__logo {
   display: block;
-  width: clamp(220px, 31vw, 470px);
-  max-height: 104px;
+  width: clamp(420px, 58vw, 860px);
+  max-width: 92vw;
+  max-height: 190px;
   margin-top: 8px;
   object-fit: contain;
-  object-position: left center;
+  object-position: center;
   filter: drop-shadow(0 2px 0 rgba(0,0,0,.55)) drop-shadow(0 0 28px rgba(213,151,60,.1));
 }
 
@@ -1335,7 +1343,7 @@ p { color: var(--muted); line-height: 1.55; }
   .fantasy-menu { padding: 20px 16px; }
   .fantasy-menu__masthead { align-items: flex-start; }
   .fantasy-menu__sigil { width: 42px; height: 42px; }
-  .fantasy-menu__logo { width: min(78vw, 360px); max-height: 80px; }
+  .fantasy-menu__logo { width: min(92vw, 560px); max-height: 130px; }
 
   .fantasy-menu__body {
     display: flex;
@@ -2089,10 +2097,11 @@ h1, h2,
 
 .hud__logo {
   display: block;
-  width: min(132px, 100%);
-  max-height: 34px;
+  width: 100%;
+  height: 100%;
+  max-height: 58px;
   object-fit: contain;
-  object-position: left center;
+  object-position: center;
 }
 
 
