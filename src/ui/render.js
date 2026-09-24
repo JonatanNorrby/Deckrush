@@ -91,6 +91,7 @@ export class Renderer {
     this.animations = new AnimationDirector(root);
 
     this.root.addEventListener('click', (event) => this.handleClick(event));
+    this.root.addEventListener('input', (event) => this.handleInput(event));
     this.root.addEventListener('pointerdown', (event) => this.handlePointerDown(event));
 
     document.addEventListener('keydown', (event) => {
@@ -115,7 +116,10 @@ export class Renderer {
     const action = target.dataset.action;
     if (action === 'start-normal') this.game.startRun('normal', target.dataset.character || this.selectedCharacterId);
     if (action === 'start-weekly') this.game.startRun('weekly', target.dataset.character || this.selectedCharacterId);
-    if (action === 'heat') this.game.chooseHeat(Number(target.dataset.heat));
+    if (action === 'heat') {
+      const slider = this.root.querySelector('[data-heat-slider]');
+      this.game.chooseHeat(Number(slider?.value ?? target.dataset.heat ?? 0));
+    }
     if (action === 'end-turn') {
       if (this.pendingTarget) this.cancelPendingTarget();
       this.game.endTurn();
@@ -150,6 +154,32 @@ export class Renderer {
       this.handbookTab = target.dataset.tab || 'rules';
       this.renderMenu();
     }
+  }
+
+  handleInput(event) {
+    const slider = event.target.closest?.('[data-heat-slider]');
+    if (!slider) return;
+
+    const heat = Math.max(0, Math.min(3, Number(slider.value)));
+    const selector = slider.closest('.heat-selector');
+    if (!selector) return;
+
+    selector.dataset.heat = String(heat);
+    selector.style.setProperty('--heat-level', String(heat));
+    selector.style.setProperty('--heat-pct', `${(heat / 3) * 100}%`);
+    slider.setAttribute('aria-valuetext', `Heat ${heat}`);
+
+    const value = selector.querySelector('[data-heat-value]');
+    const score = selector.querySelector('[data-heat-score]');
+    const hp = selector.querySelector('[data-heat-hp]');
+    const damage = selector.querySelector('[data-heat-damage]');
+    const confirm = selector.querySelector('[data-heat-confirm]');
+
+    if (value) value.textContent = String(heat);
+    if (score) score.textContent = `x${(1 + heat * 0.25).toFixed(2)} score`;
+    if (hp) hp.textContent = `+${heat * 16}% enemy HP`;
+    if (damage) damage.textContent = `+${heat} enemy damage`;
+    if (confirm) confirm.textContent = `Enter Fight — Heat ${heat}`;
   }
 
   handlePointerDown(event) {
@@ -660,18 +690,53 @@ export class Renderer {
   route(s) {
     const fightNumber = s.encounterIndex + 1;
     const bossFight = fightNumber % 8 === 0;
+    const heat = Math.max(0, Math.min(3, Number(s.selectedHeat) || 0));
+    const heatPct = (heat / 3) * 100;
     return `
       <section class="shell route">
-        <p class="eyebrow">${bossFight ? `BOSS FIGHT ${fightNumber}` : `FIGHT ${fightNumber}`}</p>
-        <h2>${bossFight ? 'The Auditor is waiting.' : 'How greedy are you feeling?'}</h2>
-        <p>Higher Heat boosts enemy HP and damage, but multiplies every point you earn.</p>
-        <div class="heat-grid">
-          ${[0, 1, 2, 3].map((heat) => `
-            <button class="heat-card" data-action="heat" data-heat="${heat}">
-              <span>HEAT ${heat}</span>
-              <strong>x${(1 + heat * 0.25).toFixed(2)} SCORE</strong>
-              <small>+${heat * 16}% enemy HP · +${heat} damage</small>
-            </button>`).join('')}
+        <div class="route__content">
+          <p class="eyebrow">${bossFight ? `BOSS FIGHT ${fightNumber}` : `FIGHT ${fightNumber}`}</p>
+          <h2>${bossFight ? 'The Auditor is waiting.' : 'How greedy are you feeling?'}</h2>
+          <p>Raise the Heat for tougher enemies and a stronger score multiplier.</p>
+
+          <div class="heat-selector" data-heat="${heat}" style="--heat-level:${heat}; --heat-pct:${heatPct}%;">
+            <div class="heat-flames" aria-hidden="true">
+              <span></span><span></span><span></span><span></span><span></span><span></span><span></span>
+            </div>
+
+            <div class="heat-readout">
+              <span>HEAT</span>
+              <strong data-heat-value>${heat}</strong>
+              <em data-heat-score>x${(1 + heat * 0.25).toFixed(2)} score</em>
+            </div>
+
+            <label class="heat-slider-wrap">
+              <span class="heat-slider-label">Choose intensity</span>
+              <input
+                class="heat-slider"
+                type="range"
+                min="0"
+                max="3"
+                step="1"
+                value="${heat}"
+                data-heat-slider
+                aria-label="Heat level"
+                aria-valuetext="Heat ${heat}"
+              >
+              <span class="heat-slider-ticks" aria-hidden="true">
+                <b>0</b><b>1</b><b>2</b><b>3</b>
+              </span>
+            </label>
+
+            <div class="heat-effects" aria-live="polite">
+              <span data-heat-hp>+${heat * 16}% enemy HP</span>
+              <span data-heat-damage>+${heat} enemy damage</span>
+            </div>
+
+            <button class="button button--primary heat-confirm" data-action="heat" data-heat-confirm>
+              Enter Fight — Heat ${heat}
+            </button>
+          </div>
         </div>
       </section>`;
   }
