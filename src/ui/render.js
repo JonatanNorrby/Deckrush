@@ -32,10 +32,6 @@ function animatedSpriteMarkup(staticPath, alt) {
   `;
 }
 
-function cardBaseMarkup() {
-  return '<img class="card-base-image" src="./assets/cards/base/card.png" alt="" draggable="false" onerror="this.hidden=true">';
-}
-
 function cardArtMarkup(card) {
   return artMarkup(`./assets/cards/art/${card.id}.png`, '', 'card-art-image');
 }
@@ -45,7 +41,6 @@ function cardMarkup(card, index = null, action = null) {
   const rarity = card.rarity || 'common';
   return `
     <button class="card card--${rarity}" ${attrs} ${action ? '' : 'disabled'}>
-      ${cardBaseMarkup()}
       <div class="card__top"><span class="card__cost">${card.cost}</span><span class="card__rarity">${rarity}</span></div>
       <div class="card__art" aria-hidden="true">${cardArtMarkup(card)}</div>
       <strong class="card__name">${card.name}</strong>
@@ -71,7 +66,6 @@ function combatCardMarkup(card, index, energy, handSize) {
       role="button"
       tabindex="0"
       aria-label="${card.name}, costs ${card.cost} energy">
-      ${cardBaseMarkup()}
       <div class="card__top">
         <span class="card__cost">${card.cost}</span>
         <span class="card__rarity">${rarity}</span>
@@ -644,8 +638,7 @@ export class Renderer {
         <div class="handbook-card-grid">
           ${cards.slice().sort((a, b) => a.name.localeCompare(b.name)).map((card) => `
             <article class="handbook-card handbook-card--${card.rarity}">
-              ${cardBaseMarkup()}
-              <div class="handbook-card__top"><span class="card__cost">${card.cost}</span><span class="card__rarity">${card.rarity}</span></div>
+                      <div class="handbook-card__top"><span class="card__cost">${card.cost}</span><span class="card__rarity">${card.rarity}</span></div>
                       <div class="handbook-card__art" aria-hidden="true">${cardArtMarkup(card)}</div>
               <h3>${card.name}</h3>
               <p>${card.description}</p>
