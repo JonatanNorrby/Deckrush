@@ -48,7 +48,7 @@ export const CARD_LIBRARY = {
     effects: [{ type: 'poison', amount: 5 }],
   }),
   quickStab: card({
-    id: 'quick-stab', name: 'Quick Stab', cost: 0, tags: ['attack'], animationClass: 'melee',
+    id: 'quick-stab', name: 'Quick Stab', cost: 0, tags: ['attack'], animationClass: 'melee', art: 'quickstab',
     description: 'Deal 3 damage. Draw 1. Build 1 Combo.', comboGain: 1,
     effects: [{ type: 'damage', amount: 3 }, { type: 'draw', amount: 1 }],
   }),
