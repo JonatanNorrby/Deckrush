@@ -778,19 +778,19 @@ test('combat tray controls are larger and end turn matches the fantasy tray', ()
 });
 
 
-test('branding uses shared logo asset instead of text', () => {
+test('branding uses the shared logo only on the main menu', () => {
   const renderSource = readFileSync(new URL('../src/ui/render.js', import.meta.url), 'utf8');
   const css = readFileSync(new URL('../styles.css', import.meta.url), 'utf8');
   const logoBytes = readFileSync(new URL('../assets/logo/logo.png', import.meta.url));
 
   assert.equal(logoBytes.subarray(1, 4).toString('ascii'), 'PNG');
-  assert.equal((renderSource.match(/assets\/logo\/logo\.png\?v=20260924-assets2/g) || []).length, 2);
+  assert.equal((renderSource.match(/assets\/logo\/logo\.png\?v=20260924-assets2/g) || []).length, 1);
   assert.doesNotMatch(renderSource, /<h1>DECKRUSH<\/h1>/);
-  assert.doesNotMatch(renderSource, /<div class="hud__brand">DECKRUSH<\/div>/);
   assert.match(renderSource, /class="fantasy-menu__identity" aria-label="Deckrush"/);
-  assert.match(renderSource, /class="hud__brand" aria-label="Deckrush"/);
+  assert.doesNotMatch(renderSource, /hud__brand/);
+  assert.doesNotMatch(renderSource, /hud__logo/);
   assert.match(css, /\.fantasy-menu__logo\s*\{/);
-  assert.match(css, /\.hud__logo\s*\{/);
+  assert.doesNotMatch(css, /\.hud__logo\s*\{/);
 });
 
 
@@ -942,14 +942,15 @@ test('all visible card text is black', () => {
 });
 
 
-test('logos use expanded menu and HUD space', () => {
+test('main menu logo stays expanded while the in-game HUD uses four stat columns', () => {
   const css = readFileSync(new URL('../styles.css', import.meta.url), 'utf8');
 
   assert.match(css, /\.fantasy-menu__masthead\s*\{[\s\S]*?justify-content:\s*center;/);
   assert.match(css, /\.fantasy-menu__identity\s*\{[\s\S]*?justify-items:\s*center;[\s\S]*?text-align:\s*center;/);
   assert.match(css, /\.fantasy-menu__logo\s*\{[\s\S]*?width:\s*clamp\(620px,\s*78vw,\s*1180px\);[\s\S]*?max-height:\s*270px;[\s\S]*?object-position:\s*center;/);
-  assert.match(css, /\.hud__brand\s*\{[\s\S]*?align-items:\s*stretch;[\s\S]*?justify-content:\s*center;[\s\S]*?padding:\s*4px 8px;/);
-  assert.match(css, /\.hud__logo\s*\{[\s\S]*?width:\s*100%;[\s\S]*?height:\s*100%;[\s\S]*?max-height:\s*58px;/);
+  assert.match(css, /\.hud\s*\{[\s\S]*?grid-template-columns:\s*repeat\(4,\s*1fr\);/);
+  assert.doesNotMatch(css, /\.hud__brand\s*\{/);
+  assert.doesNotMatch(css, /\.hud__logo\s*\{/);
 });
 
 
