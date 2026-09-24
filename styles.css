@@ -534,7 +534,6 @@ p { color: var(--muted); line-height: 1.55; }
   .hud__brand { grid-column: 1 / -1; }
   .character-select { grid-template-columns: 1fr; }
   .rule-grid, .mechanic-grid { grid-template-columns: repeat(2, 1fr); }
-  .handbook-card-grid { grid-template-columns: repeat(3, 1fr); }
   .battlefield { grid-template-columns: 1fr; gap: 18px; }
   .fighter--player, .fighter--enemy { justify-content: center; }
   .fighter--enemy { flex-direction: row-reverse; }
@@ -561,7 +560,7 @@ p { color: var(--muted); line-height: 1.55; }
   .handbook__header { padding: 18px; }
   .handbook__content { padding: 16px; }
   .handbook__tabs { padding: 10px 16px; }
-  .rule-grid, .mechanic-grid, .handbook-characters, .handbook-card-summary, .handbook-card-grid { grid-template-columns: 1fr; }
+  .rule-grid, .mechanic-grid, .handbook-characters, .handbook-card-summary { grid-template-columns: 1fr; }
   .character-card__art { min-height: 150px; }
   .fighter--player, .fighter--enemy { flex-wrap: wrap; }
   .player-health { order: 2; flex-basis: 92px; }
