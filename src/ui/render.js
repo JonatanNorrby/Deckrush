@@ -19,17 +19,15 @@ function formatTime(ms) {
   return `${min}:${String(sec).padStart(2, '0')}`;
 }
 
-function artMarkup(path, alt, fallback, extraClass = '') {
+function artMarkup(path, alt, extraClass = '') {
   return `
     <img class="art-image ${extraClass}" src="${path}" alt="${alt}" draggable="false"
-      onload="this.nextElementSibling.hidden=true"
-      onerror="this.hidden=true">
-    <span class="art-fallback">${fallback}</span>`;
+      onerror="this.hidden=true">`;
 }
 
-function animatedSpriteMarkup(staticPath, alt, fallback) {
+function animatedSpriteMarkup(staticPath, alt) {
   return `
-    <span class="sprite-static-art">${artMarkup(staticPath, alt, fallback)}</span>
+    <span class="sprite-static-art">${artMarkup(staticPath, alt)}</span>
     <img class="sprite-animation-frame" data-animation-frame alt="" draggable="false" hidden>
   `;
 }
@@ -39,7 +37,7 @@ function cardBaseMarkup() {
 }
 
 function cardArtMarkup(card) {
-  return artMarkup(`./assets/cards/art/${card.id}.png`, '', card.name.slice(0, 2).toUpperCase(), 'card-art-image');
+  return artMarkup(`./assets/cards/art/${card.id}.png`, '', 'card-art-image');
 }
 
 function cardMarkup(card, index = null, action = null) {
@@ -506,7 +504,7 @@ export class Renderer {
             <button class="fantasy-menu__hero-card fantasy-menu__hero-card--${character.id}" data-action="open-character-select" aria-label="Change selected hero">
               <div class="fantasy-menu__halo" aria-hidden="true"></div>
               <div class="fantasy-menu__portrait">
-                ${artMarkup(`./assets/characters/${character.id}/idle/1.png`, character.name, character.name.slice(0, 2).toUpperCase())}
+                ${artMarkup(`./assets/characters/${character.id}/idle/1.png`, character.name)}
               </div>
               <div class="fantasy-menu__hero-info">
                 <span>${character.archetype}</span>
@@ -563,7 +561,7 @@ export class Renderer {
                 <button class="character-choice character-choice--${character.id} ${selected ? 'is-selected' : ''}" data-action="choose-character" data-character="${character.id}" aria-pressed="${selected}">
                   <span class="character-choice__state">${selected ? '✓ CHOSEN' : 'CHOOSE'}</span>
                   <div class="character-choice__portrait">
-                    ${artMarkup(`./assets/characters/${character.id}/idle/1.png`, character.name, character.name.slice(0, 2).toUpperCase())}
+                    ${artMarkup(`./assets/characters/${character.id}/idle/1.png`, character.name)}
                   </div>
                   <div class="character-choice__content">
                     <span class="eyebrow">${character.archetype.toUpperCase()}</span>
@@ -628,7 +626,6 @@ export class Renderer {
         <div class="handbook-characters">
           ${Object.values(CHARACTERS).map((character) => `
             <article class="handbook-character handbook-character--${character.id}">
-              <div class="handbook-character__badge">${character.name.slice(0, 2).toUpperCase()}</div>
               <div><p class="eyebrow">${character.archetype.toUpperCase()}</p><h3>${character.name} · ${character.maxHp} HP</h3><p>${character.description}</p></div>
             </article>`).join('')}
         </div>
@@ -693,7 +690,7 @@ export class Renderer {
       return `
         <article class="enemy-unit enemy-unit--dead ${enemy.elite ? 'enemy-unit--elite' : ''} ${enemy.boss ? 'enemy-unit--boss' : ''}" data-enemy-instance="${enemy.instanceId}" aria-label="${enemy.name}, defeated">
           <div class="enemy-sprite enemy-sprite--dead">
-            ${artMarkup(`./assets/enemies/${enemy.id}/dead/1.png`, `${enemy.name} defeated`, enemy.name.slice(0, 2).toUpperCase())}
+            ${artMarkup(`./assets/enemies/${enemy.id}/dead/1.png`, `${enemy.name} defeated`)}
           </div>
           <div class="enemy-name">${enemy.name}</div>
         </article>`;
@@ -709,7 +706,7 @@ export class Renderer {
           <span>⚔</span><strong>${intentText}</strong>
         </div>
         <div class="enemy-sprite" data-enemy-sprite="${enemy.id}">
-          ${animatedSpriteMarkup(`./assets/enemies/${enemy.id}/idle/1.png`, enemy.name, enemy.name.slice(0, 2).toUpperCase())}
+          ${animatedSpriteMarkup(`./assets/enemies/${enemy.id}/idle/1.png`, enemy.name)}
         </div>
         <div class="enemy-name">${enemy.name}</div>
         <div class="enemy-hp-row"><span>${Math.max(0, enemy.hp)} / ${enemy.maxHp}</span></div>
@@ -734,7 +731,7 @@ export class Renderer {
           <div class="player-side">
             <div class="player-actor">
               <div class="player-sprite player-sprite--${character.id}" data-character-sprite="${character.id}">
-                ${animatedSpriteMarkup(`./assets/characters/${character.id}/idle/1.png`, character.name, character.name.slice(0, 2).toUpperCase())}
+                ${animatedSpriteMarkup(`./assets/characters/${character.id}/idle/1.png`, character.name)}
               </div>
               <div class="player-hp-row"><span>${Math.max(0, s.player.hp)} / ${s.player.maxHp}</span></div>
               <div class="player-hp-bar"><i style="width:${Math.max(0, (s.player.hp / s.player.maxHp) * 100)}%"></i></div>
