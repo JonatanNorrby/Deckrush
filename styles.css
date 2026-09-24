@@ -725,19 +725,7 @@ p { color: var(--muted); line-height: 1.55; }
   align-items: flex-end;
   justify-content: center;
   gap: 26px;
-  padding-bottom: 17px;
-  border-bottom: 1px solid rgba(202,151,74,.2);
-}
-
-.fantasy-menu__masthead::after {
-  content: '';
-  position: absolute;
-  left: 0;
-  bottom: -1px;
-  width: clamp(160px, 27vw, 440px);
-  height: 1px;
-  background: linear-gradient(90deg, #c98c39, rgba(201,140,57,0));
-  box-shadow: 0 0 16px rgba(201,140,57,.35);
+  padding-bottom: 4px;
 }
 
 .fantasy-menu__identity {
@@ -747,19 +735,11 @@ p { color: var(--muted); line-height: 1.55; }
   text-align: center;
 }
 
-.fantasy-menu__identity .eyebrow {
-  color: #a87a40;
-  font-family: Georgia, "Times New Roman", serif;
-  font-size: 10px;
-  letter-spacing: .24em;
-}
-
 .fantasy-menu__logo {
   display: block;
-  width: clamp(420px, 58vw, 860px);
-  max-width: 92vw;
-  max-height: 190px;
-  margin-top: 8px;
+  width: clamp(520px, 70vw, 1040px);
+  max-width: 96vw;
+  max-height: 230px;
   object-fit: contain;
   object-position: center;
   filter: drop-shadow(0 2px 0 rgba(0,0,0,.55)) drop-shadow(0 0 28px rgba(213,151,60,.1));
@@ -865,7 +845,7 @@ p { color: var(--muted); line-height: 1.55; }
   min-height: min(64vh, 650px);
   align-self: stretch;
   display: grid;
-  grid-template-rows: auto 1fr auto;
+  grid-template-rows: 1fr auto;
   place-items: center;
 }
 
@@ -893,18 +873,6 @@ p { color: var(--muted); line-height: 1.55; }
   filter: blur(14px);
 }
 
-.fantasy-menu__hero-kicker {
-  position: relative;
-  z-index: 3;
-  align-self: end;
-  margin-bottom: -34px;
-  color: #b88a4f;
-  font-family: Georgia, "Times New Roman", serif;
-  font-size: clamp(17px, 1.35vw, 22px);
-  font-weight: 700;
-  letter-spacing: .18em;
-  text-transform: uppercase;
-}
 
 .fantasy-menu__hero-card {
   --hero-accent: #b88b4c;
@@ -1343,7 +1311,7 @@ p { color: var(--muted); line-height: 1.55; }
   .fantasy-menu { padding: 20px 16px; }
   .fantasy-menu__masthead { align-items: flex-start; }
   .fantasy-menu__sigil { width: 42px; height: 42px; }
-  .fantasy-menu__logo { width: min(92vw, 560px); max-height: 130px; }
+  .fantasy-menu__logo { width: min(96vw, 680px); max-height: 160px; }
 
   .fantasy-menu__body {
     display: flex;
@@ -2108,8 +2076,9 @@ h1, h2,
 /* Rune's source frames are landscape (1536x1024) while the other heroes use square canvases.
    Scale Rune's rendered art so his visible character height matches the other heroes. */
 .fantasy-menu__hero-card--rune .fantasy-menu__portrait .art-image {
-  transform: scale(1.45);
-  transform-origin: center center;
+  object-position: center bottom;
+  transform: translateY(18px) scale(1.45);
+  transform-origin: center bottom;
 }
 .character-choice--rune .character-choice__portrait .art-image {
   width: 82%;
