@@ -33,7 +33,8 @@ function animatedSpriteMarkup(staticPath, alt) {
 }
 
 function cardArtMarkup(card) {
-  return artMarkup(`./assets/cards/art/${card.id}.png`, '', 'card-art-image');
+  const artId = card.art || card.id;
+  return artMarkup(`./assets/cards/art/${artId}.png`, '', 'card-art-image');
 }
 
 function cardMarkup(card, index = null, action = null) {
@@ -160,26 +161,32 @@ export class Renderer {
     const slider = event.target.closest?.('[data-heat-slider]');
     if (!slider) return;
 
-    const heat = Math.max(0, Math.min(3, Number(slider.value)));
+    const heat = Math.max(0, Math.min(5, Number(slider.value)));
     const selector = slider.closest('.heat-selector');
     if (!selector) return;
 
     selector.dataset.heat = String(heat);
     selector.style.setProperty('--heat-level', String(heat));
-    selector.style.setProperty('--heat-pct', `${(heat / 3) * 100}%`);
+    selector.style.setProperty('--heat-pct', `${(heat / 5) * 100}%`);
     slider.setAttribute('aria-valuetext', `Heat ${heat}`);
 
-    const value = selector.querySelector('[data-heat-value]');
     const score = selector.querySelector('[data-heat-score]');
     const hp = selector.querySelector('[data-heat-hp]');
     const damage = selector.querySelector('[data-heat-damage]');
     const confirm = selector.querySelector('[data-heat-confirm]');
 
-    if (value) value.textContent = String(heat);
-    if (score) score.textContent = `x${(1 + heat * 0.25).toFixed(2)} score`;
+    if (score) score.textContent = `Heat ${heat} · x${(1 + heat * 0.25).toFixed(2)} score`;
     if (hp) hp.textContent = `+${heat * 16}% enemy HP`;
     if (damage) damage.textContent = `+${heat} enemy damage`;
     if (confirm) confirm.textContent = `Enter Fight — Heat ${heat}`;
+
+    const flameAsset = selector.querySelector('[data-heat-flame-asset]');
+    const flameFallback = selector.querySelector('[data-heat-flame-fallback]');
+    if (flameAsset) {
+      flameAsset.hidden = false;
+      if (flameFallback) flameFallback.hidden = true;
+      flameAsset.src = `./assets/heat/flames/${heat + 1}.png`;
+    }
   }
 
   handlePointerDown(event) {
@@ -529,7 +536,6 @@ export class Renderer {
                 ${artMarkup(`./assets/characters/${character.id}/idle/1.png`, character.name)}
               </div>
               <div class="fantasy-menu__hero-info">
-                <span>${character.archetype}</span>
                 <strong>${character.name}</strong>
                 <p>${character.description}</p>
                 <div class="fantasy-menu__hero-stats">
@@ -670,7 +676,6 @@ export class Renderer {
                       <div class="handbook-card__art" aria-hidden="true">${cardArtMarkup(card)}</div>
               <h3>${card.name}</h3>
               <p>${card.description}</p>
-              <div class="handbook-card__tags">${card.tags.map((tag) => `<span>${tag}</span>`).join('')}</div>
             </article>`).join('')}
         </div>
       </div>`;
@@ -690,8 +695,8 @@ export class Renderer {
   route(s) {
     const fightNumber = s.encounterIndex + 1;
     const bossFight = fightNumber % 8 === 0;
-    const heat = Math.max(0, Math.min(3, Number(s.selectedHeat) || 0));
-    const heatPct = (heat / 3) * 100;
+    const heat = Math.max(0, Math.min(5, Number(s.selectedHeat) || 0));
+    const heatPct = (heat / 5) * 100;
     return `
       <section class="shell route">
         <div class="route__content">
@@ -701,13 +706,22 @@ export class Renderer {
 
           <div class="heat-selector" data-heat="${heat}" style="--heat-level:${heat}; --heat-pct:${heatPct}%;">
             <div class="heat-flames" aria-hidden="true">
-              <span></span><span></span><span></span><span></span><span></span><span></span><span></span>
+              <img
+                class="heat-flame-asset"
+                data-heat-flame-asset
+                src="./assets/heat/flames/${heat + 1}.png"
+                alt=""
+                draggable="false"
+                onerror="this.hidden=true;this.nextElementSibling.hidden=false"
+              >
+              <div class="heat-flame-fallback" data-heat-flame-fallback hidden>
+                <span></span><span></span><span></span><span></span><span></span><span></span><span></span>
+              </div>
             </div>
 
             <div class="heat-readout">
               <span>HEAT</span>
-              <strong data-heat-value>${heat}</strong>
-              <em data-heat-score>x${(1 + heat * 0.25).toFixed(2)} score</em>
+              <em data-heat-score>Heat ${heat} · x${(1 + heat * 0.25).toFixed(2)} score</em>
             </div>
 
             <label class="heat-slider-wrap">
@@ -716,7 +730,7 @@ export class Renderer {
                 class="heat-slider"
                 type="range"
                 min="0"
-                max="3"
+                max="5"
                 step="1"
                 value="${heat}"
                 data-heat-slider
@@ -724,7 +738,7 @@ export class Renderer {
                 aria-valuetext="Heat ${heat}"
               >
               <span class="heat-slider-ticks" aria-hidden="true">
-                <b>0</b><b>1</b><b>2</b><b>3</b>
+                <b>0</b><b>1</b><b>2</b><b>3</b><b>4</b><b>5</b>
               </span>
             </label>
 
@@ -828,6 +842,7 @@ export class Renderer {
           ${s.rewardOptions.map((id) => cardMarkup(getCard(id), null, 'reward')).join('')}
         </div>
         <button class="button" data-action="skip-reward">Skip card · +250 score</button>
+        <h3 class="reward__score-summary">Score Summary</h3>
         ${this.log(s)}
       </section>`;
   }
