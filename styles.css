@@ -1786,6 +1786,7 @@ h1, h2,
   border-color: #694722;
   border-radius: 5px;
   background:
+    url('./assets/cards/base/card.png') center / 100% 100% no-repeat,
     linear-gradient(165deg, rgba(62,40,20,.98), rgba(28,18,10,.99) 72%);
   color: #ead8b7;
   box-shadow:
@@ -2084,22 +2085,6 @@ h1, h2,
   font-style: normal;
 }
 
-
-.card-base-image {
-  position: absolute;
-  inset: 0;
-  z-index: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: fill;
-  pointer-events: none;
-}
-.card > :not(.card-base-image),
-.combat-card > :not(.card-base-image),
-.handbook-card > :not(.card-base-image) {
-  position: relative;
-  z-index: 1;
-}
 
 
 .hud__logo {
