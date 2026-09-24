@@ -12,4 +12,4 @@ Expected files:
 
 The Heat selector loads the matching numbered PNG automatically. Keep each image on a transparent background and use the same canvas dimensions for every level.
 
-If a numbered PNG is missing, Deckrush falls back to the built-in CSS flame graphic so the Heat screen remains usable.
+Fallback: if a numbered PNG is missing, Deckrush uses the built-in CSS flame graphic so the Heat screen remains usable.
