@@ -478,7 +478,6 @@ export class Renderer {
 
         <header class="fantasy-menu__masthead">
           <div class="fantasy-menu__identity" aria-label="Deckrush">
-            <p class="eyebrow">ENDLESS FANTASY DECKBRAWLER</p>
             <img class="fantasy-menu__logo" src="./assets/logo/logo.png?v=20260924-assets2" alt="" draggable="false" onerror="this.hidden=true">
           </div>
         </header>
@@ -494,7 +493,6 @@ export class Renderer {
           </nav>
 
           <section class="fantasy-menu__hero-stage" aria-label="Selected hero">
-            <span class="fantasy-menu__hero-kicker">Chosen Wanderer</span>
             <button class="fantasy-menu__hero-card fantasy-menu__hero-card--${character.id}" data-action="open-character-select" aria-label="Change selected hero">
               <div class="fantasy-menu__halo" aria-hidden="true"></div>
               <div class="fantasy-menu__portrait">
