@@ -997,6 +997,7 @@ p { color: var(--muted); line-height: 1.55; }
   justify-items: center;
   width: 100%;
   text-align: center;
+  transform: translateY(-32px);
 }
 
 .fantasy-menu__logo {
@@ -1586,7 +1587,7 @@ p { color: var(--muted); line-height: 1.55; }
     padding-top: 0;
     padding-bottom: 0;
   }
-  .fantasy-menu__identity { grid-column: auto; }
+  .fantasy-menu__identity { grid-column: auto; transform: translateY(-14px); }
   .fantasy-menu__sigil { width: 42px; height: 42px; }
   .fantasy-menu__logo { width: min(98vw, 760px); max-height: 190px; }
 
