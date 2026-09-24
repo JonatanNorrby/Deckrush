@@ -2083,10 +2083,11 @@ h1, h2,
 
 
 /* Rune's source frames are landscape (1536x1024) while the other heroes use square canvases.
-   Scale Rune's rendered art so his visible character height matches the other heroes. */
+   Scale Rune's rendered art so his visible character height matches the other heroes.
+   Keep the main-menu art on the portrait baseline; a positive Y offset makes the scaled frame hang too low. */
 .fantasy-menu__hero-card--rune .fantasy-menu__portrait .art-image {
   object-position: center bottom;
-  transform: translateY(18px) scale(1.45);
+  transform: scale(1.45);
   transform-origin: center bottom;
 }
 .character-choice--rune .character-choice__portrait .art-image {
