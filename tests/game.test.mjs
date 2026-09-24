@@ -497,27 +497,23 @@ test('heat selection screen does not show the run log', () => {
   assert.doesNotMatch(routeMatch[0], /this\.log\(s\)/);
 });
 
-test('heat selection uses a centered 0-5 slider with asset flames and CSS fallback', () => {
+test('heat selection uses a clean centered 0-5 slider without flame graphics', () => {
   const renderSource = readFileSync(new URL('../src/ui/render.js', import.meta.url), 'utf8');
   const css = readFileSync(new URL('../styles.css', import.meta.url), 'utf8');
-  const flameReadme = readFileSync(new URL('../assets/heat/flames/README.md', import.meta.url), 'utf8');
 
+  assert.match(renderSource, /<h2>\$\{bossFight \? 'Boss Fight Ahead' : 'Choose Your Heat'\}<\/h2>/);
+  assert.match(renderSource, /Higher Heat makes enemies tougher, but every point you earn is worth more\./);
   assert.match(renderSource, /class="heat-selector"/);
   assert.match(renderSource, /type="range"[\s\S]*?min="0"[\s\S]*?max="5"[\s\S]*?data-heat-slider/);
-  assert.match(renderSource, /assets\/heat\/flames\/\$\{heat \+ 1\}\.png/);
-  assert.match(renderSource, /data-heat-flame-fallback/);
-  assert.match(renderSource, /onerror="this\.hidden=true;this\.nextElementSibling\.hidden=false"/);
-  assert.doesNotMatch(renderSource, /data-heat-value/);
+  assert.match(renderSource, /Risk \/ Reward/);
+  assert.match(renderSource, /Start Fight · Heat \$\{heat\}/);
   assert.match(renderSource, /this\.root\.addEventListener\('input',[\s\S]*?handleInput/);
   assert.match(renderSource, /Math\.min\(5,/);
-  assert.doesNotMatch(renderSource, /class="heat-grid"/);
-  assert.doesNotMatch(renderSource, /class="heat-card"/);
-  assert.match(css, /\.heat-selector\s*\{[\s\S]*?width:\s*min\(720px,\s*100%\);[\s\S]*?margin:\s*38px auto 0;/);
-  assert.match(css, /\.heat-readout > span\s*\{[\s\S]*?font-size:\s*clamp\(1\.35rem,\s*3vw,\s*1\.9rem\)/);
-  assert.match(css, /\.heat-selector\[data-heat="5"\] \.heat-flame-fallback span\s*\{[\s\S]*?opacity:\s*\.98;[\s\S]*?scale\(1\.08\)/);
-  assert.match(flameReadme, /1\.png.*Heat 0/);
-  assert.match(flameReadme, /6\.png.*Heat 5/);
-  assert.match(flameReadme, /fallback/i);
+  assert.doesNotMatch(renderSource, /heat-flame/i);
+  assert.doesNotMatch(renderSource, /assets\/heat\/flames/);
+  assert.doesNotMatch(css, /heat-flame/i);
+  assert.match(css, /\.heat-selector\s*\{[\s\S]*?width:\s*min\(620px,\s*100%\);[\s\S]*?margin:\s*30px auto 0;/);
+  assert.match(css, /\.heat-readout strong\s*\{[\s\S]*?font-size:\s*clamp\(1\.2rem,\s*3vw,\s*1\.65rem\)/);
 });
 
 
@@ -527,7 +523,7 @@ test('gameplay surfaces use the unified dark-fantasy theme', () => {
   assert.match(css, /Unified dark-fantasy theme/);
   assert.match(css, /\.combat-stage\s*\{[\s\S]*?rgba\(20,12,7,[\s\S]*?assets\/backgrounds\/combat\.png/);
   assert.match(css, /\.combat-card,[\s\S]*?\.handbook-card\s*\{[\s\S]*?#694722/);
-  assert.match(css, /\.heat-selector\s*\{[\s\S]*?rgba\(183,126,58,.4\)/);
+  assert.match(css, /\.heat-selector\s*\{[\s\S]*?rgba\(183,126,58,.34\)/);
   assert.match(css, /\.handbook\s*\{[\s\S]*?#68451f/);
   assert.match(css, /\.combat-tray\s*\{[\s\S]*?#21150c/);
   assert.match(css, /\.result-screen\s*\{[\s\S]*?assets\/backgrounds\/menu\.png/);
@@ -543,7 +539,7 @@ test('main menu removes branding helper text and divider', () => {
   assert.doesNotMatch(css, /\.fantasy-menu__hero-kicker\s*\{/);
   assert.match(css, /\.fantasy-menu__masthead\s*\{[\s\S]*?padding-top:\s*0;[\s\S]*?padding-bottom:\s*0;/);
   assert.doesNotMatch(css, /\.fantasy-menu__masthead::after\s*\{/);
-  assert.match(css, /\.fantasy-menu__hero-stage\s*\{[\s\S]*?grid-template-rows:\s*1fr auto;/);
+  assert.match(css, /\.fantasy-menu__hero-stage\s*\{[\s\S]*?grid-template-rows:\s*1fr auto auto;/);
 });
 
 
@@ -693,19 +689,31 @@ test('automatic target arrow does not depend on a pointer event object', () => {
   assert.match(renderSource, /requestAnimationFrame\([\s\S]*?startTargetArrow\(landingCard, x, y\)/);
 });
 
-test('dropping a playable card uses a brief battlefield landing animation', () => {
+test('dropping a playable card resolves game state before its visual animation', () => {
   const renderSource = readFileSync(new URL('../src/ui/render.js', import.meta.url), 'utf8');
   const css = readFileSync(new URL('../styles.css', import.meta.url), 'utf8');
 
-  assert.match(
-    renderSource,
-    /playCardWithDropAnimation\(index, targetIndex, landingCard, x, y\)/,
-  );
-  assert.match(
-    renderSource,
-    /landingCard\.classList\.add\('card-drop-play'\)[\s\S]*?setTimeout\([\s\S]*?140/,
-  );
+  const start = renderSource.indexOf('playCardWithDropAnimation(index, targetIndex, landingCard, x, y) {');
+  const end = renderSource.indexOf('animatePlayedCard(landingCard, x, y) {', start);
+  const playMethod = renderSource.slice(start, end);
+
+  assert.ok(start >= 0 && end > start);
+  assert.match(playMethod, /const played = this\.game\.playCard\(index, targetIndex\);/);
+  assert.match(playMethod, /if \(!played\) return false;[\s\S]*?this\.animatePlayedCard\(landingCard, x, y\)/);
+  assert.doesNotMatch(playMethod, /setTimeout[\s\S]*?game\.playCard/);
+  assert.match(renderSource, /animatePlayedCard\(landingCard, x, y\)[\s\S]*?card-drop-play[\s\S]*?setTimeout\(\(\) => landingCard\.remove\(\), 140\)/);
   assert.match(css, /@keyframes card-drop-play/);
+});
+
+test('targeted card resolution also commits game state before animation', () => {
+  const renderSource = readFileSync(new URL('../src/ui/render.js', import.meta.url), 'utf8');
+  const start = renderSource.indexOf('finishTargetArrow(x, y) {');
+  const end = renderSource.indexOf('cleanupTargetArrow() {', start);
+  const methodSource = renderSource.slice(start, end);
+
+  assert.ok(start >= 0 && end > start);
+  assert.match(methodSource, /this\.pendingTarget = null;[\s\S]*?const played = this\.game\.playCard\(index, targetIndex\);[\s\S]*?if \(played\) this\.animatePlayedCard/);
+  assert.doesNotMatch(methodSource, /setTimeout[\s\S]*?game\.playCard/);
 });
 
 
@@ -846,6 +854,20 @@ test('selected hero omits archetype label on the main menu', () => {
   assert.ok(start >= 0 && end > start);
   assert.doesNotMatch(heroInfo, /character\.archetype/);
   assert.match(heroInfo, /character\.name/);
+});
+
+test('main menu character stats sit above the Start Run button', () => {
+  const renderSource = readFileSync(new URL('../src/ui/render.js', import.meta.url), 'utf8');
+  const statsIndex = renderSource.indexOf('class="fantasy-menu__hero-stats"');
+  const beginIndex = renderSource.indexOf('class="fantasy-menu__begin"');
+  const heroCardCloseIndex = renderSource.lastIndexOf('</button>', statsIndex);
+
+  assert.ok(statsIndex > heroCardCloseIndex);
+  assert.ok(beginIndex > statsIndex);
+
+  const css = readFileSync(new URL('../styles.css', import.meta.url), 'utf8');
+  assert.match(css, /\.fantasy-menu__hero-stage\s*\{[\s\S]*?grid-template-rows:\s*1fr auto auto;/);
+  assert.match(css, /\.fantasy-menu__begin\s*\{[\s\S]*?margin-top:\s*0;/);
 });
 
 test('reward screen labels the run log as Score Summary', () => {
