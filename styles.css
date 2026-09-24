@@ -190,8 +190,18 @@ p { color: var(--muted); line-height: 1.55; }
 .combat-meta strong { font-size: 1.15rem; }
 .combat-meta .button { margin-left: auto; }
 .hand, .reward-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; align-items: stretch; }
-.reward-grid { grid-template-columns: repeat(3, minmax(0, 240px)); justify-content: center; margin: 34px 0 24px; }
+.reward-grid {
+  grid-template-columns: repeat(3, minmax(0, 215px));
+  justify-content: center;
+  justify-items: center;
+  margin: 34px 0 24px;
+}
 .card { position: relative; height: 286px; min-height: 0; padding: 13px; overflow: hidden; border: 1px solid #35415f; border-radius: 16px; background: linear-gradient(165deg, #1b2439, #101625 70%); color: var(--text); text-align: left; cursor: pointer; box-shadow: 0 14px 32px rgba(0,0,0,.24); transition: transform .15s ease, border-color .15s ease, filter .15s ease; }
+.reward-grid .card {
+  width: min(215px, 100%);
+  height: 310px;
+  padding: 11px;
+}
 .card:hover:not(:disabled) { transform: translateY(-8px); border-color: var(--accent); filter: brightness(1.08); }
 .card:disabled { cursor: default; }
 .card--uncommon { border-color: #4d6f8b; }
