@@ -741,8 +741,8 @@ test('combat redesign uses inline player HP and larger bare enemy intents', () =
   assert.match(css, /\.player-hp-bar\s*\{[\s\S]*?height:\s*11px;/);
   assert.match(css, /\.enemy-hp-bar\s*\{[\s\S]*?height:\s*9px;/);
   assert.match(css, /\.enemy-intent\s*\{[\s\S]*?border:\s*0;[\s\S]*?background:\s*transparent;[\s\S]*?box-shadow:\s*none;/);
-  assert.match(css, /\.enemy-intent span\s*\{[^}]*font-size:\s*1\.5rem;/);
-  assert.match(css, /\.enemy-intent strong\s*\{[^}]*font-size:\s*1\.2rem;/);
+  assert.match(css, /\.enemy-intent span\s*\{[^}]*font-size:\s*2\.1rem;/);
+  assert.match(css, /\.enemy-intent strong\s*\{[^}]*font-size:\s*1\.65rem;/);
 });
 
 test('each encounter chooses one numbered battlefield background', () => {
