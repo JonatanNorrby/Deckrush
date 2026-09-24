@@ -2113,3 +2113,20 @@ h1, h2,
   transform: scale(1.45);
   transform-origin: center center;
 }
+
+
+/* Card presentation overrides */
+.combat-card,
+.card,
+.handbook-card {
+  border: 0;
+}
+
+.combat-card,
+.card,
+.handbook-card,
+.combat-card *,
+.card *,
+.handbook-card * {
+  color: #000;
+}
