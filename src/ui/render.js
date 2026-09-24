@@ -697,7 +697,6 @@ export class Renderer {
   hud(s) {
     return `
       <header class="hud">
-        <div class="hud__brand" aria-label="Deckrush"><img class="hud__logo" src="./assets/logo/logo.png?v=20260924-assets2" alt="" draggable="false" onerror="this.hidden=true"></div>
         <div class="hud__stat"><span>Score</span><strong>${fmt.format(s.score.total)}</strong><small>keep pushing</small></div>
         <div class="hud__stat"><span>Combo</span><strong>x${s.score.combo}</strong><small>best ${s.score.maxCombo}</small></div>
         <div class="hud__stat"><span>Multiplier</span><strong>x${s.score.multiplier.toFixed(2)}</strong><small>Heat ${s.selectedHeat}</small></div>
