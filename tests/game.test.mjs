@@ -848,12 +848,16 @@ test('logos use expanded menu and HUD space', () => {
 });
 
 
-test('Rune main-menu artwork is bottom-anchored', () => {
+test('Rune main-menu artwork is bottom-aligned without a vertical offset', () => {
   const css = readFileSync(new URL('../styles.css', import.meta.url), 'utf8');
 
   assert.match(
     css,
-    /\.fantasy-menu__hero-card--rune \.fantasy-menu__portrait \.art-image\s*\{[\s\S]*?object-position:\s*center bottom;[\s\S]*?translateY\(18px\) scale\(1\.45\);[\s\S]*?transform-origin:\s*center bottom;/,
+    /\.fantasy-menu__hero-card--rune \.fantasy-menu__portrait \.art-image\s*\{[\s\S]*?object-position:\s*center bottom;[\s\S]*?transform:\s*scale\(1\.45\);[\s\S]*?transform-origin:\s*center bottom;/,
+  );
+  assert.doesNotMatch(
+    css,
+    /\.fantasy-menu__hero-card--rune \.fantasy-menu__portrait \.art-image\s*\{[^}]*translateY\(/,
   );
 });
 
