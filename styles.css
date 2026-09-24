@@ -2104,3 +2104,14 @@ h1, h2,
 .handbook-card * {
   color: #000;
 }
+
+
+/* Center card title and rules text */
+.card__name,
+.card > p,
+.combat-card > p,
+.handbook-card h3,
+.handbook-card > p {
+  width: 100%;
+  text-align: center;
+}
