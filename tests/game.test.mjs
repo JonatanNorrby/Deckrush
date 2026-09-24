@@ -693,7 +693,7 @@ test('cards use shared base artwork plus separate illustrations', () => {
   assert.doesNotMatch(renderSource, /assets\/cards\/\$\{card\.id\}\.png/);
   assert.match(
     css,
-    /\.combat-card,[\s\S]*?\.card,[\s\S]*?\.handbook-card\s*\{[\s\S]*?url\('\.\/assets\/cards\/base\/card\.png\?v=20260924-assets2'\) center \/ 100% 100% no-repeat/,
+    /\.combat-card,[\s\S]*?\.card,[\s\S]*?\.handbook-card\s*\{[\s\S]*?background:\s*transparent url\('\.\/assets\/cards\/base\/card\.png\?v=20260924-card5'\) center \/ 100% 100% no-repeat/,
   );
   assert.doesNotMatch(css, /\.card-base-image/);
 });
@@ -812,7 +812,7 @@ test('asset entrypoints are cache-busted and Pages deploys latest push', () => {
   const indexSource = readFileSync(new URL('../index.html', import.meta.url), 'utf8');
   const pagesWorkflow = readFileSync(new URL('../.github/workflows/pages.yml', import.meta.url), 'utf8');
 
-  assert.match(indexSource, /styles\.css\?v=20260924-menu4/);
+  assert.match(indexSource, /styles\.css\?v=20260924-card5/);
   assert.match(indexSource, /src\/main\.js\?v=20260924-assets2/);
   assert.match(pagesWorkflow, /concurrency:[\s\S]*?cancel-in-progress:\s*true/);
 });
@@ -854,5 +854,23 @@ test('Rune main-menu artwork is bottom-anchored', () => {
   assert.match(
     css,
     /\.fantasy-menu__hero-card--rune \.fantasy-menu__portrait \.art-image\s*\{[\s\S]*?object-position:\s*center bottom;[\s\S]*?translateY\(18px\) scale\(1\.45\);[\s\S]*?transform-origin:\s*center bottom;/,
+  );
+});
+
+
+test('cards have no brown fallback fills', () => {
+  const css = readFileSync(new URL('../styles.css', import.meta.url), 'utf8');
+
+  assert.match(
+    css,
+    /\.combat-card,[\s\S]*?\.card,[\s\S]*?\.handbook-card\s*\{[\s\S]*?background:\s*transparent url\('\.\/assets\/cards\/base\/card\.png\?v=20260924-card5'\)/,
+  );
+  assert.match(
+    css,
+    /\.card__art,[\s\S]*?\.handbook-card__art\s*\{[\s\S]*?background:\s*transparent;/,
+  );
+  assert.doesNotMatch(
+    css.slice(css.indexOf('.combat-card,\n.card,\n.handbook-card {'), css.indexOf('.combat-card:hover')),
+    /linear-gradient\(165deg,\s*rgba\(62,40,20/,
   );
 });
