@@ -815,3 +815,22 @@ test('asset entrypoints are cache-busted and Pages deploys latest push', () => {
   assert.match(indexSource, /src\/main\.js\?v=20260924-assets2/);
   assert.match(pagesWorkflow, /concurrency:[\s\S]*?cancel-in-progress:\s*true/);
 });
+
+
+test('cards have no outer border', () => {
+  const css = readFileSync(new URL('../styles.css', import.meta.url), 'utf8');
+
+  assert.match(
+    css,
+    /\/\* Card presentation overrides \*\/[\s\S]*?\.combat-card,[\s\S]*?\.card,[\s\S]*?\.handbook-card\s*\{[\s\S]*?border:\s*0;/,
+  );
+});
+
+test('all visible card text is black', () => {
+  const css = readFileSync(new URL('../styles.css', import.meta.url), 'utf8');
+
+  assert.match(
+    css,
+    /\.combat-card,[\s\S]*?\.card,[\s\S]*?\.handbook-card,[\s\S]*?\.combat-card \*,[\s\S]*?\.card \*,[\s\S]*?\.handbook-card \*\s*\{[\s\S]*?color:\s*#000;/,
+  );
+});
