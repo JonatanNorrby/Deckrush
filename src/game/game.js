@@ -405,7 +405,7 @@ export class Game {
         s.player.hp -= damage;
         s.fight.damageTaken += damage;
         s.stats.damageTaken += damage;
-        s.score.combo = 0;
+        s.score.combo = Math.max(0, s.score.combo - damage);
         s.score.multiplier = Math.max(1, Math.round((s.score.multiplier - 0.4) * 100) / 100);
         this.queueAnimation({
           type: s.player.hp <= 0 ? 'playerDeath' : 'playerDamage',
@@ -415,7 +415,7 @@ export class Game {
         if (enemy.trait === 'drain') {
           s.score.multiplier = Math.max(1, Math.round((s.score.multiplier - 0.2) * 100) / 100);
         }
-        this.pushLog(`${enemy.name} hits for ${damage}. Combo broken and multiplier reduced.`);
+        this.pushLog(`${enemy.name} hits for ${damage}. Combo -${damage} and multiplier reduced.`);
       } else {
         this.pushLog(`${enemy.name}'s attack is fully blocked.`);
       }
