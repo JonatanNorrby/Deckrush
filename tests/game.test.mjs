@@ -480,6 +480,20 @@ test('heat selection screen does not show the run log', () => {
   assert.doesNotMatch(routeMatch[0], /this\.log\(s\)/);
 });
 
+test('heat selection uses a centered live slider with escalating flame visuals', () => {
+  const renderSource = readFileSync(new URL('../src/ui/render.js', import.meta.url), 'utf8');
+  const css = readFileSync(new URL('../styles.css', import.meta.url), 'utf8');
+
+  assert.match(renderSource, /class="heat-selector"/);
+  assert.match(renderSource, /type="range"[\s\S]*?min="0"[\s\S]*?max="3"[\s\S]*?data-heat-slider/);
+  assert.match(renderSource, /this\.root\.addEventListener\('input',[\s\S]*?handleInput/);
+  assert.match(renderSource, /selector\.dataset\.heat = String\(heat\)/);
+  assert.doesNotMatch(renderSource, /class="heat-grid"/);
+  assert.doesNotMatch(renderSource, /class="heat-card"/);
+  assert.match(css, /\.heat-selector\s*\{[\s\S]*?width:\s*min\(720px,\s*100%\);[\s\S]*?margin:\s*38px auto 0;/);
+  assert.match(css, /\.heat-selector\[data-heat="3"\] \.heat-flames span\s*\{[\s\S]*?opacity:\s*\.98;[\s\S]*?scale\(1\.06\)/);
+});
+
 
 test('gameplay surfaces use the unified dark-fantasy theme', () => {
   const css = readFileSync(new URL('../styles.css', import.meta.url), 'utf8');
@@ -487,7 +501,7 @@ test('gameplay surfaces use the unified dark-fantasy theme', () => {
   assert.match(css, /Unified dark-fantasy theme/);
   assert.match(css, /\.combat-stage\s*\{[\s\S]*?rgba\(20,12,7,[\s\S]*?assets\/backgrounds\/combat\.png/);
   assert.match(css, /\.combat-card,[\s\S]*?\.handbook-card\s*\{[\s\S]*?#694722/);
-  assert.match(css, /\.heat-card\s*\{[\s\S]*?rgba\(183,126,58,.4\)/);
+  assert.match(css, /\.heat-selector\s*\{[\s\S]*?rgba\(183,126,58,.4\)/);
   assert.match(css, /\.handbook\s*\{[\s\S]*?#68451f/);
   assert.match(css, /\.combat-tray\s*\{[\s\S]*?#21150c/);
   assert.match(css, /\.result-screen\s*\{[\s\S]*?assets\/backgrounds\/menu\.png/);
