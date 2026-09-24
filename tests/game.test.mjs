@@ -480,18 +480,27 @@ test('heat selection screen does not show the run log', () => {
   assert.doesNotMatch(routeMatch[0], /this\.log\(s\)/);
 });
 
-test('heat selection uses a centered live slider with escalating flame visuals', () => {
+test('heat selection uses a centered 0-5 slider with asset flames and CSS fallback', () => {
   const renderSource = readFileSync(new URL('../src/ui/render.js', import.meta.url), 'utf8');
   const css = readFileSync(new URL('../styles.css', import.meta.url), 'utf8');
+  const flameReadme = readFileSync(new URL('../assets/heat/flames/README.md', import.meta.url), 'utf8');
 
   assert.match(renderSource, /class="heat-selector"/);
-  assert.match(renderSource, /type="range"[\s\S]*?min="0"[\s\S]*?max="3"[\s\S]*?data-heat-slider/);
+  assert.match(renderSource, /type="range"[\s\S]*?min="0"[\s\S]*?max="5"[\s\S]*?data-heat-slider/);
+  assert.match(renderSource, /assets\/heat\/flames\/\$\{heat \+ 1\}\.png/);
+  assert.match(renderSource, /data-heat-flame-fallback/);
+  assert.match(renderSource, /onerror="this\.hidden=true;this\.nextElementSibling\.hidden=false"/);
+  assert.doesNotMatch(renderSource, /data-heat-value/);
   assert.match(renderSource, /this\.root\.addEventListener\('input',[\s\S]*?handleInput/);
-  assert.match(renderSource, /selector\.dataset\.heat = String\(heat\)/);
+  assert.match(renderSource, /Math\.min\(5,/);
   assert.doesNotMatch(renderSource, /class="heat-grid"/);
   assert.doesNotMatch(renderSource, /class="heat-card"/);
   assert.match(css, /\.heat-selector\s*\{[\s\S]*?width:\s*min\(720px,\s*100%\);[\s\S]*?margin:\s*38px auto 0;/);
-  assert.match(css, /\.heat-selector\[data-heat="3"\] \.heat-flames span\s*\{[\s\S]*?opacity:\s*\.98;[\s\S]*?scale\(1\.06\)/);
+  assert.match(css, /\.heat-readout > span\s*\{[\s\S]*?font-size:\s*clamp\(1\.35rem,\s*3vw,\s*1\.9rem\)/);
+  assert.match(css, /\.heat-selector\[data-heat="5"\] \.heat-flame-fallback span\s*\{[\s\S]*?opacity:\s*\.98;[\s\S]*?scale\(1\.08\)/);
+  assert.match(flameReadme, /1\.png.*Heat 0/);
+  assert.match(flameReadme, /6\.png.*Heat 5/);
+  assert.match(flameReadme, /fallback/i);
 });
 
 
@@ -515,7 +524,7 @@ test('main menu removes branding helper text and divider', () => {
   assert.doesNotMatch(renderSource, /ENDLESS FANTASY DECKBRAWLER/i);
   assert.doesNotMatch(renderSource, /Chosen Wanderer/i);
   assert.doesNotMatch(css, /\.fantasy-menu__hero-kicker\s*\{/);
-  assert.match(css, /\.fantasy-menu__masthead\s*\{[\s\S]*?padding-bottom:\s*4px;/);
+  assert.match(css, /\.fantasy-menu__masthead\s*\{[\s\S]*?padding-top:\s*0;[\s\S]*?padding-bottom:\s*0;/);
   assert.doesNotMatch(css, /\.fantasy-menu__masthead::after\s*\{/);
   assert.match(css, /\.fantasy-menu__hero-stage\s*\{[\s\S]*?grid-template-rows:\s*1fr auto;/);
 });
@@ -709,7 +718,7 @@ test('cards use shared base artwork plus separate illustrations', () => {
   const baseBytes = readFileSync(new URL('../assets/cards/base/card.png', import.meta.url));
 
   assert.equal(baseBytes.subarray(1, 4).toString('ascii'), 'PNG');
-  assert.match(renderSource, /assets\/cards\/art\/\$\{card\.id\}\.png/);
+  assert.match(renderSource, /const artId = card\.art \|\| card\.id;[\s\S]*?assets\/cards\/art\/\$\{artId\}\.png/);
   assert.doesNotMatch(renderSource, /cardBaseMarkup/);
   assert.doesNotMatch(renderSource, /assets\/cards\/\$\{card\.id\}\.png/);
   assert.match(
@@ -774,6 +783,66 @@ test('branding uses shared logo asset instead of text', () => {
   assert.match(renderSource, /class="hud__brand" aria-label="Deckrush"/);
   assert.match(css, /\.fantasy-menu__logo\s*\{/);
   assert.match(css, /\.hud__logo\s*\{/);
+});
+
+
+test('main menu is vertically centered with tighter logo spacing', () => {
+  const css = readFileSync(new URL('../styles.css', import.meta.url), 'utf8');
+
+  assert.match(css, /\.fantasy-menu\s*\{[\s\S]*?grid-template-rows:\s*auto auto;[\s\S]*?align-content:\s*center;[\s\S]*?padding:\s*12px clamp\(20px,\s*4vw,\s*68px\);/);
+  assert.match(css, /\.fantasy-menu__body\s*\{[\s\S]*?padding:\s*4px 0 8px;/);
+});
+
+test('selected hero omits archetype label on the main menu', () => {
+  const renderSource = readFileSync(new URL('../src/ui/render.js', import.meta.url), 'utf8');
+  const start = renderSource.indexOf('<div class="fantasy-menu__hero-info">');
+  const end = renderSource.indexOf('</div>\n            </button>', start);
+  const heroInfo = renderSource.slice(start, end);
+
+  assert.ok(start >= 0 && end > start);
+  assert.doesNotMatch(heroInfo, /character\.archetype/);
+  assert.match(heroInfo, /character\.name/);
+});
+
+test('reward screen labels the run log as Score Summary', () => {
+  const renderSource = readFileSync(new URL('../src/ui/render.js', import.meta.url), 'utf8');
+
+  assert.match(renderSource, /class="reward__score-summary">Score Summary<\/h3>[\s\S]*?\$\{this\.log\(s\)\}/);
+});
+
+test('handbook cards hide tags and match standard card dimensions', () => {
+  const renderSource = readFileSync(new URL('../src/ui/render.js', import.meta.url), 'utf8');
+  const css = readFileSync(new URL('../styles.css', import.meta.url), 'utf8');
+  const handbookStart = renderSource.indexOf('handbookCards(cards)');
+  const handbookEnd = renderSource.indexOf('hud(s)', handbookStart);
+  const handbookSource = renderSource.slice(handbookStart, handbookEnd);
+
+  assert.doesNotMatch(handbookSource, /handbook-card__tags/);
+  assert.doesNotMatch(handbookSource, /card\.tags\.map/);
+  assert.match(css, /\.handbook-card-grid\s*\{[\s\S]*?grid-template-columns:\s*repeat\(auto-fit,\s*215px\);[\s\S]*?justify-content:\s*center;/);
+  assert.match(css, /\.handbook-card\s*\{[\s\S]*?width:\s*215px;[\s\S]*?height:\s*310px;[\s\S]*?padding:\s*11px;/);
+});
+
+test('Quick Stab uses the uploaded quickstab artwork', () => {
+  const renderSource = readFileSync(new URL('../src/ui/render.js', import.meta.url), 'utf8');
+  const quickstabBytes = readFileSync(new URL('../assets/cards/art/quickstab.png', import.meta.url));
+
+  assert.equal(getCard('quick-stab').art, 'quickstab');
+  assert.equal(quickstabBytes.subarray(1, 4).toString('ascii'), 'PNG');
+  assert.match(renderSource, /const artId = card\.art \|\| card\.id/);
+});
+
+test('Heat 5 is accepted and clamped by game state', () => {
+  const game = new Game();
+  game.startRun('weekly');
+  game.chooseHeat(5);
+
+  assert.equal(game.state.selectedHeat, 5);
+
+  const high = new Game();
+  high.startRun('weekly');
+  high.chooseHeat(99);
+  assert.equal(high.state.selectedHeat, 5);
 });
 
 
@@ -863,7 +932,7 @@ test('logos use expanded menu and HUD space', () => {
 
   assert.match(css, /\.fantasy-menu__masthead\s*\{[\s\S]*?justify-content:\s*center;/);
   assert.match(css, /\.fantasy-menu__identity\s*\{[\s\S]*?justify-items:\s*center;[\s\S]*?text-align:\s*center;/);
-  assert.match(css, /\.fantasy-menu__logo\s*\{[\s\S]*?width:\s*clamp\(520px,\s*70vw,\s*1040px\);[\s\S]*?max-height:\s*230px;[\s\S]*?object-position:\s*center;/);
+  assert.match(css, /\.fantasy-menu__logo\s*\{[\s\S]*?width:\s*clamp\(620px,\s*78vw,\s*1180px\);[\s\S]*?max-height:\s*270px;[\s\S]*?object-position:\s*center;/);
   assert.match(css, /\.hud__brand\s*\{[\s\S]*?align-items:\s*stretch;[\s\S]*?justify-content:\s*center;[\s\S]*?padding:\s*4px 8px;/);
   assert.match(css, /\.hud__logo\s*\{[\s\S]*?width:\s*100%;[\s\S]*?height:\s*100%;[\s\S]*?max-height:\s*58px;/);
 });
