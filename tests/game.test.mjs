@@ -753,3 +753,19 @@ test('Rune landscape artwork is normalized across character surfaces', () => {
   assert.match(css, /\.character-choice--rune \.character-choice__portrait \.art-image\s*\{[\s\S]*?scale\(1\.45\)/);
   assert.match(css, /\.player-sprite--rune \.sprite-static-art > \.art-image,[\s\S]*?\.player-sprite--rune \.sprite-animation-frame\s*\{[\s\S]*?scale\(1\.45\)/);
 });
+
+
+test('artwork fallbacks never show two-letter initials', () => {
+  const renderSource = readFileSync(new URL('../src/ui/render.js', import.meta.url), 'utf8');
+  const css = readFileSync(new URL('../styles.css', import.meta.url), 'utf8');
+
+  assert.doesNotMatch(renderSource, /slice\(0,\s*2\)/);
+  assert.doesNotMatch(renderSource, /art-fallback/);
+  assert.doesNotMatch(renderSource, /handbook-character__badge/);
+  assert.doesNotMatch(css, /\.art-fallback/);
+  assert.doesNotMatch(css, /\.handbook-character__badge/);
+  assert.match(
+    renderSource,
+    /function artMarkup\(path, alt, extraClass = ''\)[\s\S]*?onerror="this\.hidden=true"/,
+  );
+});
