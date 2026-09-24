@@ -42,6 +42,23 @@ test('run enters combat with a full opening hand', () => {
   assert.equal(game.state.player.energy, 3);
 });
 
+test('playing a card consumes energy and moves it from hand to discard', () => {
+  const game = new Game();
+  game.startRun('weekly', 'viper');
+  game.chooseHeat(0);
+  game.state.hand = ['toxic-cut'];
+  game.state.discardPile = [];
+  game.state.player.energy = 3;
+  game.state.enemies[0].hp = 30;
+  game.state.enemies[0].maxHp = 30;
+
+  assert.equal(game.playCard(0, 0), true);
+  assert.equal(game.state.player.energy, 2);
+  assert.deepEqual(game.state.hand, []);
+  assert.deepEqual(game.state.discardPile, ['toxic-cut']);
+  assert.equal(game.state.enemies[0].hp, 26);
+});
+
 test('heat increases enemy health', () => {
   const low = new Game();
   low.startRun('weekly');
@@ -662,6 +679,18 @@ test('multi-enemy targeted cards stage on battlefield before choosing an enemy',
     css,
     /\.enemy-unit\.is-drop-target \.enemy-sprite\s*\{[\s\S]*?drop-shadow\(2px 0 0 rgba\(255,255,255,\.62\)\)[\s\S]*?drop-shadow\(0 0 8px rgba\(255,255,255,\.38\)\)/,
   );
+});
+
+test('automatic target arrow does not depend on a pointer event object', () => {
+  const renderSource = readFileSync(new URL('../src/ui/render.js', import.meta.url), 'utf8');
+  const start = renderSource.indexOf('startTargetArrow(pendingCard, x, y, pointerId = null)');
+  const end = renderSource.indexOf('updateTargetArrow(x, y)', start);
+  const methodSource = renderSource.slice(start, end);
+
+  assert.ok(start >= 0 && end > start);
+  assert.match(methodSource, /this\.targetArrow = \{[\s\S]*?pointerId,[\s\S]*?battlefield,/);
+  assert.doesNotMatch(methodSource, /event\.pointerId/);
+  assert.match(renderSource, /requestAnimationFrame\([\s\S]*?startTargetArrow\(landingCard, x, y\)/);
 });
 
 test('dropping a playable card uses a brief battlefield landing animation', () => {
