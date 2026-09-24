@@ -373,7 +373,7 @@ export class Renderer {
     battlefield.appendChild(svg);
 
     this.targetArrow = {
-      pointerId: event.pointerId,
+      pointerId,
       battlefield,
       svg,
       line: svg.querySelector('line'),
