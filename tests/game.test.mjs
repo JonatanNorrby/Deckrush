@@ -801,6 +801,13 @@ test('main menu is vertically centered with tighter logo spacing', () => {
   assert.match(css, /\.fantasy-menu__body\s*\{[\s\S]*?padding:\s*4px 0 8px;/);
 });
 
+test('main menu logo is shifted upward without moving the menu body', () => {
+  const css = readFileSync(new URL('../styles.css', import.meta.url), 'utf8');
+
+  assert.match(css, /\.fantasy-menu__identity\s*\{[\s\S]*?transform:\s*translateY\(-32px\);/);
+  assert.match(css, /@media \(max-width: 700px\)[\s\S]*?\.fantasy-menu__identity\s*\{[^}]*transform:\s*translateY\(-14px\);/);
+});
+
 test('selected hero omits archetype label on the main menu', () => {
   const renderSource = readFileSync(new URL('../src/ui/render.js', import.meta.url), 'utf8');
   const start = renderSource.indexOf('<div class="fantasy-menu__hero-info">');
